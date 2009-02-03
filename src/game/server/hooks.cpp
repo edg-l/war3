@@ -887,16 +887,16 @@ void mods_init()
 	//players = new PLAYER[MAX_CLIENTS];
 
 	// select gametype
-	if(strcmp(config.sv_gametype, "mod") == 0)
+	/*if(strcmp(config.sv_gametype, "mod") == 0)
 		game.controller = new GAMECONTROLLER_MOD;
 	else if(strcmp(config.sv_gametype, "ctf") == 0)
 		game.controller = new GAMECONTROLLER_CTF;
 	else if(strcmp(config.sv_gametype, "tdm") == 0)
 		game.controller = new GAMECONTROLLER_TDM;
-	else if(strcmp(config.sv_gametype, "war3") == 0)
+	else if(strcmp(config.sv_gametype, "war3") == 0)*/
 		game.controller = new GAMECONTROLLER_WAR;
-	else
-		game.controller = new GAMECONTROLLER_DM;
+	/*else
+		game.controller = new GAMECONTROLLER_DM;*/
 
 	// setup core world
 	//for(int i = 0; i < MAX_CLIENTS; i++)
