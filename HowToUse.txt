@@ -1,0 +1,48 @@
+-------- WAR3 mod ver 1.0 --------
+---------------Rajh---------------
+
+Start a server:
+sv_gametype war3
+(thats all)
+
+Server command		Default/Min/Max		Desc
+"sv_specialtime"	5/0/30			Reload time for special (Its a multiplier)
+"sv_race_tag"		1/0/1			Show race-tag in name
+
+Rcon command		Arg			Desc
+"set_level"		x y			Set the player (id=x) to level y.
+"level_up"		x			Give a level to player (id=x)
+"load_table"					Load xp_table.war(if changed since last restart)
+"print_help_to"		x			Print the help to the player (id=x)
+"print_special_to" 	x			Print how to use special to the player (id=x)
+
+New skins by Landil :
+data/skins/orc.png
+data/skins/human.png
+data/skins/elf.png
+data/skins/undead.png
+
+Level up sound:(soundfiles are not used in vanilla teeworlds. But make a backup if you want?)
+data/audio/vo_teefault_cry-01.wv
+data/audio/vo_teefault_cry-02.wv
+
+Xp_table:
+You can put a file named "xp_table.war" into teeworlds/ .
+This file is a txt file like the one with the mod to set xp required by each level.
+If the file doesn't exist default xp_table is loaded.
+
+Say /cmdlist for a list of command availabe in game
+
+To use special abilities you need to bind a key:
+Step 1 : Open the console
+Step 2 : choose a key for example f
+Step 3 : type "bind key say /ability" so for me it is : "bind f say /ability"
+Step 4 : go pwn !
+
+
+
+-----------------------------------
+Changelog:
+-----------------------------------
+1.0:
+	All added :D
