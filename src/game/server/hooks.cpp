@@ -663,6 +663,8 @@ void mods_message(int msgtype, int client_id)
 		
 		p->last_kill = time_get();
 		p->kill_character(WEAPON_SELF);
+		//Suicide
+		p->suicide=true;
 		p->respawn_tick = server_tick()+server_tickspeed()*3;
 	}
 }
