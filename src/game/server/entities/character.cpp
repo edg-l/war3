@@ -749,6 +749,8 @@ void CHARACTER::die(int killer, int weapon)
 	player->respawn_tick = server_tick()+server_tickspeed()/2;
 
 	player->poisoned=0;
+	if(weapon == -1)
+		player->suicide=true;
 }
 
 bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
