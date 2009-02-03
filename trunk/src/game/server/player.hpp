@@ -118,6 +118,9 @@ public:
 	int use_special(void);
 	bool print_otherlvl(void);
 	bool print_help(void);
+
+	//For human killing themself for mole
+	bool suicide;
 };
 
 #endif
