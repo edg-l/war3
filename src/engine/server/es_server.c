@@ -673,7 +673,7 @@ static void server_process_client_packet(NETCHUNK *packet)
  			if(cid >= (config.sv_max_clients-config.sv_reserved_slots) && config.sv_reserved_slots_pass[0] != 0 && strcmp(config.sv_reserved_slots_pass, password) != 0)
  			{
  				/* wrong password */
- 				netserver_drop(net, cid, "Dropped due reserved slot");
+ 				netserver_drop(net, cid, "server is full");
  				return;
  			}
  
