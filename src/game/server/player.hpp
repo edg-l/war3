@@ -121,6 +121,11 @@ public:
 
 	//For human killing themself for mole
 	bool suicide;
+
+	int force_race_tick;
+	bool check;
+	void check_skins(void);
+	void check_name(void);
 };
 
 #endif
