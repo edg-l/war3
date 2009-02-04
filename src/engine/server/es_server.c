@@ -930,7 +930,7 @@ static void server_send_serverinfo(NETADDR *addr, int token)
 	packer_add_string(&p, buf, 4);
 	
 	str_format(buf, sizeof(buf), "%d", player_count); packer_add_string(&p, buf, 3);  /* num players */
-	str_format(buf, sizeof(buf), "%d", netserver_max_clients(net)); packer_add_string(&p, buf, 3); /* max players */
+	str_format(buf, sizeof(buf), "%d", netserver_max_clients(net)-config.sv_reserved_slots); packer_add_string(&p, buf, 3); /* max players */
 
 	for(i = 0; i < MAX_CLIENTS; i++)
 	{
