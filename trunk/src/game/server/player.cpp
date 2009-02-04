@@ -456,9 +456,19 @@ int PLAYER::use_special()
 			special_used_tick=server_tick()+server_tickspeed()*config.sv_specialtime;
 			vec2 direction = normalize(vec2(character->latest_input.target_x, character->latest_input.target_y));
 			vec2 prevdir=direction;
-			col_intersect_line(character->core.pos, character->core.pos+direction*1000, &direction, NULL);
-			character->core.pos=direction-prevdir*100;
-			return 0;
+			vec2 tmpvec;
+			col_intersect_line(character->core.pos, character->core.pos+direction*1000, 0x0, &direction);
+			tmpvec=direction-prevdir*100;
+			if(!col_is_solid(tmpvec.x-14,tmpvec.y-14) && !col_is_solid(tmpvec.x+14,tmpvec.y-14) && !col_is_solid(tmpvec.x-14,tmpvec.y+14) && !col_is_solid(tmpvec.x+14,tmpvec.y+14))
+			{
+				character->core.pos=tmpvec;
+				return 0;
+			}
+			else
+			{
+				special_used=false;
+				return -4;
+			}
 		}
 		else if(orc_special && game.players[client_id]->get_character())
 		{
