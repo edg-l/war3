@@ -240,7 +240,8 @@ void GAMECONTROLLER_WAR::on_level_up(PLAYER *player)
 {
 	if(player->race_name != VIDE && !player->levelmax && player->lvl < LVLMAX)
 	{
-		player->xp=0;
+		player->xp-=player->nextlvl;
+		if(player->xp < 0)player->xp=0;
 		player->lvl++;
 		game.create_sound_global(SOUND_TEE_CRY, player->client_id);
 		player->nextlvl = lvlmap[player->lvl];
