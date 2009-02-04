@@ -8,6 +8,7 @@ sv_gametype war3
 Server command		Default/Min/Max		Desc
 "sv_specialtime"	5/0/30			Reload time for special (Its a multiplier)
 "sv_race_tag"		1/0/1			Show race-tag in name
+"sv_force_race"		1/0/1			Enable/disable auto race change if none is selected
 
 Rcon command		Arg			Desc
 "set_level"		x y			Set the player (id=x) to level y.
@@ -44,5 +45,11 @@ Step 4 : go pwn !
 -----------------------------------
 Changelog:
 -----------------------------------
+1.1:
+	Teleport in wall fixed.
+	Reserved slots changed.
+	Sv_force_race config added.
+	Some other little fix.
+
 1.0:
 	All added :D
