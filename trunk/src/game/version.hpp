@@ -4,4 +4,4 @@
 #define GAME_NETVERSION "0.5 " GAME_NETVERSION_HASH
 
 //War3 version
-#define WAR3_VERSION "1.1-dev"
+#define WAR3_VERSION "2.0-dev"
