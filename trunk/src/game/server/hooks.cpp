@@ -296,45 +296,7 @@ void mods_message(int msgtype, int client_id)
 					str_format(buf, sizeof(buf), "Wrong race : orc/human/elf/undead");
 					game.send_broadcast(buf, client_id);
 				}
-				if(p->race_name != VIDE)
-				{
-					switch(p->race_name)
-					{
-						case ORC:
-							str_format(p->skin_name,sizeof(p->skin_name),"orc");
-							break;
-						case UNDEAD:
-							str_format(p->skin_name,sizeof(p->skin_name),"undead");
-							break;
-						case HUMAN:
-							str_format(p->skin_name,sizeof(p->skin_name),"human");
-							break;
-						case ELF:
-							str_format(p->skin_name,sizeof(p->skin_name),"elf");
-							break;
-						default:
-							str_format(p->skin_name,sizeof(p->skin_name),"default");
-					}
-				}
-				if(config.sv_race_tag)
-				{
-					char newname[MAX_NAME_LENGTH];
-					char tmp[MAX_NAME_LENGTH];
-					str_copy(newname,server_clientname(client_id),MAX_NAME_LENGTH);
-					if(p->race_name == VIDE)
-						str_format(tmp,sizeof(tmp),"[___]");
-					else if(p->race_name == ORC)
-						str_format(tmp,sizeof(tmp),"[ORC]");
-					else if(p->race_name == UNDEAD)
-						str_format(tmp,sizeof(tmp),"[UND]");
-					else if(p->race_name == HUMAN)
-						str_format(tmp,sizeof(tmp),"[HUM]");
-					else if(p->race_name == ELF)
-						str_format(tmp,sizeof(tmp),"[ELF]");
-					strncat(tmp,newname+5,MAX_NAME_LENGTH-7);
-					tmp[MAX_NAME_LENGTH-1]=0;
-					server_setclientname(client_id, tmp);
-				}
+				p->check=true;
 			}
 			else if(!strcmp(msg->message, "/1") && p->leveled)
 			{

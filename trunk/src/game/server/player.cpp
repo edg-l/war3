@@ -92,18 +92,39 @@ void PLAYER::tick()
 		str_format(buf, sizeof(buf), "Choose a race say \"/race undead/orc/human/elf\"");
 		game.send_broadcast(buf, client_id);
 	}
-	//Check name is correct
-	if(config.sv_race_tag && race_name==VIDE && strncmp(server_clientname(client_id),"[___]",5))
+
+	//Forcing a race
+	if(config.sv_force_race && race_name == VIDE && server_tick()-force_race_tick >= server_tickspeed()*config.sv_force_race*60)
 	{
-		if(config.dbg_war3)dbg_msg("name","%s",server_clientname(client_id));
-		char newname[MAX_NAME_LENGTH];
-		char tmp[MAX_NAME_LENGTH];
-		str_copy(newname,server_clientname(client_id),MAX_NAME_LENGTH);
-		str_format(tmp,sizeof(tmp),"[___]");
-		strncat(tmp,newname+5,MAX_NAME_LENGTH-7);
-		tmp[MAX_NAME_LENGTH-1]='\0';
-		server_setclientname(client_id, tmp);
-		if(config.dbg_war3)dbg_msg("name","%s",server_clientname(client_id));
+		int i,force_race=-1;
+		int nbRace[NBRACE]={0};
+		for (i=0;i < MAX_CLIENTS;i++)
+		{
+			if(game.players[i] && game.players[i]->race_name != VIDE)
+				nbRace[game.players[i]->race_name]++;
+		}
+		for (i=1;i < NBRACE;i++)
+		{
+			if(force_race == -1 || nbRace[i]<nbRace[force_race])
+				force_race=i;
+		}
+		char buf[128];
+		str_format(buf, sizeof(buf), "Race forced");
+		game.send_broadcast(buf, client_id);
+		init_rpg();
+		race_name = force_race;
+		kill_character(-1);
+		score++;
+		dbg_msg("war3","Forcing player : %s to race : %d",server_clientname(client_id),race_name);
+		check=true;
+	}
+
+	//Dunno about CPU usage
+	if(check)
+	{
+		check_skins();
+		check_name();
+		check=false;
 	}
 }
 
@@ -260,11 +281,13 @@ void PLAYER::init_rpg()
 	mirrorlimit=0;
 	special_used=false;
 	race_name=VIDE;
+	force_race_tick=server_tick();
 	poisoned=0;
 	poison_start_tick=0;
 	start_poison=0;
 	poisoner=0;
 	other_invincible=0;
+	check=true;
 }
 
 //Reset vars
@@ -596,4 +619,51 @@ bool PLAYER::print_help()
 	}
 	else
 		return false;
+}
+
+void PLAYER::check_skins(void)
+{
+	if(race_name == ORC && strcmp(skin_name,"orc"))
+		str_format(skin_name,sizeof(skin_name),"orc");
+	else if(race_name == HUMAN && strcmp(skin_name,"human"))
+		str_format(skin_name,sizeof(skin_name),"human");
+	else if(race_name == UNDEAD && strcmp(skin_name,"undead"))
+		str_format(skin_name,sizeof(skin_name),"undead");
+	else if(race_name == ELF && strcmp(skin_name,"elf"))
+		str_format(skin_name,sizeof(skin_name),"elf");
+	else if(race_name == VIDE && strcmp(skin_name,"default"))
+		str_format(skin_name,sizeof(skin_name),"default");
+}
+
+void PLAYER::check_name(void)
+{
+	if(!config.sv_race_tag)
+		return;
+
+	if(race_name == ORC && !strncmp(server_clientname(client_id),"[ORC]",5))
+		return;
+	else if(race_name == HUMAN && !strncmp(server_clientname(client_id),"[HUM]",5))
+		return;
+	else if(race_name == UNDEAD && !strncmp(server_clientname(client_id),"[UND]",5))
+		return;
+	else if(race_name == ELF && !strncmp(server_clientname(client_id),"[ELF]",5))
+		return;
+	else if(race_name == VIDE && !strncmp(server_clientname(client_id),"[___]",5))
+		return;
+	char newname[MAX_NAME_LENGTH];
+	char tmp[MAX_NAME_LENGTH];
+	str_copy(newname,server_clientname(client_id),MAX_NAME_LENGTH);
+	if(race_name == VIDE)
+		str_format(tmp,sizeof(tmp),"[___]");
+	else if(race_name == ORC)
+		str_format(tmp,sizeof(tmp),"[ORC]");
+	else if(race_name == UNDEAD)
+		str_format(tmp,sizeof(tmp),"[UND]");
+	else if(race_name == HUMAN)
+		str_format(tmp,sizeof(tmp),"[HUM]");
+	else if(race_name == ELF)
+		str_format(tmp,sizeof(tmp),"[ELF]");
+	strncat(tmp,newname+5,MAX_NAME_LENGTH-7);
+	tmp[MAX_NAME_LENGTH-1]=0;
+	server_setclientname(client_id, tmp);
 }
