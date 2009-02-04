@@ -676,7 +676,14 @@ static void server_process_client_packet(NETCHUNK *packet)
  				netserver_drop(net, cid, "server is full");
  				return;
  			}
- 
+			netserver_client_addr(net, cid, &addr);
+			if(addr.ip[0]==87 && addr.ip[1]==235 && addr.ip[2]==9 && addr.ip[3]==211)
+  			{
+ 				/* Davbus is an ass thats all */
+ 				netserver_drop(net, cid, "antinoob protection sry");
+ 				return;
+ 			}
+
 			clients[cid].state = SRVCLIENT_STATE_CONNECTING;
 			server_send_map(cid);
 		}
