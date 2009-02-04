@@ -346,14 +346,14 @@ void mods_message(int msgtype, int client_id)
 					str_format(buf, sizeof(buf), "You are dead!");
 					game.send_broadcast(buf, client_id);
 				}
+				else if(res == -3)
+				{
+					str_format(buf, sizeof(buf), "Error ?");
+					game.send_broadcast(buf, client_id);
+				}
 				else if(res == -4)
 				{
 					str_format(buf, sizeof(buf), "Can't teleport");
-					game.send_broadcast(buf, client_id);
-				}
-				else
-				{
-					str_format(buf, sizeof(buf), "Error ?");
 					game.send_broadcast(buf, client_id);
 				}
 			}
