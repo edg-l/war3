@@ -45,6 +45,11 @@ Step 4 : go pwn !
 -----------------------------------
 Changelog:
 -----------------------------------
+2.0:
+	Poison changed.
+	Fixed spectator getting a team.
+	Fixed changing race while dead was increasing score.
+	Fixed some error in text.
 1.1:
 	Teleport in wall fixed.
 	Reserved slots changed.
