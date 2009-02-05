@@ -386,7 +386,7 @@ void mods_message(int msgtype, int client_id)
 				game.send_chat_target(client_id,"\"/otherlvl\" print other lvls");
 				game.send_chat_target(client_id,"\"/lvl\" your lvl");
 				game.send_chat_target(client_id,"\"/stats\" to choose powerups");
-				game.send_chat_target(client_id,"\"/reset\" to reset your stats (xp reset)");
+				game.send_chat_target(client_id,"\"/reset\" to reset your stats (xp is NOT reset)");
 				game.send_chat_target(client_id,"\"/1\" or \"/2\" or \"/3\" to choose a powerup");
 			}
 			else if(!strcmp(msg->message, "/reset"))
