@@ -694,18 +694,40 @@ void CHARACTER::tick_defered()
 
 bool CHARACTER::increase_health(int amount)
 {
-	if(health >= 10)
-		return false;
-	health = clamp(health+amount, 0, 10);
-	return true;
+	/*//Not used yet i was planing on buff undead
+	if(player && player->race_name == UNDEAD)
+	{
+		if(health >= 15)
+			return false;
+		health = clamp(health+amount, 0, 15);
+		return true;
+	}
+	else
+	{*/
+		if(health >= 10)
+			return false;
+		health = clamp(health+amount, 0, 10);
+		return true;
+	//}
 }
 
 bool CHARACTER::increase_armor(int amount)
 {
-	if(armor >= 10)
-		return false;
-	armor = clamp(armor+amount, 0, 10);
-	return true;
+	/*//Same as health
+	if(player && player->race_name == UNDEAD)
+	{
+		if(armor >= 0)
+			return false;
+		armor = clamp(armor+amount, 0, 0);
+		return true;
+	}
+	else
+	{*/
+		if(armor >= 10)
+			return false;
+		armor = clamp(armor+amount, 0, 10);
+		return true;
+	//}
 }
 
 void CHARACTER::die(int killer, int weapon)

@@ -107,6 +107,6 @@ inline bool cmask_is_set(int mask, int cid) { return (mask&cmask_one(cid)) != 0;
 enum {VIDE=0,HUMAN,ORC,UNDEAD,ELF,NBRACE};
 
 //New Weapons
-enum {WEAPON_POISON=-1,WEAPON_EXPLODE=-1,WEAPON_MIRROR=-1,WEAPON_TASER=-1};
+enum {WEAPON_POISON=-3,WEAPON_EXPLODE=-3,WEAPON_MIRROR=-3,WEAPON_TASER=-3};
 
 #endif
