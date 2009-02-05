@@ -54,8 +54,6 @@ void PLAYER::tick()
 	{
 		if(character->alive)
 		{
-			//If we are alive we did not explode !
-			exploded=false;
 			view_pos = character->pos;
 		}
 		else
@@ -78,7 +76,6 @@ void PLAYER::tick()
 	if(server_tick()-special_used_tick >= 0)
 	{
 		special_used=false;
-		exploded=false;
 	}
 	//Invicible (not used)
 	if(invincible && server_tick()-invincible_start_tick > server_tickspeed()*other_invincible)
@@ -208,10 +205,8 @@ void PLAYER::respawn()
 		spawning = true;
 		//At respawn reset some stuff
 		if(!undead_special)special_used=false;
-		exploded=false;
 		invincible_used=false;
 	}
-	
 }
 
 void PLAYER::set_team(int new_team)
@@ -444,7 +439,6 @@ void PLAYER::vamp(int amount)
 	{
 		amount=amount/2;
 		character->increase_health(amount);
-		if(character->health > 10) character->health=10;
 	}
 }
 
@@ -522,7 +516,7 @@ int PLAYER::use_special()
 		}
 		else if(undead_special && game.players[client_id]->get_character())
 		{
-			kill_character(-1);
+			kill_character(WEAPON_SELF);
 			return 0;
 		}
 	}

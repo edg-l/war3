@@ -79,12 +79,14 @@ int GAMECONTROLLER_WAR::on_character_death(class CHARACTER *victim, class PLAYER
 	}
 
 	//Exploding undead
-	if(victim->player && victim->player->undead_special && !victim->player->special_used)
+	if(victim->player && victim->player->undead_special && !victim->player->special_used && weaponid != WEAPON_WORLD)
 	{
 		victim->player->special_used=true;
+		//exploded is used cause WEAPON_EXPLODE has not an unique ID
 		victim->player->exploded=true;
 		victim->player->special_used_tick=server_tick()+server_tickspeed()*config.sv_specialtime*3;
 		game.create_explosion(tempPos, victim->player->client_id, WEAPON_EXPLODE, false);
+		victim->player->exploded=false;
 	}
 	else if(victim->player &&  !victim->player->undead_special)
 	{
@@ -458,4 +460,19 @@ int GAMECONTROLLER_WAR::init_xp(int level)
 	if(level < 1 || level > LVLMAX)
 		return 0;
 	return lvlmap[level];
+}
+
+void GAMECONTROLLER_WAR::on_character_spawn(class CHARACTER *chr)
+{
+	// Well not used yet wanted to buff undead
+	/*if(chr->player->race_name == UNDEAD)
+		chr->health = 10;
+	else*/
+		chr->health = 10;
+	
+	// give default weapons
+	chr->weapons[WEAPON_HAMMER].got = 1;
+	chr->weapons[WEAPON_HAMMER].ammo = -1;
+	chr->weapons[WEAPON_GUN].got = 1;
+	chr->weapons[WEAPON_GUN].ammo = 10;
 }

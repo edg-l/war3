@@ -84,7 +84,7 @@ void GAMECONTEXT::create_explosion(vec2 p, int owner, int weapon, bool bnodamage
 		float innerradius = 48.0f;
 
 		//If its a kamikaze case
- 		if((game.controller)->is_rpg() && game.players[owner] && game.players[owner]->undead_special && game.players[owner]->exploded)
+ 		if((game.controller)->is_rpg() && game.players[owner] && game.players[owner]->undead_special && game.players[owner]->exploded && weapon == WEAPON_EXPLODE)
  			radius= 512.0f;
 		int num = game.world.find_entities(p, radius, (ENTITY**)ents, 64, NETOBJTYPE_CHARACTER);
 		for(int i = 0; i < num; i++)
@@ -98,9 +98,10 @@ void GAMECONTEXT::create_explosion(vec2 p, int owner, int weapon, bool bnodamage
 			float dmg = 6 * l;
 
 			//If its a kamikaze case
-			if((game.controller)->is_rpg() && game.players[owner] && game.players[owner]->undead_special && game.players[owner]->exploded)
+			if((game.controller)->is_rpg() && game.players[owner] && game.players[owner]->undead_special && game.players[owner]->exploded && weapon == WEAPON_EXPLODE)
 			{
 				dmg= dmg*3;
+				//Undead with kamikaze are immune to kamikaze from other
 				if((int)dmg && !ents[i]->player->undead_special)
 					ents[i]->take_damage(forcedir*dmg*2, (int)dmg, owner, weapon);
 			}
