@@ -777,7 +777,7 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 			player->poisoned=1;
 			player->poison_start_tick=server_tick();
 			player->poisoner=from;
-			player->start_poison=game.players[from]->elf_poison+2;
+			player->start_poison=game.players[from]->elf_poison*2;
 		}
 		if(from != player->client_id && player->elf_mirror && !game.players[from]->elf_mirror && game.players[from]->get_character() && game.players[from]->get_character()->alive && player->mirrorlimit < 3)
 		{
