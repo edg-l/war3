@@ -257,8 +257,11 @@ void mods_message(int msgtype, int client_id)
 					game.send_broadcast(buf, client_id);
 					p->init_rpg();
 					p->race_name=ORC;
-					p->kill_character(-1);
-					p->score++;
+					if(p->get_character()->alive)
+					{
+						p->kill_character(-1);
+						p->score++;
+					}
 				}
 				else if(!strcmp(msg->message, "/race elf"))
 				{
@@ -267,8 +270,11 @@ void mods_message(int msgtype, int client_id)
 					game.send_broadcast(buf, client_id);
 					p->init_rpg();
 					p->race_name=ELF;
-					p->kill_character(-1);
-					p->score++;
+					if(p->get_character()->alive)
+					{
+						p->kill_character(-1);
+						p->score++;
+					}
 				}
 				else if(!strcmp(msg->message, "/race undead"))
 				{
@@ -277,8 +283,11 @@ void mods_message(int msgtype, int client_id)
 					game.send_broadcast(buf, client_id);
 					p->init_rpg();
 					p->race_name=UNDEAD;
-					p->kill_character(-1);
-					p->score++;
+					if(p->get_character()->alive)
+					{
+						p->kill_character(-1);
+						p->score++;
+					}
 				}
 				else if(!strcmp(msg->message, "/race human"))
 				{
@@ -287,8 +296,11 @@ void mods_message(int msgtype, int client_id)
 					game.send_broadcast(buf, client_id);
 					p->init_rpg();
 					p->race_name=HUMAN;
-					p->kill_character(-1);
-					p->score++;
+					if(p->get_character()->alive)
+					{
+						p->kill_character(-1);
+						p->score++;
+					}
 				}
 				else
 				{
