@@ -94,7 +94,7 @@ void PLAYER::tick()
 	}
 
 	//Forcing a race
-	if(config.sv_force_race && race_name == VIDE && server_tick()-force_race_tick >= server_tickspeed()*config.sv_force_race*60)
+	if(config.sv_force_race && team != -1 && race_name == VIDE && server_tick()-force_race_tick >= server_tickspeed()*config.sv_force_race*60)
 	{
 		int i,force_race=-1;
 		int nbRace[NBRACE]={0};
