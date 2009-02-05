@@ -257,7 +257,7 @@ void mods_message(int msgtype, int client_id)
 					game.send_broadcast(buf, client_id);
 					p->init_rpg();
 					p->race_name=ORC;
-					if(p->get_character()->alive)
+					if(p->get_character() && p->get_character()->alive)
 					{
 						p->kill_character(-1);
 						p->score++;
@@ -270,7 +270,7 @@ void mods_message(int msgtype, int client_id)
 					game.send_broadcast(buf, client_id);
 					p->init_rpg();
 					p->race_name=ELF;
-					if(p->get_character()->alive)
+					if(p->get_character() && p->get_character()->alive)
 					{
 						p->kill_character(-1);
 						p->score++;
@@ -283,7 +283,7 @@ void mods_message(int msgtype, int client_id)
 					game.send_broadcast(buf, client_id);
 					p->init_rpg();
 					p->race_name=UNDEAD;
-					if(p->get_character()->alive)
+					if(p->get_character() && p->get_character()->alive)
 					{
 						p->kill_character(-1);
 						p->score++;
@@ -296,7 +296,7 @@ void mods_message(int msgtype, int client_id)
 					game.send_broadcast(buf, client_id);
 					p->init_rpg();
 					p->race_name=HUMAN;
-					if(p->get_character()->alive)
+					if(p->get_character() && p->get_character()->alive)
 					{
 						p->kill_character(-1);
 						p->score++;
