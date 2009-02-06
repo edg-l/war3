@@ -84,7 +84,7 @@ void GAMECONTROLLER::evaluate_spawn_type(SPAWNEVAL *eval, int t)
 bool GAMECONTROLLER::can_spawn(PLAYER *player, vec2 *out_pos)
 {
 	SPAWNEVAL eval;
-	int chance=0;
+	int chance=0,chance2=0;
 	
 	// spectators can't spawn
 	if(player->team == -1)
@@ -92,6 +92,15 @@ bool GAMECONTROLLER::can_spawn(PLAYER *player, vec2 *out_pos)
 	
 	if(is_teamplay())
 	{
+
+		//Ressurect
+		chance2=rand()%100;
+ 		if((game.controller)->is_rpg() && player->tauren_ressurect && chance <= (player->tauren_ressurect*15))
+		{
+			*out_pos=player->get_character()->death_pos;
+			return true;
+		}
+
 		//Mole human
  		chance=rand()%10;
  		if(config.dbg_war3 && player->human_mole > 0)dbg_msg("chance","%d %d",chance,player->human_mole*2);
