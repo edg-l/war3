@@ -92,7 +92,6 @@ int GAMECONTROLLER_WAR::on_character_death(class CHARACTER *victim, class PLAYER
 	{
 		victim->player->special_used=false;
 	}
-	victim->player->invincible_used=false;
 
 	return had_flag;
 }
@@ -335,11 +334,11 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 		strcat(buf,tmp);
 		str_format(tmp,sizeof(tmp),"\n2 : Ressurect chance lvl %d/3",player->tauren_ressurect);
 		strcat(buf,tmp);
-		/*if(player->tauren_special && player->lvl >= 6 && 0)
+		if(player->tauren_special && player->lvl >= 6 && 0)
 		{
-			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Teleport");
+			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Invincible");
 			strcat(buf,tmp);
-		}*/
+		}
 	}
 	game.send_broadcast(buf, from->client_id);
 }	
@@ -389,10 +388,10 @@ int GAMECONTROLLER_WAR::init_xp(int level)
 
 void GAMECONTROLLER_WAR::on_character_spawn(class CHARACTER *chr)
 {
-	// Well not used yet wanted to buff undead
-	/*if(chr->player->race_name == UNDEAD)
-		chr->health = 10;
-	else*/
+	// Ressurection with 5 hp
+	if(chr->player->race_name == TAUREN && chr->player->ressurected)
+		chr->health = 5;
+	else
 		chr->health = 10;
 	
 	// give default weapons
