@@ -50,6 +50,8 @@ Changelog:
 	Fixed spectator getting a team.
 	Fixed changing race while dead was increasing score.
 	Fixed some error in text.
+	Kamikaze is not used anymore when you die by a death tile
+	Special are not reset at death anymore.
 1.1:
 	Teleport in wall fixed.
 	Reserved slots changed.
