@@ -54,7 +54,7 @@ int GAMECONTROLLER_WAR::on_character_death(class CHARACTER *victim, class PLAYER
 
 	//Xp for killing
 	if(killer && killer->client_id != victim->player->client_id)
-		killer->xp+=(victim->player->lvl*3);
+		killer->xp+=(victim->player->lvl*5);
 
 	int had_flag = 0;
 	
