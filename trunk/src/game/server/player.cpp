@@ -441,10 +441,10 @@ bool PLAYER::choose_ability(int choice)
 	}
 	else if(race_name==TAUREN)
 	{
-		if(choice == 1 && undead_taser<3 && 0)
+		if(choice == 1 && tauren_hot<3)
 		{
 			undead_taser++;
-			str_format(buf, sizeof(buf), "Taser + %d",undead_taser);
+			str_format(buf, sizeof(buf), "Hot %d tick",tauren_hot*2);
 			game.send_broadcast(buf, client_id);
 			return true;
 		}
@@ -657,7 +657,7 @@ bool PLAYER::print_help()
 		{
 			str_format(buf,sizeof(buf),"TAUREN:");
 			game.send_chat_target(client_id, buf);
-			str_format(buf,sizeof(buf),"empty");
+			str_format(buf,sizeof(buf),"Hot : Healing on time for 2/4/6 ticks");
 			game.send_chat_target(client_id, buf);
 			str_format(buf,sizeof(buf),"empty");
 			game.send_chat_target(client_id, buf);
