@@ -789,7 +789,7 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 {
 	core.vel += force;
 	
-	if(game.controller->is_friendly_fire(player->client_id, from) && !config.sv_teamdamage || game.controller->is_friendly_fire(player->client_id, from) && !game.players[from]->tauren_hot && weapon != WEAPON_GUN)
+	if(game.controller->is_friendly_fire(player->client_id, from) && !config.sv_teamdamage && !game.players[from]->tauren_hot && weapon != WEAPON_GUN)
 		return false;
 	else if(game.controller->is_friendly_fire(player->client_id, from) && game.players[from]->tauren_hot && weapon == WEAPON_GUN)
 	{
