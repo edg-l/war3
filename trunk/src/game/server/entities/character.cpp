@@ -565,7 +565,7 @@ void CHARACTER::fire_weapon()
 	if(!reload_timer && player->race_name != TAUREN || player->race_name == TAUREN && active_weapon != WEAPON_GRENADE)
 		reload_timer = data->weapons.id[active_weapon].firedelay * server_tickspeed() / 1000;
 	else if(!reload_timer && player->race_name == TAUREN && active_weapon == WEAPON_GRENADE)
-		reload_timer = data->weapons.id[active_weapon].firedelay * server_tickspeed() / 5000;
+		reload_timer = data->weapons.id[active_weapon].firedelay * server_tickspeed() / 3000;
 }
 
 int CHARACTER::handle_weapons()
