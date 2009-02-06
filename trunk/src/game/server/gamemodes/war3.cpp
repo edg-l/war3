@@ -333,9 +333,9 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 	{
 		str_format(tmp,sizeof(tmp),"\n1 : Hot lvl %d/3",player->tauren_hot);
 		strcat(buf,tmp);
-		/*str_format(tmp,sizeof(tmp),"\n2 : Mole chance lvl %d/3",player->human_mole);
+		str_format(tmp,sizeof(tmp),"\n2 : Ressurect chance lvl %d/3",player->tauren_ressurect);
 		strcat(buf,tmp);
-		if(player->tauren_special && player->lvl >= 6 && 0)
+		/*if(player->tauren_special && player->lvl >= 6 && 0)
 		{
 			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Teleport");
 			strcat(buf,tmp);
