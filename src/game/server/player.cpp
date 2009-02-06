@@ -203,8 +203,8 @@ void PLAYER::respawn()
 	if(team > -1)
 	{
 		spawning = true;
-		//At respawn reset some stuff
-		if(!undead_special)special_used=false;
+		//At respawn special shouldn't be reset in fact :D
+		//if(!undead_special)special_used=false;
 		invincible_used=false;
 	}
 }
