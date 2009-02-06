@@ -308,7 +308,7 @@ void mods_message(int msgtype, int client_id)
 					str_format(buf, sizeof(buf), "Tauren chosen");
 					game.send_broadcast(buf, client_id);
 					p->init_rpg();
-					p->race_name=HUMAN;
+					p->race_name=TAUREN;
 					if(p->get_character() && p->get_character()->alive)
 					{
 						p->kill_character(-1);
