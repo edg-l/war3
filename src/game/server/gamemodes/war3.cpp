@@ -331,15 +331,15 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 	}
 	else if(player->race_name == TAUREN)
 	{
-		str_format(tmp,sizeof(tmp),"\n1 : Armor lvl %d/3",player->human_armor);
+		str_format(tmp,sizeof(tmp),"\n1 : Hot lvl %d/3",player->tauren_hot);
 		strcat(buf,tmp);
-		str_format(tmp,sizeof(tmp),"\n2 : Mole chance lvl %d/3",player->human_mole);
+		/*str_format(tmp,sizeof(tmp),"\n2 : Mole chance lvl %d/3",player->human_mole);
 		strcat(buf,tmp);
 		if(player->tauren_special && player->lvl >= 6 && 0)
 		{
 			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Teleport");
 			strcat(buf,tmp);
-		}
+		}*/
 	}
 	game.send_broadcast(buf, from->client_id);
 }	
