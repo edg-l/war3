@@ -890,6 +890,8 @@ void CHARACTER::die(int killer, int weapon)
 	player->die_tick = server_tick();
 
 	player->death_pos=pos;
+	if(weapon==WEAPON_WORLD)
+		player->death_tile=true;
 	
 	alive = false;
 	game.world.remove_entity(this);

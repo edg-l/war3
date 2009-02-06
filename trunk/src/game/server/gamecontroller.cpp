@@ -95,14 +95,18 @@ bool GAMECONTROLLER::can_spawn(PLAYER *player, vec2 *out_pos)
 
 		//Ressurect
 		chance2=rand()%100;
- 		if((game.controller)->is_rpg() && player->tauren_ressurect && chance2 <= (player->tauren_ressurect*15))
+ 		if((game.controller)->is_rpg() && player->tauren_ressurect && chance2 <= (player->tauren_ressurect*15) && !player->death_tile)
 		{
 			*out_pos=player->death_pos;
 			player->ressurected=true;
+			player->death_tile=false;
 			return true;
 		}
 		else
+		{
+			player->death_tile=false;
 			player->ressurected=false;
+		}
 
 		//Mole human
  		chance=rand()%10;
