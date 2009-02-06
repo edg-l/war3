@@ -104,7 +104,7 @@ inline int cmask_all_except_one(int cid) { return 0x7fffffff^cmask_one(cid); }
 inline bool cmask_is_set(int mask, int cid) { return (mask&cmask_one(cid)) != 0; }
 
 //Enum for race
-enum {VIDE=0,HUMAN,ORC,UNDEAD,ELF,NBRACE};
+enum {VIDE=0,HUMAN,ORC,UNDEAD,ELF,TAUREN,NBRACE};
 
 //New Weapons
 enum {WEAPON_POISON=-3,WEAPON_EXPLODE=-3,WEAPON_MIRROR=-3,WEAPON_TASER=-3};

@@ -71,24 +71,31 @@ public:
 	void on_predicted_input(NETOBJ_PLAYER_INPUT *new_input);
 	void on_disconnect();
 
+	//War3
 	void init_rpg();
 	void reset_all();
 	bool choose_ability(int choice);
 
+	//Levels var
 	int lvl;
 	int nextlvl;
 	int xp;
 	int leveled;
 	bool levelmax;
-
+	
+	//Human vars
 	int human_armor;
 	int human_mole;
 	bool human_special;
+	//For human killing themself for mole
+	bool suicide;
 
+	//Orcs var
 	int orc_dmg;
 	int orc_reload;
 	bool orc_special;
 
+	//Undead vars
 	int undead_taser;
 	int undead_taser_tick;
 	int undead_vamp;
@@ -96,6 +103,7 @@ public:
 	bool undead_special;
 	bool exploded;
 
+	//Elf vars
 	int elf_poison;
 	int poisoned;
 	int poison_start_tick;
@@ -106,22 +114,26 @@ public:
 	int mirrorlimit;
 	bool elf_special;
 
+	//Tauren vars
+	bool tauren_special;
+
+	//Other
 	bool special_used;
 	int special_used_tick;
 	int race_name;
 
+	//Unused skills
 	int other_invincible;
 	int invincible;
 	int invincible_start_tick;
 	bool invincible_used;
 
+	//Functions
 	int use_special(void);
 	bool print_otherlvl(void);
 	bool print_help(void);
 
-	//For human killing themself for mole
-	bool suicide;
-
+	//Checking :D
 	int force_race_tick;
 	bool check;
 	void check_skins(void);

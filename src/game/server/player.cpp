@@ -425,6 +425,32 @@ bool PLAYER::choose_ability(int choice)
 		else
 			return false;
 	}
+	else if(race_name==TAUREN)
+	{
+		if(choice == 1 && undead_taser<3 && 0)
+		{
+			undead_taser++;
+			str_format(buf, sizeof(buf), "Taser + %d",undead_taser);
+			game.send_broadcast(buf, client_id);
+			return true;
+		}
+		else if(choice == 2 && undead_vamp<3 && 0)
+		{
+			undead_vamp++;
+			str_format(buf, sizeof(buf), "Vampiric + %d",undead_vamp);
+			game.send_broadcast(buf, client_id);
+			return true;
+		}
+		else if(choice==3 && lvl >=6 && !tauren_special && 0)
+		{
+			undead_special=true;
+			str_format(buf, sizeof(buf), "Kamikaze enabled");
+			game.send_broadcast(buf, client_id);
+			return true;
+		}
+		else
+			return false;
+	}
 	else
 		return false;
 }
@@ -519,6 +545,10 @@ int PLAYER::use_special()
 			kill_character(WEAPON_SELF);
 			return 0;
 		}
+		else if(tauren_special && game.players[client_id]->get_character())
+		{
+			return 0;
+		}
 	}
 	else if(special_used)
 	{
@@ -528,7 +558,7 @@ int PLAYER::use_special()
 		game.send_broadcast(buf, client_id);
 		return 0;
 	}
-	if(!human_special && !orc_special && !elf_special && !undead_special)
+	if(!human_special && !orc_special && !elf_special && !undead_special && !tauren_special)
 		return -1;
 	else if(!game.players[client_id]->get_character())
 		return -2;
@@ -609,6 +639,17 @@ bool PLAYER::print_help()
 			str_format(buf,sizeof(buf),"Special : Kamikaze, when you die you explode dealing lot of damage (lvl 6 required)");
 			game.send_chat_target(client_id, buf);
 		}
+		else if(race_name == TAUREN)
+		{
+			str_format(buf,sizeof(buf),"TAUREN:");
+			game.send_chat_target(client_id, buf);
+			str_format(buf,sizeof(buf),"empty");
+			game.send_chat_target(client_id, buf);
+			str_format(buf,sizeof(buf),"empty");
+			game.send_chat_target(client_id, buf);
+			str_format(buf,sizeof(buf),"Special : empty(lvl 6 required)");
+			game.send_chat_target(client_id, buf);
+		}
 		return true;
 	}
 	else
@@ -625,6 +666,8 @@ void PLAYER::check_skins(void)
 		str_format(skin_name,sizeof(skin_name),"undead");
 	else if(race_name == ELF && strcmp(skin_name,"elf"))
 		str_format(skin_name,sizeof(skin_name),"elf");
+	else if(race_name == TAUREN && strcmp(skin_name,"tauren"))
+		str_format(skin_name,sizeof(skin_name),"tauren");
 	else if(race_name == VIDE && strcmp(skin_name,"default"))
 		str_format(skin_name,sizeof(skin_name),"default");
 }
@@ -642,6 +685,8 @@ void PLAYER::check_name(void)
 		return;
 	else if(race_name == ELF && !strncmp(server_clientname(client_id),"[ELF]",5))
 		return;
+	else if(race_name == TAUREN && !strncmp(server_clientname(client_id),"[TAU]",5))
+		return;
 	else if(race_name == VIDE && !strncmp(server_clientname(client_id),"[___]",5))
 		return;
 	char newname[MAX_NAME_LENGTH];
@@ -657,6 +702,8 @@ void PLAYER::check_name(void)
 		str_format(tmp,sizeof(tmp),"[HUM]");
 	else if(race_name == ELF)
 		str_format(tmp,sizeof(tmp),"[ELF]");
+	else if(race_name == TAUREN)
+		str_format(tmp,sizeof(tmp),"[TAU]");
 	strncat(tmp,newname+5,MAX_NAME_LENGTH-7);
 	tmp[MAX_NAME_LENGTH-1]=0;
 	server_setclientname(client_id, tmp);

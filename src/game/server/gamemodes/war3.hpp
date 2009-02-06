@@ -17,7 +17,6 @@ public:
 	virtual bool on_entity(int index, vec2 pos);
 	virtual bool is_rpg() const;
 	virtual void on_level_up(PLAYER *player);
-	virtual void display_level(PLAYER *player);
 	virtual void display_stats(PLAYER *player,PLAYER *from);
 	virtual int drop_flag_orc(PLAYER *player);
 	virtual void load_xp_table();
