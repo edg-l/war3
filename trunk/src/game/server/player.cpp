@@ -435,7 +435,7 @@ void PLAYER::vamp(int amount)
 {
 	if(!(game.controller)->is_rpg())
 		return;
-	if(get_character())
+	if(character)
 	{
 		amount=amount/2;
 		character->increase_health(amount);
