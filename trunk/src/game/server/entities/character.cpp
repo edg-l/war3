@@ -275,6 +275,30 @@ void CHARACTER::fire_weapon()
 	if(active_weapon == WEAPON_GUN && player->orc_reload == 3)
 		fullauto = true;
 
+	if(active_weapon != WEAPON_GRENADE && player && player->race_name == TAUREN && player->started_heal != -1)
+	{
+		char buf[128];
+		if(game.players[player->started_heal] && game.players[player->started_heal]->get_character())
+		{
+			str_format(buf,sizeof(buf),"Stopped healing (wrong weapon)");
+			game.send_chat_target(player->client_id,buf);
+			game.players[player->started_heal]->healed=false;
+			player->started_heal=-1;
+		}					
+		else if(game.players[player->started_heal])
+			{
+			str_format(buf,sizeof(buf),"Stopped healing (the healed character is dead)");
+			game.send_chat_target(player->client_id,buf);
+			game.players[player->started_heal]->healed=false;
+			player->started_heal=-1;
+		}
+		else
+		{
+			str_format(buf,sizeof(buf),"Stopped healing ");
+			game.send_chat_target(player->client_id,buf);
+			player->started_heal=-1;
+		}	
+	}
 
 	// check if we gonna fire
 	bool will_fire = false;
@@ -287,14 +311,14 @@ void CHARACTER::fire_weapon()
 			char buf[128];
 			if(game.players[player->started_heal] && game.players[player->started_heal]->get_character())
 			{
-				str_format(buf,sizeof(buf),"Stopped healing ");
+				str_format(buf,sizeof(buf),"Stopped healing (you didn't hold fire)");
 				game.send_chat_target(player->client_id,buf);
 				game.players[player->started_heal]->healed=false;
 				player->started_heal=-1;
 			}					
 			else if(game.players[player->started_heal])
 				{
-				str_format(buf,sizeof(buf),"Stopped healing ");
+				str_format(buf,sizeof(buf),"Stopped healing (the healed character is dead)");
 				game.send_chat_target(player->client_id,buf);
 				game.players[player->started_heal]->healed=false;
 				player->started_heal=-1;
@@ -320,14 +344,14 @@ void CHARACTER::fire_weapon()
 			char buf[128];
 			if(game.players[player->started_heal] && game.players[player->started_heal]->get_character())
 			{
-				str_format(buf,sizeof(buf),"Stopped healing ");
+				str_format(buf,sizeof(buf),"Stopped healing (you didn't hold fire)");
 				game.send_chat_target(player->client_id,buf);
 				game.players[player->started_heal]->healed=false;
 				player->started_heal=-1;
 			}					
 			else if(game.players[player->started_heal])
 				{
-				str_format(buf,sizeof(buf),"Stopped healing ");
+				str_format(buf,sizeof(buf),"Stopped healing (the healed character is dead)");
 				game.send_chat_target(player->client_id,buf);
 				game.players[player->started_heal]->healed=false;
 				player->started_heal=-1;
@@ -474,7 +498,7 @@ void CHARACTER::fire_weapon()
 					dist=distance(pos,game.players[player->started_heal]->get_character()->pos);
 					if(dist > 700)
 					{
-						str_format(buf,sizeof(buf),"Stopped healing ");
+						str_format(buf,sizeof(buf),"Stopped healing (You are too far from the healed character)");
 						game.send_chat_target(player->client_id,buf);
 						game.players[player->started_heal]->healed=false;
 						player->started_heal=-1;
@@ -483,7 +507,7 @@ void CHARACTER::fire_weapon()
 				}					
 				else if(game.players[player->started_heal])
 				{
-					str_format(buf,sizeof(buf),"Stopped healing ");
+					str_format(buf,sizeof(buf),"Stopped healing  (the healed character is dead)");
 					game.send_chat_target(player->client_id,buf);
 					game.players[player->started_heal]->healed=false;
 					player->started_heal=-1;
