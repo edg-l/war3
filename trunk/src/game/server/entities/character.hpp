@@ -132,8 +132,6 @@ public:
 	
 	//Used for immobilise
 	int stucked;
-
-	vec2 death_pos;
 };
 
 #endif

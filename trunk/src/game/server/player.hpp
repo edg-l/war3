@@ -122,6 +122,7 @@ public:
 	int hot_start_tick;
 	int start_hot;
 	int hot_from;
+	vec2 death_pos;
 
 	//Other
 	bool special_used;
