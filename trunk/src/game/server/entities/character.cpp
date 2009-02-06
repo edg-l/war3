@@ -718,8 +718,8 @@ void CHARACTER::tick()
 		if(player->healed && server_tick()-player->heal_tick > server_tickspeed() && game.players[player->heal_from])
 		{
 			player->heal_tick=server_tick();
+			if(health < 10)game.players[player->heal_from]->xp+=player->lvl*5;
 			increase_health(1);
-			game.players[player->heal_from]->xp+=player->lvl*5;
 			game.create_sound(game.players[player->heal_from]->view_pos, SOUND_PICKUP_HEALTH, cmask_one(player->heal_from));
 		}
 		//Previous stuff (should be deleted ?)
