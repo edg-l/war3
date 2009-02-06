@@ -280,8 +280,15 @@ void PLAYER::init_rpg()
 	poisoned=0;
 	poison_start_tick=0;
 	start_poison=0;
-	poisoner=0;
+	poisoner=-1;
 	other_invincible=0;
+	tauren_special=false;
+	tauren_hot=0;
+	tauren_ressurect=0;
+	hot=0;
+	hot_start_tick=0;
+	start_hot=0;
+	hot_from=-1;
 	check=true;
 }
 
@@ -311,8 +318,15 @@ void PLAYER::reset_all()
 	poisoned=0;
 	poison_start_tick=0;
 	start_poison=0;
-	poisoner=0;
+	poisoner=-1;
 	other_invincible=0;
+	tauren_special=false;
+	tauren_hot=0;
+	tauren_ressurect=0;
+	hot=0;
+	hot_start_tick=0;
+	start_hot=0;
+	hot_from=-1;
 }
 
 //Choose an ability
