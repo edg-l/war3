@@ -136,10 +136,7 @@ void PLAYER::snap(int snapping_client)
 
 	NETOBJ_PLAYER_INFO *info = (NETOBJ_PLAYER_INFO *)snap_new_item(NETOBJTYPE_PLAYER_INFO, client_id, sizeof(NETOBJ_PLAYER_INFO));
 
-	if(config.sv_show_level)
-		info->latency = lvl;
-	else
-		info->latency = latency.min;
+	info->latency = latency.min;
 	info->latency_flux = latency.max-latency.min;
 	info->local = 0;
 	info->cid = client_id;
