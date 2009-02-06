@@ -260,7 +260,7 @@ void CHARACTER::handle_weaponswitch()
 
 void CHARACTER::fire_weapon()
 {
-	if(reload_timer != 0 && player->race_name != TAUREN || player->race_name == TAUREN && active_weapon != WEAPON_GRENADE && reload_timer != 0)
+	if(reload_timer != 0)
 		return;
 		
 	do_weaponswitch();
@@ -562,8 +562,10 @@ void CHARACTER::fire_weapon()
 				break;
 		}
 	}
-	if(!reload_timer)
+	if(!reload_timer && player->race_name != TAUREN || player->race_name == TAUREN && active_weapon != WEAPON_GRENADE)
 		reload_timer = data->weapons.id[active_weapon].firedelay * server_tickspeed() / 1000;
+	else if(!reload_timer && player->race_name == TAUREN && active_weapon == WEAPON_GRENADE)
+		reload_timer = data->weapons.id[active_weapon].firedelay * server_tickspeed() / 5000;
 }
 
 int CHARACTER::handle_weapons()
