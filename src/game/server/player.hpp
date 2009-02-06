@@ -130,6 +130,7 @@ public:
 	int heal_tick;
 	int heal_from;
 	int started_heal;
+	bool death_tile;
 
 	//Other
 	bool special_used;

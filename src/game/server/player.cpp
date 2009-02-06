@@ -292,6 +292,7 @@ void PLAYER::init_rpg()
 	heal_tick=-1;
 	started_heal=-1;
 	heal_from=-1;
+	death_tile=false;
 	check=true;
 }
 
@@ -334,6 +335,7 @@ void PLAYER::reset_all()
 	heal_tick=-1;
 	started_heal=-1;
 	heal_from=-1;
+	death_tile=false;
 }
 
 //Choose an ability
