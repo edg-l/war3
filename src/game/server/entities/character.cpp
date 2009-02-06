@@ -589,7 +589,7 @@ void CHARACTER::tick()
 
 	player_state = input.player_state;
 
-	//Poison tick
+	//Poison Hot tick ect
 	if((game.controller)->is_rpg())
 	{
 		if(player->poisoned && server_tick()-player->poison_start_tick > server_tickspeed() && game.players[player->poisoner])
@@ -605,6 +605,8 @@ void CHARACTER::tick()
 		{
 			player->hot_start_tick=server_tick();
 			increase_health(1);
+			if(game.players[player->hot_from])
+				game.create_sound(game.players[player->hot_from]->view_pos, SOUND_PICKUP_HEALTH, cmask_one(player->hot_from));
 			player->start_hot--;
 		}
 		if(player->start_hot <=0)
@@ -788,10 +790,9 @@ void CHARACTER::die(int killer, int weapon)
 bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 {
 	core.vel += force;
-	
-	if(game.controller->is_friendly_fire(player->client_id, from) && !config.sv_teamdamage && !game.players[from]->tauren_hot && weapon != WEAPON_GUN)
-		return false;
-	else if(game.controller->is_friendly_fire(player->client_id, from) && game.players[from]->tauren_hot && weapon == WEAPON_GUN)
+
+	//Tauren hot
+	if(game.controller->is_friendly_fire(player->client_id, from) && game.players[from]->tauren_hot && weapon == WEAPON_GUN)
 	{
 		player->hot=1;
 		player->hot_start_tick=server_tick();
@@ -799,6 +800,8 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 		player->start_hot=game.players[from]->tauren_hot*2;
 		return true;
 	}
+	if(game.controller->is_friendly_fire(player->client_id, from) && !config.sv_teamdamage)
+		return false;
 
 	//Armor reduce and damage increase
 	if((game.controller)->is_rpg() && from != player->client_id)
@@ -891,19 +894,19 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 	// check for death
 	if(health <= 0)
 	{
-		//Invicible (not used)
+		//Invicible
 		if((game.controller)->is_rpg() && player->invincible)
 		{
 			health=1;
 		}
 		
-		else if((game.controller)->is_rpg() && player->other_invincible && !player->invincible_used)
+		/*else if((game.controller)->is_rpg() && player->other_invincible && !player->invincible_used)
 		{
 			player->invincible_used=true;
 			player->invincible=1;
 			player->invincible_start_tick=server_tick();
 			health=1;
-		}
+		}*/
 		
 		else
 		{

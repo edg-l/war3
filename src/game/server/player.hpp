@@ -118,11 +118,14 @@ public:
 	bool tauren_special;
 	int tauren_hot;
 	int tauren_ressurect;
+	bool ressurected;
 	int hot;
 	int hot_start_tick;
 	int start_hot;
 	int hot_from;
 	vec2 death_pos;
+	bool invincible;
+	int invincible_start_tick;
 
 	//Other
 	bool special_used;
@@ -130,10 +133,7 @@ public:
 	int race_name;
 
 	//Unused skills
-	int other_invincible;
-	int invincible;
-	int invincible_start_tick;
-	bool invincible_used;
+
 
 	//Functions
 	int use_special(void);

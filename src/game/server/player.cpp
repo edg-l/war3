@@ -78,9 +78,9 @@ void PLAYER::tick()
 		special_used=false;
 	}
 	//Invicible (not used)
-	if(invincible && server_tick()-invincible_start_tick > server_tickspeed()*other_invincible)
+	if(invincible && server_tick()-invincible_start_tick > server_tickspeed()*3)
 	{
-		invincible=0;
+		invincible=false;
 	}
 	//Dumb people don't choose race ? oO
 	if(race_name==VIDE && server_tick()%(server_tickspeed()*2)==0 && team != -1)
@@ -205,7 +205,6 @@ void PLAYER::respawn()
 		spawning = true;
 		//At respawn special shouldn't be reset in fact :D
 		//if(!undead_special)special_used=false;
-		invincible_used=false;
 	}
 }
 
@@ -281,10 +280,10 @@ void PLAYER::init_rpg()
 	poison_start_tick=0;
 	start_poison=0;
 	poisoner=-1;
-	other_invincible=0;
 	tauren_special=false;
 	tauren_hot=0;
 	tauren_ressurect=0;
+	ressurected=false;
 	hot=0;
 	hot_start_tick=0;
 	start_hot=0;
@@ -319,10 +318,10 @@ void PLAYER::reset_all()
 	poison_start_tick=0;
 	start_poison=0;
 	poisoner=-1;
-	other_invincible=0;
 	tauren_special=false;
 	tauren_hot=0;
 	tauren_ressurect=0;
+	ressurected=false;
 	hot=0;
 	hot_start_tick=0;
 	start_hot=0;
@@ -455,10 +454,10 @@ bool PLAYER::choose_ability(int choice)
 			game.send_broadcast(buf, client_id);
 			return true;
 		}
-		else if(choice==3 && lvl >=6 && !tauren_special && 0)
+		else if(choice==3 && lvl >=6 && !tauren_special)
 		{
 			undead_special=true;
-			str_format(buf, sizeof(buf), "Kamikaze enabled");
+			str_format(buf, sizeof(buf), "Invicible enabled");
 			game.send_broadcast(buf, client_id);
 			return true;
 		}
@@ -561,6 +560,10 @@ int PLAYER::use_special()
 		}
 		else if(tauren_special && game.players[client_id]->get_character())
 		{
+			special_used=true;
+			invincible_start_tick=server_tick();
+			invincible=true;
+			special_used_tick=server_tick()+server_tickspeed()*config.sv_specialtime*10;
 			return 0;
 		}
 	}
@@ -661,7 +664,7 @@ bool PLAYER::print_help()
 			game.send_chat_target(client_id, buf);
 			str_format(buf,sizeof(buf),"Ressurection : 15/30/45%% chance to ressurect at the place where one died");
 			game.send_chat_target(client_id, buf);
-			str_format(buf,sizeof(buf),"Special : empty(lvl 6 required)");
+			str_format(buf,sizeof(buf),"Special : Invincible for 3 sec(lvl 6 required)");
 			game.send_chat_target(client_id, buf);
 		}
 		return true;
