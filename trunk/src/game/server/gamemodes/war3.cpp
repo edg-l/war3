@@ -54,7 +54,11 @@ int GAMECONTROLLER_WAR::on_character_death(class CHARACTER *victim, class PLAYER
 
 	//Xp for killing
 	if(killer && killer->client_id != victim->player->client_id)
+	{
 		killer->xp+=(victim->player->lvl*5);
+		if(killer->healed && game.players[killer->heal_from])
+			game.players[killer->heal_from]->xp+=(victim->player->lvl*5);
+	}
 
 	int had_flag = 0;
 	
@@ -132,6 +136,8 @@ void GAMECONTROLLER_WAR::tick()
 					f->carrying_character->player->score += 5;
 					//Xp
 					f->carrying_character->player->xp += 50;
+					if(f->carrying_character->player->healed && game.players[f->carrying_character->player->heal_from])
+						game.players[f->carrying_character->player->heal_from]->xp+=50;
 
 					dbg_msg("game", "flag_capture player='%d:%s'",
 						f->carrying_character->player->client_id,
@@ -173,6 +179,8 @@ void GAMECONTROLLER_WAR::tick()
 						chr->player->score += 1;
 						//Xp
 						chr->player->xp += 20;
+						if(chr->player->healed && game.players[chr->player->heal_from])
+							game.players[chr->player->heal_from]->xp+=50;
 
 						dbg_msg("game", "flag_return player='%d:%s'",
 							chr->player->client_id,
@@ -195,6 +203,8 @@ void GAMECONTROLLER_WAR::tick()
 					f->carrying_character->player->score += 1;
 					//Xp
 					f->carrying_character->player->xp += 10;
+					if(f->carrying_character->player->healed && game.players[f->carrying_character->player->heal_from])
+						game.players[f->carrying_character->player->heal_from]->xp+=50;
 
 					dbg_msg("game", "flag_grab player='%d:%s'",
 						f->carrying_character->player->client_id,
