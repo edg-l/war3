@@ -287,13 +287,10 @@ void CHARACTER::fire_weapon()
 			char buf[128];
 			if(game.players[player->started_heal] && game.players[player->started_heal]->get_character())
 			{
-				if(distance(pos,game.players[player->started_heal]->get_character()->pos) > 1000)
-				{
-					str_format(buf,sizeof(buf),"Stopped healing ");
-					game.send_chat_target(player->client_id,buf);
-					game.players[player->started_heal]->healed=false;
-					player->started_heal=-1;
-				}
+				str_format(buf,sizeof(buf),"Stopped healing ");
+				game.send_chat_target(player->client_id,buf);
+				game.players[player->started_heal]->healed=false;
+				player->started_heal=-1;
 			}					
 			else if(game.players[player->started_heal])
 				{
@@ -323,13 +320,10 @@ void CHARACTER::fire_weapon()
 			char buf[128];
 			if(game.players[player->started_heal] && game.players[player->started_heal]->get_character())
 			{
-				if(distance(pos,game.players[player->started_heal]->get_character()->pos) > 1000)
-				{
-					str_format(buf,sizeof(buf),"Stopped healing ");
-					game.send_chat_target(player->client_id,buf);
-					game.players[player->started_heal]->healed=false;
-					player->started_heal=-1;
-				}
+				str_format(buf,sizeof(buf),"Stopped healing ");
+				game.send_chat_target(player->client_id,buf);
+				game.players[player->started_heal]->healed=false;
+				player->started_heal=-1;
 			}					
 			else if(game.players[player->started_heal])
 				{
