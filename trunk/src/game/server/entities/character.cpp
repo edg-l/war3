@@ -770,6 +770,8 @@ void CHARACTER::die(int killer, int weapon)
 	
 	// this is for auto respawn after 3 secs
 	player->die_tick = server_tick();
+
+	death_pos=pos;
 	
 	alive = false;
 	game.world.remove_entity(this);

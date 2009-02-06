@@ -443,15 +443,15 @@ bool PLAYER::choose_ability(int choice)
 	{
 		if(choice == 1 && tauren_hot<3)
 		{
-			undead_taser++;
+			tauren_hot++;
 			str_format(buf, sizeof(buf), "Hot %d tick",tauren_hot*2);
 			game.send_broadcast(buf, client_id);
 			return true;
 		}
-		else if(choice == 2 && undead_vamp<3 && 0)
+		else if(choice == 2 && tauren_ressurect<3)
 		{
-			undead_vamp++;
-			str_format(buf, sizeof(buf), "Vampiric + %d",undead_vamp);
+			tauren_ressurect++;
+			str_format(buf, sizeof(buf), "Ressurection + %d%%",tauren_ressurect*15);
 			game.send_broadcast(buf, client_id);
 			return true;
 		}
@@ -659,7 +659,7 @@ bool PLAYER::print_help()
 			game.send_chat_target(client_id, buf);
 			str_format(buf,sizeof(buf),"Hot : Healing on time for 2/4/6 ticks");
 			game.send_chat_target(client_id, buf);
-			str_format(buf,sizeof(buf),"empty");
+			str_format(buf,sizeof(buf),"Ressurection : 15/30/45%% chance to ressurect at the place where one died");
 			game.send_chat_target(client_id, buf);
 			str_format(buf,sizeof(buf),"Special : empty(lvl 6 required)");
 			game.send_chat_target(client_id, buf);
