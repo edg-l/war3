@@ -287,7 +287,7 @@ void CHARACTER::fire_weapon()
 			char buf[128];
 			if(game.players[player->started_heal] && game.players[player->started_heal]->get_character())
 			{
-				if(distance(pos,game.players[player->started_heal]->get_character()->pos) > 700)
+				if(distance(pos,game.players[player->started_heal]->get_character()->pos) > 1000)
 				{
 					str_format(buf,sizeof(buf),"Stopped healing ");
 					game.send_chat_target(player->client_id,buf);
@@ -323,7 +323,7 @@ void CHARACTER::fire_weapon()
 			char buf[128];
 			if(game.players[player->started_heal] && game.players[player->started_heal]->get_character())
 			{
-				if(distance(pos,game.players[player->started_heal]->get_character()->pos) > 700)
+				if(distance(pos,game.players[player->started_heal]->get_character()->pos) > 1000)
 				{
 					str_format(buf,sizeof(buf),"Stopped healing ");
 					game.send_chat_target(player->client_id,buf);
@@ -458,7 +458,7 @@ void CHARACTER::fire_weapon()
 				vec2 at;
 				CHARACTER *hit;
 				char buf[128];
-				vec2 to=core.pos+direction*700;
+				vec2 to=core.pos+direction*1000;
 				col_intersect_line(core.pos, to, 0x0, &to);
 				hit = game.world.intersect_character(core.pos, to, 0.0f, at, this);
 				if(hit && hit->player->team == team)
@@ -478,7 +478,7 @@ void CHARACTER::fire_weapon()
 				if(game.players[player->started_heal] && game.players[player->started_heal]->get_character())
 				{
 					dist=distance(pos,game.players[player->started_heal]->get_character()->pos);
-					if(dist > 700)
+					if(dist > 1000)
 					{
 						str_format(buf,sizeof(buf),"Stopped healing ");
 						game.send_chat_target(player->client_id,buf);
@@ -548,7 +548,7 @@ void CHARACTER::fire_weapon()
 		
 	}
 
-	if(weapons[active_weapon].ammo > 0) // -1 == unlimited
+	if(weapons[active_weapon].ammo > 0 && player->race_name != TAUREN || player->race_name == TAUREN && active_weapon!=WEAPON_GRENADE && weapons[active_weapon].ammo > 0) // -1 == unlimited
 		weapons[active_weapon].ammo--;
 	attack_tick = server_tick();
 
