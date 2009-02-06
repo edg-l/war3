@@ -378,7 +378,7 @@ bool PLAYER::choose_ability(int choice)
 		if(choice == 1 && elf_poison<3)
 		{
 			elf_poison++;
-			str_format(buf, sizeof(buf), "Poison + %d tick",elf_poison);
+			str_format(buf, sizeof(buf), "Poison %d ticks",elf_poison*2);
 			game.send_broadcast(buf, client_id);
 			return true;
 		}
@@ -591,7 +591,7 @@ bool PLAYER::print_help()
 		{
 			str_format(buf,sizeof(buf),"ELF:");
 			game.send_chat_target(client_id, buf);
-			str_format(buf,sizeof(buf),"Poison : Deal 1 damage each second during 3/4/5 tick");
+			str_format(buf,sizeof(buf),"Poison : Deal 1 damage each second during 2/4/6 tick");
 			game.send_chat_target(client_id, buf);
 			str_format(buf,sizeof(buf),"Mirror : Reverse 1/2/3 damage");
 			game.send_chat_target(client_id, buf);
