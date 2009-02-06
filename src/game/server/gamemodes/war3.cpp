@@ -334,7 +334,7 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 		strcat(buf,tmp);
 		str_format(tmp,sizeof(tmp),"\n2 : Ressurect chance lvl %d/3",player->tauren_ressurect);
 		strcat(buf,tmp);
-		if(player->tauren_special && player->lvl >= 6 && 0)
+		if(player->tauren_special && player->lvl >= 6)
 		{
 			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Invincible");
 			strcat(buf,tmp);
