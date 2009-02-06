@@ -116,6 +116,12 @@ public:
 
 	//Tauren vars
 	bool tauren_special;
+	int tauren_hot;
+	int tauren_ressurect;
+	int hot;
+	int hot_start_tick;
+	int start_hot;
+	int hot_from;
 
 	//Other
 	bool special_used;

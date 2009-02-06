@@ -601,6 +601,15 @@ void CHARACTER::tick()
 		if(player->start_poison <=0)
 			player->poisoned=0;
 
+		if(player->hot && server_tick()-player->hot_start_tick > server_tickspeed() && game.players[player->hot_from])
+		{
+			player->hot_start_tick=server_tick();
+			increase_health(1);
+			player->start_hot--;
+		}
+		if(player->start_hot <=0)
+			player->hot=0;
+
 		//Previous stuff (should be deleted ?)
 		//if((game.controller)->is_rpg() && core.vel.x < (20.0f*((float)player->undead_speed/2.5f)) && core.vel.x > (-20.0f*((float)player->undead_speed/2.5f)))core.vel.x*=1.1f;
 		//dbg_msg("test","%f %d",core.vel.x,core.vel.x);
@@ -771,14 +780,23 @@ void CHARACTER::die(int killer, int weapon)
 	player->respawn_tick = server_tick()+server_tickspeed()/2;
 
 	player->poisoned=0;
+	player->hot=0;
 }
 
 bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 {
 	core.vel += force;
 	
-	if(game.controller->is_friendly_fire(player->client_id, from) && !config.sv_teamdamage)
+	if(game.controller->is_friendly_fire(player->client_id, from) && !config.sv_teamdamage || game.controller->is_friendly_fire(player->client_id, from) && !game.players[from]->tauren_hot && weapon != WEAPON_GUN)
 		return false;
+	else if(game.controller->is_friendly_fire(player->client_id, from) && game.players[from]->tauren_hot && weapon == WEAPON_GUN)
+	{
+		player->hot=1;
+		player->hot_start_tick=server_tick();
+		player->hot_from=from;
+		player->start_hot=game.players[from]->tauren_hot*2;
+		return true;
+	}
 
 	//Armor reduce and damage increase
 	if((game.controller)->is_rpg() && from != player->client_id)
@@ -891,6 +909,7 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 
 			//Reset poison at death
 			player->poisoned=0;
+			player->hot=0;
 		
 			// set attacker's face to happy (taunt!)
 			if (from >= 0 && from != player->client_id && game.players[from])
