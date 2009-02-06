@@ -288,6 +288,10 @@ void PLAYER::init_rpg()
 	hot_start_tick=0;
 	start_hot=0;
 	hot_from=-1;
+	healed=false;
+	heal_tick=-1;
+	started_heal=-1;
+	heal_from=-1;
 	check=true;
 }
 
@@ -326,6 +330,10 @@ void PLAYER::reset_all()
 	hot_start_tick=0;
 	start_hot=0;
 	hot_from=-1;
+	healed=false;
+	heal_tick=-1;
+	started_heal=-1;
+	heal_from=-1;
 }
 
 //Choose an ability
@@ -563,7 +571,8 @@ int PLAYER::use_special()
 			special_used=true;
 			invincible_start_tick=server_tick();
 			invincible=true;
-			special_used_tick=server_tick()+server_tickspeed()*config.sv_specialtime*10;
+			game.send_chat_target(client_id,"Invincible used");
+			special_used_tick=server_tick()+server_tickspeed()*config.sv_specialtime*12;
 			return 0;
 		}
 	}

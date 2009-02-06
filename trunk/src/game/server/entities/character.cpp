@@ -396,25 +396,74 @@ void CHARACTER::fire_weapon()
 
 		case WEAPON_GRENADE:
 		{
-			PROJECTILE *proj = new PROJECTILE(WEAPON_GRENADE,
-				player->client_id,
-				projectile_startpos,
-				direction,
-				(int)(server_tickspeed()*tuning.grenade_lifetime),
-				1, PROJECTILE::PROJECTILE_FLAGS_EXPLODE, 0, SOUND_GRENADE_EXPLODE, WEAPON_GRENADE);
-
-			// pack the projectile and send it to the client directly
-			NETOBJ_PROJECTILE p;
-			proj->fill_info(&p);
-			
-			msg_pack_start(NETMSGTYPE_SV_EXTRAPROJECTILE, 0);
-			msg_pack_int(1);
-			for(unsigned i = 0; i < sizeof(NETOBJ_PROJECTILE)/sizeof(int); i++)
-				msg_pack_int(((int *)&p)[i]);
-			msg_pack_end();
-			server_send_msg(player->client_id);
-
-			game.create_sound(pos, SOUND_GRENADE_FIRE);
+			if(player && player->race_name == TAUREN && player->started_heal == -1)
+			{
+				vec2 direction = normalize(vec2(latest_input.target_x, latest_input.target_y));
+				vec2 at;
+				CHARACTER *hit;
+				char buf[128];
+				vec2 to=core.pos+direction*700;
+				col_intersect_line(core.pos, to, 0x0, &to);
+				hit = game.world.intersect_character(core.pos, to, 0.0f, at, this);
+				if(hit && hit->player->team == team)
+				{
+					hit->player->healed=true;
+					hit->player->heal_tick=server_tick();
+					player->started_heal=hit->player->client_id;
+					hit->player->heal_from=player->client_id;
+					str_format(buf,sizeof(buf),"Started healing %s",server_clientname(hit->player->client_id));
+					game.send_chat_target(player->client_id,buf);
+				}
+			}
+			else if(player && player->race_name == TAUREN && player->started_heal != -1)
+			{
+				char buf[128];
+				if(game.players[player->started_heal] && game.players[player->started_heal]->get_character())
+				{
+					if(distance(pos,game.players[player->started_heal]->get_character()->pos) > 700)
+					{
+						str_format(buf,sizeof(buf),"Stopped healing ");
+						game.send_chat_target(player->client_id,buf);
+						game.players[player->started_heal]->healed=false;
+						player->started_heal=-1;
+					}
+				}					
+				else if(game.players[player->started_heal])
+				{
+					str_format(buf,sizeof(buf),"Stopped healing ");
+					game.send_chat_target(player->client_id,buf);
+					game.players[player->started_heal]->healed=false;
+					player->started_heal=-1;
+				}
+				else
+				{
+					str_format(buf,sizeof(buf),"Stopped healing ");
+					game.send_chat_target(player->client_id,buf);
+					player->started_heal=-1;
+				}	
+			}
+			else
+			{
+				PROJECTILE *proj = new PROJECTILE(WEAPON_GRENADE,
+					player->client_id,
+					projectile_startpos,
+					direction,
+					(int)(server_tickspeed()*tuning.grenade_lifetime),
+					1, PROJECTILE::PROJECTILE_FLAGS_EXPLODE, 0, SOUND_GRENADE_EXPLODE, WEAPON_GRENADE);
+	
+				// pack the projectile and send it to the client directly
+				NETOBJ_PROJECTILE p;
+				proj->fill_info(&p);
+				
+				msg_pack_start(NETMSGTYPE_SV_EXTRAPROJECTILE, 0);
+				msg_pack_int(1);
+				for(unsigned i = 0; i < sizeof(NETOBJ_PROJECTILE)/sizeof(int); i++)
+					msg_pack_int(((int *)&p)[i]);
+				msg_pack_end();
+				server_send_msg(player->client_id);
+	
+				game.create_sound(pos, SOUND_GRENADE_FIRE);
+			}
 		} break;
 		
 		case WEAPON_RIFLE:
@@ -605,13 +654,21 @@ void CHARACTER::tick()
 		{
 			player->hot_start_tick=server_tick();
 			increase_health(1);
-			if(game.players[player->hot_from])
-				game.create_sound(game.players[player->hot_from]->view_pos, SOUND_PICKUP_HEALTH, cmask_one(player->hot_from));
+			game.players[player->hot_from]->xp++;
+			game.create_sound(game.players[player->hot_from]->view_pos, SOUND_PICKUP_HEALTH, cmask_one(player->hot_from));
 			player->start_hot--;
 		}
 		if(player->start_hot <=0)
 			player->hot=0;
 
+		//Grenade heal
+		if(player->healed && server_tick()-player->heal_tick > server_tickspeed() && game.players[player->heal_from])
+		{
+			player->heal_tick=server_tick();
+			increase_health(1);
+			game.players[player->heal_from]->xp++;
+			game.create_sound(game.players[player->heal_from]->view_pos, SOUND_PICKUP_HEALTH, cmask_one(player->heal_from));
+		}
 		//Previous stuff (should be deleted ?)
 		//if((game.controller)->is_rpg() && core.vel.x < (20.0f*((float)player->undead_speed/2.5f)) && core.vel.x > (-20.0f*((float)player->undead_speed/2.5f)))core.vel.x*=1.1f;
 		//dbg_msg("test","%f %d",core.vel.x,core.vel.x);
@@ -803,6 +860,10 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 	if(game.controller->is_friendly_fire(player->client_id, from) && !config.sv_teamdamage)
 		return false;
 
+	//Invicible
+	if((game.controller)->is_rpg() && player->invincible)
+		return false;
+
 	//Armor reduce and damage increase
 	if((game.controller)->is_rpg() && from != player->client_id)
 	{
@@ -894,11 +955,6 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 	// check for death
 	if(health <= 0)
 	{
-		//Invicible
-		if((game.controller)->is_rpg() && player->invincible)
-		{
-			health=1;
-		}
 		
 		/*else if((game.controller)->is_rpg() && player->other_invincible && !player->invincible_used)
 		{
@@ -907,24 +963,20 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 			player->invincible_start_tick=server_tick();
 			health=1;
 		}*/
-		
-		else
-		{
-			die(from, weapon);
+		die(from, weapon);
 
-			//Reset poison at death
-			player->poisoned=0;
-			player->hot=0;
-		
-			// set attacker's face to happy (taunt!)
-			if (from >= 0 && from != player->client_id && game.players[from])
+		//Reset poison at death
+		player->poisoned=0;
+		player->hot=0;
+	
+		// set attacker's face to happy (taunt!)
+		if (from >= 0 && from != player->client_id && game.players[from])
+		{
+			CHARACTER *chr = game.players[from]->get_character();
+			if (chr)
 			{
-				CHARACTER *chr = game.players[from]->get_character();
-				if (chr)
-				{
-					chr->emote_type = EMOTE_HAPPY;
-					chr->emote_stop = server_tick() + server_tickspeed();
-				}
+				chr->emote_type = EMOTE_HAPPY;
+				chr->emote_stop = server_tick() + server_tickspeed();
 			}
 		}
 		return false;

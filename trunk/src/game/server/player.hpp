@@ -126,6 +126,10 @@ public:
 	vec2 death_pos;
 	bool invincible;
 	int invincible_start_tick;
+	bool healed;
+	int heal_tick;
+	int heal_from;
+	int started_heal;
 
 	//Other
 	bool special_used;
