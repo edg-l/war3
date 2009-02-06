@@ -180,7 +180,7 @@ void GAMECONTROLLER_WAR::tick()
 						//Xp
 						chr->player->xp += 20;
 						if(chr->player->healed && game.players[chr->player->heal_from])
-							game.players[chr->player->heal_from]->xp+=50;
+							game.players[chr->player->heal_from]->xp+=20;
 
 						dbg_msg("game", "flag_return player='%d:%s'",
 							chr->player->client_id,
@@ -204,7 +204,7 @@ void GAMECONTROLLER_WAR::tick()
 					//Xp
 					f->carrying_character->player->xp += 10;
 					if(f->carrying_character->player->healed && game.players[f->carrying_character->player->heal_from])
-						game.players[f->carrying_character->player->heal_from]->xp+=50;
+						game.players[f->carrying_character->player->heal_from]->xp+=10;
 
 					dbg_msg("game", "flag_grab player='%d:%s'",
 						f->carrying_character->player->client_id,

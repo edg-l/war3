@@ -967,7 +967,7 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 		PLAYER *p=game.players[from];
 		p->xp+=dmg;
 		if(p->healed && game.players[p->heal_from])
-			game.players[p->heal_from]->xp+=50;
+			game.players[p->heal_from]->xp+=dmg;
 	}
 
 	damage_taken++;
