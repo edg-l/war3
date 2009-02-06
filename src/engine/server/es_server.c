@@ -641,7 +641,16 @@ static void server_process_client_packet(NETCHUNK *packet)
 	
 	int sys;
 	int msg = msg_unpack_start(packet->data, packet->data_size, &sys);
-	
+
+	/* count the players */	
+	int player_count = 0;
+	int i;
+	for(i = 0; i < MAX_CLIENTS; i++)
+	{
+		if(clients[i].state != SRVCLIENT_STATE_EMPTY && cid != i)
+			player_count++;
+	}
+
 	if(clients[cid].state == SRVCLIENT_STATE_AUTH)
 	{
 		if(sys && msg == NETMSG_INFO)
@@ -670,7 +679,7 @@ static void server_process_client_packet(NETCHUNK *packet)
 			}
 
 			/*slot*/
- 			if(cid >= (config.sv_max_clients-config.sv_reserved_slots) && config.sv_reserved_slots_pass[0] != 0 && strcmp(config.sv_reserved_slots_pass, password) != 0)
+ 			if(player_count >= netserver_max_clients(net)-config.sv_reserved_slots && config.sv_reserved_slots_pass[0] != 0 && strcmp(config.sv_reserved_slots_pass, password) != 0)
  			{
  				/* wrong password */
  				netserver_drop(net, cid, "server is full");
