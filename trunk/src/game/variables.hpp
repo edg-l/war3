@@ -77,6 +77,7 @@ MACRO_CONFIG_INT(dbg_tuning, 0, 0, 1, CFGFLAG_CLIENT, "")
 MACRO_CONFIG_INT(sv_specialtime, 5, 0, 30, CFGFLAG_SERVER, "Reload time for special")
 MACRO_CONFIG_INT(sv_race_tag, 1, 0, 1, CFGFLAG_SERVER, "Show race in name")
 MACRO_CONFIG_INT(sv_force_race, 1, 0, 10, CFGFLAG_SERVER, "Enable/disable forcing race choice after x min")
+MACRO_CONFIG_INT(sv_show_level, 0, 0, 1, CFGFLAG_SERVER, "Replace ping by level")
 MACRO_CONFIG_INT(sv_reserved_slots, 0, 0, 16, CFGFLAG_SERVER, "")
 MACRO_CONFIG_STR(sv_reserved_slots_pass, 32, "", CFGFLAG_SERVER, "")
 
