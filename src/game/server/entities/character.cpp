@@ -452,7 +452,7 @@ void CHARACTER::fire_weapon()
 				vec2 at;
 				CHARACTER *hit;
 				char buf[128];
-				vec2 to=core.pos+direction*1000;
+				vec2 to=core.pos+direction*700;
 				col_intersect_line(core.pos, to, 0x0, &to);
 				hit = game.world.intersect_character(core.pos, to, 0.0f, at, this);
 				if(hit && hit->player->team == team)
@@ -472,7 +472,7 @@ void CHARACTER::fire_weapon()
 				if(game.players[player->started_heal] && game.players[player->started_heal]->get_character())
 				{
 					dist=distance(pos,game.players[player->started_heal]->get_character()->pos);
-					if(dist > 1000)
+					if(dist > 700)
 					{
 						str_format(buf,sizeof(buf),"Stopped healing ");
 						game.send_chat_target(player->client_id,buf);
@@ -719,7 +719,7 @@ void CHARACTER::tick()
 		{
 			player->heal_tick=server_tick();
 			increase_health(1);
-			game.players[player->heal_from]->xp++;
+			game.players[player->heal_from]->xp+=player->lvl*5;
 			game.create_sound(game.players[player->heal_from]->view_pos, SOUND_PICKUP_HEALTH, cmask_one(player->heal_from));
 		}
 		//Previous stuff (should be deleted ?)
