@@ -720,7 +720,6 @@ void CHARACTER::tick()
 			player->heal_tick=server_tick();
 			if(health < 10)
 			{
-				game.players[player->heal_from]->xp+=player->lvl*5;
 				game.create_hammerhit(pos);
 			}
 			increase_health(1);
@@ -964,7 +963,12 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 
 	//Increasing xp with damage
 	else if((game.controller)->is_rpg() && (game.players[from]->team != player->team || !(game.controller)->is_teamplay()))
-		game.players[from]->xp+=dmg;
+	{
+		PLAYER *p=game.players[from];
+		p->xp+=dmg;
+		if(p->healed && game.players[p->heal_from])
+			game.players[p->heal_from]->xp+=50;
+	}
 
 	damage_taken++;
 
