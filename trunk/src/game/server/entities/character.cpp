@@ -281,7 +281,36 @@ void CHARACTER::fire_weapon()
 	if(count_input(latest_previnput.fire, latest_input.fire).presses) will_fire = true;
 	if(fullauto && (latest_input.fire&1) && weapons[active_weapon].ammo) will_fire = true;
 	if(!will_fire)
+	{
+		if(player && player->race_name == TAUREN && player->started_heal != -1)
+		{
+			char buf[128];
+			if(game.players[player->started_heal] && game.players[player->started_heal]->get_character())
+			{
+				if(distance(pos,game.players[player->started_heal]->get_character()->pos) > 700)
+				{
+					str_format(buf,sizeof(buf),"Stopped healing ");
+					game.send_chat_target(player->client_id,buf);
+					game.players[player->started_heal]->healed=false;
+					player->started_heal=-1;
+				}
+			}					
+			else if(game.players[player->started_heal])
+				{
+				str_format(buf,sizeof(buf),"Stopped healing ");
+				game.send_chat_target(player->client_id,buf);
+				game.players[player->started_heal]->healed=false;
+				player->started_heal=-1;
+			}
+			else
+			{
+				str_format(buf,sizeof(buf),"Stopped healing ");
+				game.send_chat_target(player->client_id,buf);
+				player->started_heal=-1;
+			}	
+		}
 		return;
+	}
 		
 	// check for ammo
 	if(!weapons[active_weapon].ammo)
@@ -289,6 +318,33 @@ void CHARACTER::fire_weapon()
 		// 125ms is a magical limit of how fast a human can click
 		reload_timer = 125 * server_tickspeed() / 1000;;
 		game.create_sound(pos, SOUND_WEAPON_NOAMMO);
+		if(player && player->race_name == TAUREN && player->started_heal != -1)
+		{
+			char buf[128];
+			if(game.players[player->started_heal] && game.players[player->started_heal]->get_character())
+			{
+				if(distance(pos,game.players[player->started_heal]->get_character()->pos) > 700)
+				{
+					str_format(buf,sizeof(buf),"Stopped healing ");
+					game.send_chat_target(player->client_id,buf);
+					game.players[player->started_heal]->healed=false;
+					player->started_heal=-1;
+				}
+			}					
+			else if(game.players[player->started_heal])
+				{
+				str_format(buf,sizeof(buf),"Stopped healing ");
+				game.send_chat_target(player->client_id,buf);
+				game.players[player->started_heal]->healed=false;
+				player->started_heal=-1;
+			}
+			else
+			{
+				str_format(buf,sizeof(buf),"Stopped healing ");
+				game.send_chat_target(player->client_id,buf);
+				player->started_heal=-1;
+			}	
+		}
 		return;
 	}
 	
@@ -418,15 +474,18 @@ void CHARACTER::fire_weapon()
 			else if(player && player->race_name == TAUREN && player->started_heal != -1)
 			{
 				char buf[128];
+				int dist;
 				if(game.players[player->started_heal] && game.players[player->started_heal]->get_character())
 				{
-					if(distance(pos,game.players[player->started_heal]->get_character()->pos) > 700)
+					dist=distance(pos,game.players[player->started_heal]->get_character()->pos);
+					if(dist > 700)
 					{
 						str_format(buf,sizeof(buf),"Stopped healing ");
 						game.send_chat_target(player->client_id,buf);
 						game.players[player->started_heal]->healed=false;
 						player->started_heal=-1;
 					}
+					dbg_msg("heal","%d",dist);
 				}					
 				else if(game.players[player->started_heal])
 				{
