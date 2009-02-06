@@ -302,10 +302,23 @@ void mods_message(int msgtype, int client_id)
 						p->score++;
 					}
 				}
+				else if(!strcmp(msg->message, "/race tauren"))
+				{
+					char buf[128];
+					str_format(buf, sizeof(buf), "Tauren chosen");
+					game.send_broadcast(buf, client_id);
+					p->init_rpg();
+					p->race_name=HUMAN;
+					if(p->get_character() && p->get_character()->alive)
+					{
+						p->kill_character(-1);
+						p->score++;
+					}
+				}
 				else
 				{
 					char buf[128];
-					str_format(buf, sizeof(buf), "Wrong race : orc/human/elf/undead");
+					str_format(buf, sizeof(buf), "Wrong race : orc/human/elf/undead/tauren");
 					game.send_broadcast(buf, client_id);
 				}
 				p->check=true;
@@ -392,7 +405,7 @@ void mods_message(int msgtype, int client_id)
 				game.send_chat_target(client_id,"---Command List---");
 				game.send_chat_target(client_id,"For special:");
 				game.send_chat_target(client_id,"bind key say /ability (Example : \"bind f say /ability\" in F1)");
-				game.send_chat_target(client_id,"\"/race x\" where x is undead or human or orc or elf");
+				game.send_chat_target(client_id,"\"/race x\" where x is undead or human or orc or elf or tauren");
 				game.send_chat_target(client_id,"\".info\" mod info");
 				game.send_chat_target(client_id,"\"/help\" ... help ? ");
 				game.send_chat_target(client_id,"\"/otherlvl\" print other lvls");
@@ -581,6 +594,8 @@ void mods_message(int msgtype, int client_id)
 				str_format(tmp,sizeof(tmp),"[HUM]");
 			else if(p->race_name == ELF)
 				str_format(tmp,sizeof(tmp),"[ELF]");
+			else if(p->race_name == TAUREN)
+				str_format(tmp,sizeof(tmp),"[TAU]");
 			strncat(tmp,newname,MAX_NAME_LENGTH-6);
 			tmp[MAX_NAME_LENGTH]=0;
 			server_setclientname(client_id, tmp);

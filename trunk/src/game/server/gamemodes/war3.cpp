@@ -250,7 +250,7 @@ void GAMECONTROLLER_WAR::on_level_up(PLAYER *player)
 		player->leveled++;
 		if(player->lvl==LVLMAX)
 			player->levelmax=true;
-		display_level(player);
+		display_stats(player,player);
 	}
 	else if(player->race_name == VIDE && player->team != -1)
 	{
@@ -263,65 +263,8 @@ void GAMECONTROLLER_WAR::on_level_up(PLAYER *player)
 		player->lvl=LVLMAX;
 		game.create_sound_global(SOUND_TEE_CRY, player->client_id);
 		player->levelmax=true;
-		display_level(player);
+		display_stats(player,player);
 	}
-}
-
-
-//Display level up information
-void GAMECONTROLLER_WAR::display_level(PLAYER *player)
-{
-	char buf[128];
-	if(player->lvl >= LVLMAX)
-	{
-		str_format(buf, sizeof(buf), "Final lvl");
-	}
-	else if(player->leveled)
-	{
-		str_format(buf, sizeof(buf), "LVL UP : (%d point(s) to spend)",player->leveled);
-	}
-	if(player->leveled)
-	{
-		if(player->race_name == ORC)
-		{
-			if(player->orc_dmg <3)
-				strcat(buf,"\nsay \"/1\" Damage + 20%");
-			if(player->orc_reload <3)
-				strcat(buf,"\nsay \"/2\" Reload --");
-			if(!player->orc_special && player->lvl>=6)
-				strcat(buf,"\nsay \"/3\" SPECIAL : Teleport Backup");
-			
-		}
-		else if(player->race_name == ELF)
-		{
-			if(player->elf_poison <3)
-				strcat(buf,"\nsay \"/1\" Poison + 1");
-			if(player->elf_mirror <3)
-				strcat(buf,"\nsay \"/2\" Mirror damage + 1");
-			if(!player->elf_special && player->lvl>=6)	
-				strcat(buf,"\nsay \"/3\" SPECIAL : Immobilise");
-		}
-		else if(player->race_name == UNDEAD)
-		{
-			if(player->undead_taser <3)
-				strcat(buf,"\nsay \"/1\" Taser ++");
-			if(player->undead_vamp <3)
-				strcat(buf,"\nsay \"/2\" Vampiric damage");
-			if(!player->undead_special && player->lvl>=6)
-				strcat(buf,"\nsay \"/3\" SPECIAL : Kamikaz");
-		}
-		else if(player->race_name == HUMAN)
-		{
-			if(player->human_armor <3)
-				strcat(buf,"\nsay \"/1\" Armor + 20%");
-			if(player->human_mole <3)
-				strcat(buf,"\nsay \"/2\" Mole chance + 20%");
-			if(!player->human_special && player->lvl>=6)
-				strcat(buf,"\nsay \"/3\" SPECIAL : Teleport");
-		}
-	}
-
-	game.send_broadcast(buf, player->client_id);
 }
 
 //Display current stats
@@ -331,31 +274,19 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 	char tmp[128];
 	if(player->client_id == from->client_id)
 	{
-		if(player->leveled)
-		{
-			display_level(player);
-			return;
-		}
-		else
 			str_format(buf, sizeof(buf), "Stats : (%d point to spend)",player->leveled);
 	}
 	else if(player->lvl >= LVLMAX)
-		str_format(buf, sizeof(buf), "Final lvl Stats :");
+		str_format(buf, sizeof(buf), "Final lvl Stats : (%d point to spend)",player->leveled);
 	else
 		str_format(buf, sizeof(buf), "Stats : ");
 	if(player->race_name == ORC)
 	{
-		if(player->orc_dmg)
-		{
-			str_format(tmp,sizeof(tmp),"\n1 : Damage lvl %d/3",player->orc_dmg);
-			strcat(buf,tmp);
-		}
-		if(player->orc_reload)
-		{
-			str_format(tmp,sizeof(tmp),"\n2 : Reload lvl %d/3",player->orc_reload);
-			strcat(buf,tmp);
-		}
-		if(player->orc_special)
+		str_format(tmp,sizeof(tmp),"\n1 : Damage lvl %d/3",player->orc_dmg);
+		strcat(buf,tmp);
+		str_format(tmp,sizeof(tmp),"\n2 : Reload lvl %d/3",player->orc_reload);
+		strcat(buf,tmp);
+		if(player->orc_special && player->lvl >= 6)
 		{
 			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Teleport Backup");
 			strcat(buf,tmp);
@@ -364,17 +295,11 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 	}
 	else if(player->race_name == ELF)
 	{
-		if(player->elf_poison)
-		{
-			str_format(tmp,sizeof(tmp),"\n1 : Poison lvl %d/3",player->elf_poison);
-			strcat(buf,tmp);
-		}
-		if(player->elf_mirror)
-		{
-			str_format(tmp,sizeof(tmp),"\n2 : Mirror damage lvl %d/3",player->elf_mirror);
-			strcat(buf,tmp);
-		}
-		if(player->elf_special)
+		str_format(tmp,sizeof(tmp),"\n1 : Poison lvl %d/3",player->elf_poison);
+		strcat(buf,tmp);
+		str_format(tmp,sizeof(tmp),"\n2 : Mirror damage lvl %d/3",player->elf_mirror);
+		strcat(buf,tmp);
+		if(player->elf_special && player->lvl >= 6)
 		{
 			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Immobilise");
 			strcat(buf,tmp);
@@ -382,17 +307,11 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 	}
 	else if(player->race_name == UNDEAD)
 	{
-		if(player->undead_taser)
-		{
-			str_format(tmp,sizeof(tmp),"\n1 : Taser lvl %d/3",player->undead_taser);
-			strcat(buf,tmp);
-		}
-		if(player->undead_vamp)
-		{
-			str_format(tmp,sizeof(tmp),"\n2 : Vampiric damage lvl %d/3",player->undead_vamp);
-			strcat(buf,tmp);
-		}
-		if(player->undead_special)
+		str_format(tmp,sizeof(tmp),"\n1 : Taser lvl %d/3",player->undead_taser);
+		strcat(buf,tmp);
+		str_format(tmp,sizeof(tmp),"\n2 : Vampiric damage lvl %d/3",player->undead_vamp);
+		strcat(buf,tmp);
+		if(player->undead_special && player->lvl >= 6)
 		{
 			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Kamikaz");
 			strcat(buf,tmp);
@@ -400,17 +319,23 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 	}
 	else if(player->race_name == HUMAN)
 	{
-		if(player->human_armor)
+		str_format(tmp,sizeof(tmp),"\n1 : Armor lvl %d/3",player->human_armor);
+		strcat(buf,tmp);
+		str_format(tmp,sizeof(tmp),"\n2 : Mole chance lvl %d/3",player->human_mole);
+		strcat(buf,tmp);
+		if(player->human_special && player->lvl >= 6)
 		{
-			str_format(tmp,sizeof(tmp),"\n1 : Armor lvl %d/3",player->human_armor);
+			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Teleport");
 			strcat(buf,tmp);
 		}
-		if(player->human_mole)
-		{
-			str_format(tmp,sizeof(tmp),"\n2 : Mole chance lvl %d/3",player->human_mole);
-			strcat(buf,tmp);
-		}
-		if(player->human_special)
+	}
+	else if(player->race_name == TAUREN)
+	{
+		str_format(tmp,sizeof(tmp),"\n1 : Armor lvl %d/3",player->human_armor);
+		strcat(buf,tmp);
+		str_format(tmp,sizeof(tmp),"\n2 : Mole chance lvl %d/3",player->human_mole);
+		strcat(buf,tmp);
+		if(player->tauren_special && player->lvl >= 6 && 0)
 		{
 			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Teleport");
 			strcat(buf,tmp);
