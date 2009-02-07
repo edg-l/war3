@@ -299,6 +299,14 @@ void CHARACTER::fire_weapon()
 			player->started_heal=-1;
 		}	
 	}
+	if(!alive && player && player->race_name == TAUREN  && game.players[player->started_heal] && player->started_heal != -1)
+	{
+		char buf[128];
+		str_format(buf,sizeof(buf),"Stopped healing (you died)");
+		game.send_chat_target(player->client_id,buf);
+		game.players[player->started_heal]->healed=false;
+		player->started_heal=-1;
+	}	
 
 	// check if we gonna fire
 	bool will_fire = false;
