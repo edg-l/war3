@@ -103,7 +103,7 @@ void PLAYER::tick()
 		}
 		for (i=1;i < NBRACE;i++)
 		{
-			if(force_race == -1 || nbRace[i]<nbRace[force_race])
+			if(force_race == -1 && i != TAUREN || nbRace[i]<nbRace[force_race] && i != TAUREN)
 				force_race=i;
 		}
 		char buf[128];
