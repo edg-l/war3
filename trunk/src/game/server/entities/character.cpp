@@ -943,10 +943,16 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 	core.vel += force;
 
 	//Tauren hot
-	if(game.controller->is_friendly_fire(player->client_id, from) && game.players[from]->tauren_hot && weapon == WEAPON_GUN)
+	if(game.controller->is_friendly_fire(player->client_id, from) && game.players[from]->tauren_hot && weapon == WEAPON_GUN && player->hot!=1)
 	{
 		player->hot=1;
 		player->hot_start_tick=server_tick();
+		player->hot_from=from;
+		player->start_hot=game.players[from]->tauren_hot*2;
+		return true;
+	}
+	else if(game.controller->is_friendly_fire(player->client_id, from) && game.players[from]->tauren_hot && weapon == WEAPON_GUN && player->hot == 1)
+	{
 		player->hot_from=from;
 		player->start_hot=game.players[from]->tauren_hot*2;
 		return true;
