@@ -476,7 +476,7 @@ void CHARACTER::fire_weapon()
 				vec2 at;
 				CHARACTER *hit;
 				char buf[128];
-				vec2 to=core.pos+direction*200*player->lvl;
+				vec2 to=core.pos+direction*150*player->lvl;
 				col_intersect_line(core.pos, to, 0x0, &to);
 				hit = game.world.intersect_character(core.pos, to, 0.0f, at, this);
 				if(hit && hit->player->team == team)
@@ -496,7 +496,7 @@ void CHARACTER::fire_weapon()
 				if(game.players[player->started_heal] && game.players[player->started_heal]->get_character())
 				{
 					dist=distance(pos,game.players[player->started_heal]->get_character()->pos);
-					if(dist > 200*player->lvl)
+					if(dist > 150*player->lvl)
 					{
 						str_format(buf,sizeof(buf),"Stopped healing (You are too far from the healed character)");
 						game.send_chat_target(player->client_id,buf);
