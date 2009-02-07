@@ -81,12 +81,13 @@ void PLAYER::tick()
 	if(invincible && server_tick()-invincible_start_tick > server_tickspeed()*3)
 	{
 		invincible=false;
+		check=true;
 	}
 	//Dumb people don't choose race ? oO
 	if(race_name==VIDE && server_tick()%(server_tickspeed()*2)==0 && team != -1)
 	{
 		char buf[128];
-		str_format(buf, sizeof(buf), "Choose a race say \"/race undead/orc/human/elf\"");
+		str_format(buf, sizeof(buf), "Choose a race say \"/race undead/orc/human/elf/tauren\"");
 		game.send_broadcast(buf, client_id);
 	}
 
@@ -590,6 +591,7 @@ int PLAYER::use_special()
 			invincible_start_tick=server_tick();
 			invincible=true;
 			game.send_chat_target(client_id,"Invincible used");
+			check=true;
 			special_used_tick=server_tick()+server_tickspeed()*config.sv_specialtime*12;
 			return 0;
 		}
@@ -712,6 +714,8 @@ void PLAYER::check_skins(void)
 		str_format(skin_name,sizeof(skin_name),"undead");
 	else if(race_name == ELF && strcmp(skin_name,"elf"))
 		str_format(skin_name,sizeof(skin_name),"elf");
+	else if(race_name == TAUREN && invincible && strcmp(skin_name,"tauren_invincible"))
+		str_format(skin_name,sizeof(skin_name),"tauren_invincible");
 	else if(race_name == TAUREN && strcmp(skin_name,"tauren"))
 		str_format(skin_name,sizeof(skin_name),"tauren");
 	else if(race_name == VIDE && strcmp(skin_name,"default"))
