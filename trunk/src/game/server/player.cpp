@@ -235,6 +235,7 @@ void PLAYER::set_team(int new_team)
 		if(count_tauren >= config.sv_max_tauren)
 		{
 			race_name=HUMAN;
+			check=true;
 			reset_all();
 		}
 	}
