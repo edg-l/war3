@@ -731,9 +731,9 @@ void CHARACTER::tick()
 		if(player->hot && server_tick()-player->hot_start_tick > server_tickspeed() && game.players[player->hot_from])
 		{
 			player->hot_start_tick=server_tick();
-			if(health < 10)
+			//if(health < 10)
 				increase_health(1);
-			else
+			//else
 				increase_armor(1);
 			game.players[player->hot_from]->xp++;
 			game.create_sound(game.players[player->hot_from]->view_pos, SOUND_PICKUP_HEALTH, cmask_one(player->hot_from));
