@@ -496,7 +496,7 @@ void CHARACTER::fire_weapon()
 				if(game.players[player->started_heal] && game.players[player->started_heal]->get_character())
 				{
 					dist=distance(pos,game.players[player->started_heal]->get_character()->pos);
-					if(dist > 700)
+					if(dist > 1000)
 					{
 						str_format(buf,sizeof(buf),"Stopped healing (You are too far from the healed character)");
 						game.send_chat_target(player->client_id,buf);
