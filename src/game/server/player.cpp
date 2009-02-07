@@ -223,6 +223,21 @@ void PLAYER::set_team(int new_team)
 	team = new_team;
 	score = 0;
 	if(team==-1)init_rpg();
+	if(race_name == TAUREN)
+	{
+		int count_tauren=0;
+		int i;
+		for(i=0;i < MAX_CLIENTS;i++)
+		{
+			if(game.players[i] && game.players[i]->client_id != -1 && game.players[i]->race_name == TAUREN && game.players[i]->team == team)
+				count_tauren++;
+		}
+		if(count_tauren >= config.sv_max_tauren)
+		{
+			race_name=HUMAN;
+			reset_all();
+		}
+	}
 	dbg_msg("game", "team_join player='%d:%s' team=%d", client_id, server_clientname(client_id), team);
 	
 	game.controller->on_player_info_change(game.players[client_id]);
