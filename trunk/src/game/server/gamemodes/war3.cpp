@@ -292,9 +292,9 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 		str_format(buf, sizeof(buf), "Stats : ");
 	if(player->race_name == ORC)
 	{
-		str_format(tmp,sizeof(tmp),"\n1 : Damage lvl %d/3",player->orc_dmg);
+		str_format(tmp,sizeof(tmp),"\n1 : Damage lvl %d/4",player->orc_dmg);
 		strcat(buf,tmp);
-		str_format(tmp,sizeof(tmp),"\n2 : Reload lvl %d/3",player->orc_reload);
+		str_format(tmp,sizeof(tmp),"\n2 : Reload lvl %d/4",player->orc_reload);
 		strcat(buf,tmp);
 		if(player->lvl >= 6)
 		{

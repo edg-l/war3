@@ -272,7 +272,7 @@ void CHARACTER::fire_weapon()
 		fullauto = true;
 
 	//Orc at reload lvl 3 can fullauto with gun
-	if(active_weapon == WEAPON_GUN && player->orc_reload == 3)
+	if(active_weapon == WEAPON_GUN && player->orc_reload == 4)
 		fullauto = true;
 
 	if(active_weapon != WEAPON_GRENADE && player && player->race_name == TAUREN && player->started_heal != -1)
@@ -443,7 +443,7 @@ void CHARACTER::fire_weapon()
 		{
 			int shotspread = 2;
 			//Orc at damage lvl 3 fire more bullet with shotgun
-			if(player->orc_dmg>=2 && (game.controller)->is_rpg())shotspread = 3;
+			if(player->orc_dmg>=3 && (game.controller)->is_rpg())shotspread = 3;
 
 			msg_pack_start(NETMSGTYPE_SV_EXTRAPROJECTILE, 0);
 			msg_pack_int(shotspread*2+1);
@@ -583,13 +583,16 @@ void CHARACTER::fire_weapon()
 		switch(player->orc_reload)
 		{
 			case 1:
-		 		reload_timer=(data->weapons.id[active_weapon].firedelay * server_tickspeed() )/ 1250;
+		 		reload_timer=(data->weapons.id[active_weapon].firedelay * server_tickspeed() )/ 1150;
 				break;
 			case 2:
-		 		reload_timer=(data->weapons.id[active_weapon].firedelay * server_tickspeed() )/ 1500;
+		 		reload_timer=(data->weapons.id[active_weapon].firedelay * server_tickspeed() )/ 1300;
 				break;
 			case 3:
-		 		reload_timer=(data->weapons.id[active_weapon].firedelay * server_tickspeed() )/ 1750;
+		 		reload_timer=(data->weapons.id[active_weapon].firedelay * server_tickspeed() )/ 1450;
+				break;
+			case 4:
+		 		reload_timer=(data->weapons.id[active_weapon].firedelay * server_tickspeed() )/ 1600;
 				break;
 		}
 	}
@@ -967,7 +970,7 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 	//Armor reduce and damage increase
 	if((game.controller)->is_rpg() && from != player->client_id)
 	{
-		float dmgincrease=(float)dmg*((float)game.players[from]->orc_dmg*20.0f/100.0f);
+		float dmgincrease=(float)dmg*((float)game.players[from]->orc_dmg*15.0f/100.0f);
 		float dmgdecrease=(float)dmg*((float)player->human_armor*20.0f/100.0f);
 		dmg=(int)round((float)dmg+dmgincrease-dmgdecrease);
 		if(dmg<=0)dmg=1;
