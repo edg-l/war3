@@ -92,10 +92,11 @@ int GAMECONTROLLER_WAR::on_character_death(class CHARACTER *victim, class PLAYER
 		game.create_explosion(tempPos, victim->player->client_id, WEAPON_EXPLODE, false);
 		victim->player->exploded=false;
 	}
-	else if(victim->player &&  !victim->player->undead_special)
+	//Forgot this one at respawn -_-
+	/*else if(victim->player &&  !victim->player->undead_special)
 	{
 		victim->player->special_used=false;
-	}
+	}*/
 
 	return had_flag;
 }
