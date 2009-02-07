@@ -229,7 +229,7 @@ void PLAYER::set_team(int new_team)
 		int i;
 		for(i=0;i < MAX_CLIENTS;i++)
 		{
-			if(game.players[i] && game.players[i]->client_id != -1 && game.players[i]->race_name == TAUREN && game.players[i]->team == team)
+			if(game.players[i] && game.players[i]->client_id != -1 && game.players[i]->race_name == TAUREN && game.players[i]->team == team && game.players[i]->client_id != client_id)
 				count_tauren++;
 		}
 		if(count_tauren >= config.sv_max_tauren)
