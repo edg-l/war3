@@ -363,14 +363,14 @@ bool PLAYER::choose_ability(int choice)
 	char buf[128];
 	if(race_name==ORC)
 	{
-		if(choice == 1 && orc_dmg<3)
+		if(choice == 1 && orc_dmg<4)
 		{
 			orc_dmg++;
-			str_format(buf, sizeof(buf), "Damage + %d0%%",orc_dmg*2);
+			str_format(buf, sizeof(buf), "Damage + %d%%",orc_dmg*15);
 			game.send_broadcast(buf, client_id);
 			return true;
 		}
-		else if(choice == 2 && orc_reload<3)
+		else if(choice == 2 && orc_reload<4)
 		{
 			orc_reload++;
 			str_format(buf, sizeof(buf), "Reload faster + %d",orc_reload);
