@@ -297,7 +297,7 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 		strcat(buf,tmp);
 		if(player->lvl >= 6)
 		{
-			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Teleport Backup %d/1",player->orc_special);
+			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Teleport Backup %d/1",player->orc_special?1:0);
 			strcat(buf,tmp);
 		}
 		
@@ -310,7 +310,7 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 		strcat(buf,tmp);
 		if(player->lvl >= 6)
 		{
-			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Immobilise %d/1",player->elf_special);
+			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Immobilise %d/1",player->elf_special?1:0);
 			strcat(buf,tmp);
 		}
 	}
@@ -322,7 +322,7 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 		strcat(buf,tmp);
 		if(player->lvl >= 6)
 		{
-			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Kamikaz %d/1",player->undead_special);
+			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Kamikaz %d/1",player->undead_special?1:0);
 			strcat(buf,tmp);
 		}
 	}
@@ -334,7 +334,7 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 		strcat(buf,tmp);
 		if(player->lvl >= 6)
 		{
-			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Teleport %d/1",player->human_special);
+			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Teleport %d/1",player->human_special?1:0);
 			strcat(buf,tmp);
 		}
 	}
@@ -346,7 +346,7 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 		strcat(buf,tmp);
 		if(player->lvl >= 6)
 		{
-			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Invincible %d/1",player->tauren_special);
+			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Invincible %d/1",player->tauren_special?1:0);
 			strcat(buf,tmp);
 		}
 	}
