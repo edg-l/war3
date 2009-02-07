@@ -747,7 +747,7 @@ void CHARACTER::tick()
 			{
 				game.create_hammerhit(pos);
 			}
-			increase_health(1);
+			increase_health(2);
 			game.create_sound(game.players[player->heal_from]->view_pos, SOUND_PICKUP_HEALTH, cmask_one(player->heal_from));
 		}
 		//Previous stuff (should be deleted ?)
