@@ -75,6 +75,7 @@ MACRO_CONFIG_INT(dbg_tuning, 0, 0, 1, CFGFLAG_CLIENT, "")
 
 /* war3 */
 MACRO_CONFIG_INT(sv_specialtime, 5, 0, 30, CFGFLAG_SERVER, "Reload time for special")
+MACRO_CONFIG_INT(sv_max_tauren, 1, 0, 8, CFGFLAG_SERVER, "Max tauren per team")
 MACRO_CONFIG_INT(sv_race_tag, 1, 0, 1, CFGFLAG_SERVER, "Show race in name")
 MACRO_CONFIG_INT(sv_force_race, 1, 0, 10, CFGFLAG_SERVER, "Enable/disable forcing race choice after x min")
 MACRO_CONFIG_INT(sv_reserved_slots, 0, 0, 16, CFGFLAG_SERVER, "")

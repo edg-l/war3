@@ -304,15 +304,31 @@ void mods_message(int msgtype, int client_id)
 				}
 				else if(!strcmp(msg->message, "/race tauren"))
 				{
-					char buf[128];
-					str_format(buf, sizeof(buf), "Tauren chosen");
-					game.send_broadcast(buf, client_id);
-					p->init_rpg();
-					p->race_name=TAUREN;
-					if(p->get_character() && p->get_character()->alive)
+					int count_tauren=0;
+					int i;
+					for(i=0;i < MAX_CLIENTS;i++)
 					{
-						p->kill_character(-1);
-						p->score++;
+						if(game.players[i] && game.players[i]->client_id != -1 && game.players[i]->race_name == TAUREN && game.players[i]->team == p->team)
+							count_tauren++;
+					}
+					if(count_tauren  < config.sv_max_tauren)
+					{
+						char buf[128];
+						str_format(buf, sizeof(buf), "Tauren chosen");
+						game.send_broadcast(buf, client_id);
+						p->init_rpg();
+						p->race_name=TAUREN;
+						if(p->get_character() && p->get_character()->alive)
+						{
+							p->kill_character(-1);
+							p->score++;
+						}
+					}
+					else
+					{
+						char buf[128];
+						str_format(buf, sizeof(buf), "Too much tauren in your team");
+						game.send_broadcast(buf, client_id);
 					}
 				}
 				else
