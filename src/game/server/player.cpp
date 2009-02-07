@@ -671,7 +671,9 @@ bool PLAYER::print_help()
 		{
 			str_format(buf,sizeof(buf),"TAUREN:");
 			game.send_chat_target(client_id, buf);
-			str_format(buf,sizeof(buf),"Hot : Healing on time for 2/4/6 ticks");
+			str_format(buf,sizeof(buf),"Tauren have a native ability wich is healing with grenade launcher");
+			game.send_chat_target(client_id, buf);
+			str_format(buf,sizeof(buf),"Hot : Healing over time for 2/4/6 ticks with pistol(like a poison)");
 			game.send_chat_target(client_id, buf);
 			str_format(buf,sizeof(buf),"Ressurection : 15/30/45%% chance to ressurect at the place where one died");
 			game.send_chat_target(client_id, buf);
