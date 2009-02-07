@@ -503,7 +503,6 @@ void CHARACTER::fire_weapon()
 						game.players[player->started_heal]->healed=false;
 						player->started_heal=-1;
 					}
-					dbg_msg("heal","%d",dist);
 				}					
 				else if(game.players[player->started_heal])
 				{

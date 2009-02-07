@@ -295,9 +295,9 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 		strcat(buf,tmp);
 		str_format(tmp,sizeof(tmp),"\n2 : Reload lvl %d/3",player->orc_reload);
 		strcat(buf,tmp);
-		if(player->orc_special && player->lvl >= 6)
+		if(player->lvl >= 6)
 		{
-			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Teleport Backup");
+			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Teleport Backup %d/1",player->orc_special);
 			strcat(buf,tmp);
 		}
 		
@@ -308,9 +308,9 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 		strcat(buf,tmp);
 		str_format(tmp,sizeof(tmp),"\n2 : Mirror damage lvl %d/3",player->elf_mirror);
 		strcat(buf,tmp);
-		if(player->elf_special && player->lvl >= 6)
+		if(player->lvl >= 6)
 		{
-			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Immobilise");
+			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Immobilise %d/1",player->elf_special);
 			strcat(buf,tmp);
 		}
 	}
@@ -320,9 +320,9 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 		strcat(buf,tmp);
 		str_format(tmp,sizeof(tmp),"\n2 : Vampiric damage lvl %d/3",player->undead_vamp);
 		strcat(buf,tmp);
-		if(player->undead_special && player->lvl >= 6)
+		if(player->lvl >= 6)
 		{
-			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Kamikaz");
+			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Kamikaz %d/1",player->undead_special);
 			strcat(buf,tmp);
 		}
 	}
@@ -332,9 +332,9 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 		strcat(buf,tmp);
 		str_format(tmp,sizeof(tmp),"\n2 : Mole chance lvl %d/3",player->human_mole);
 		strcat(buf,tmp);
-		if(player->human_special && player->lvl >= 6)
+		if(player->lvl >= 6)
 		{
-			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Teleport");
+			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Teleport %d/1",player->human_special);
 			strcat(buf,tmp);
 		}
 	}
@@ -344,9 +344,9 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 		strcat(buf,tmp);
 		str_format(tmp,sizeof(tmp),"\n2 : Ressurect chance lvl %d/3",player->tauren_ressurect);
 		strcat(buf,tmp);
-		if(player->tauren_special && player->lvl >= 6)
+		if(player->lvl >= 6)
 		{
-			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Invincible");
+			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Invincible %d/1",player->tauren_special);
 			strcat(buf,tmp);
 		}
 	}
