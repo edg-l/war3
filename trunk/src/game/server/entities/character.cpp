@@ -971,7 +971,7 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 	if((game.controller)->is_rpg() && from != player->client_id)
 	{
 		float dmgincrease=(float)dmg*((float)game.players[from]->orc_dmg*15.0f/100.0f);
-		float dmgdecrease=(float)dmg*((float)player->human_armor*20.0f/100.0f);
+		float dmgdecrease=(float)dmg*((float)player->human_armor*15.0f/100.0f);
 		dmg=(int)round((float)dmg+dmgincrease-dmgdecrease);
 		if(dmg<=0)dmg=1;
 		if(config.dbg_war3)dbg_msg("damage","%f %f %d",dmgincrease,dmgdecrease,dmg);
@@ -980,7 +980,7 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 	//Poison | vampire | mirror
 	if((game.controller)->is_rpg())
 	{
-		if(game.players[from]->undead_vamp && from != player->client_id)game.players[from]->vamp(dmg*game.players[from]->undead_vamp);
+		if(game.players[from]->undead_vamp && from != player->client_id)game.players[from]->vamp(dmg);
 		if(game.players[from]->elf_poison && from != player->client_id && !player->poisoned && weapon != WEAPON_MIRROR)
 		{
 			player->poisoned=1;
