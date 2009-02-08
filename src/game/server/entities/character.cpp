@@ -974,7 +974,7 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 		float dmgdecrease=(float)dmg*((float)player->human_armor*15.0f/100.0f);
 		dmg=(int)round((float)dmg+dmgincrease-dmgdecrease);
 		if(dmg<=0)dmg=1;
-		if(config.dbg_war3)dbg_msg("damage","%f %f %d",dmgincrease,dmgdecrease,dmg);
+		if(config.dbg_war3)dbg_msg("damage","decrease : %f increase : %f dmg recieve : %d",dmgincrease,dmgdecrease,dmg);
 	}
 
 	//Poison | vampire | mirror
