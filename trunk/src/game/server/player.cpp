@@ -485,7 +485,7 @@ bool PLAYER::choose_ability(int choice)
 		else if(choice==3 && lvl >=6 && !tauren_special)
 		{
 			tauren_special=true;
-			str_format(buf, sizeof(buf), "Invincible enabled");
+			str_format(buf, sizeof(buf), "Shield enabled");
 			game.send_broadcast(buf, client_id);
 			return true;
 		}
@@ -592,7 +592,7 @@ int PLAYER::use_special()
 			special_used=true;
 			invincible_start_tick=server_tick();
 			invincible=true;
-			game.send_chat_target(client_id,"Invincible used");
+			game.send_chat_target(client_id,"Shield used");
 			check=true;
 			special_used_tick=server_tick()+server_tickspeed()*config.sv_specialtime*12;
 			return 0;
@@ -697,7 +697,7 @@ bool PLAYER::print_help()
 			game.send_chat_target(client_id, buf);
 			str_format(buf,sizeof(buf),"Ressurection : 15/30/45/60%% chance to ressurect at the place where one died");
 			game.send_chat_target(client_id, buf);
-			str_format(buf,sizeof(buf),"Special : Invincible for 3 sec(lvl 6 required)");
+			str_format(buf,sizeof(buf),"Special : Shield for 3 sec(damage are reflected)(lvl 6 required)");
 			game.send_chat_target(client_id, buf);
 		}
 		return true;
