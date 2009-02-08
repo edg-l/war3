@@ -76,7 +76,7 @@ void PLAYER::tick()
 	if(server_tick()-special_used_tick >= 0 && special_used)
 	{
 		special_used=false;
-		game.create_sound_global(SOUND_HOOK_LOOP, player->client_id);
+		game.create_sound_global(SOUND_HOOK_LOOP, client_id);
 	}
 	//Invicible (not used)
 	if(invincible && server_tick()-invincible_start_tick > server_tickspeed()*3)
