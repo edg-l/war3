@@ -347,7 +347,7 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 		strcat(buf,tmp);
 		if(player->lvl >= 6)
 		{
-			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Invincible %d/1",player->tauren_special?1:0);
+			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Shield %d/1",player->tauren_special?1:0);
 			strcat(buf,tmp);
 		}
 	}
