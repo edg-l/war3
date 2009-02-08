@@ -100,7 +100,7 @@ void GAMECONTEXT::create_explosion(vec2 p, int owner, int weapon, bool bnodamage
 			//If its a kamikaze case
 			if((game.controller)->is_rpg() && game.players[owner] && game.players[owner]->undead_special && game.players[owner]->exploded && weapon == WEAPON_EXPLODE)
 			{
-				dmg= dmg*3;
+				dmg= 25;
 				//Undead with kamikaze are immune to kamikaze from other
 				if((int)dmg && !ents[i]->player->undead_special)
 					ents[i]->take_damage(forcedir*dmg*2, (int)dmg, owner, weapon);
