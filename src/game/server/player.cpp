@@ -389,17 +389,17 @@ bool PLAYER::choose_ability(int choice)
 	}
 	else if(race_name==HUMAN)
 	{
-		if(choice == 1 && human_armor<3)
+		if(choice == 1 && human_armor<4)
 		{
 			human_armor++;
-			str_format(buf, sizeof(buf), "Armor + %d0%%",human_armor*2);
+			str_format(buf, sizeof(buf), "Armor + %d%%",human_armor*15);
 			game.send_broadcast(buf, client_id);
 			return true;
 		}
-		else if(choice == 2 && human_mole<3)
+		else if(choice == 2 && human_mole<4)
 		{
 			human_mole++;
-			str_format(buf, sizeof(buf), "Mole chance = %d0%%",human_mole*2);
+			str_format(buf, sizeof(buf), "Mole chance = %d%%",human_mole*15);
 			game.send_broadcast(buf, client_id);
 			return true;
 		}
@@ -415,14 +415,14 @@ bool PLAYER::choose_ability(int choice)
 	}
 	else if(race_name==ELF)
 	{
-		if(choice == 1 && elf_poison<3)
+		if(choice == 1 && elf_poison<4)
 		{
 			elf_poison++;
 			str_format(buf, sizeof(buf), "Poison %d ticks",elf_poison*2);
 			game.send_broadcast(buf, client_id);
 			return true;
 		}
-		else if(choice == 2 && elf_mirror<3)
+		else if(choice == 2 && elf_mirror<4)
 		{
 			elf_mirror++;
 			str_format(buf, sizeof(buf), "Mirror damage + %d",elf_mirror);
@@ -441,14 +441,14 @@ bool PLAYER::choose_ability(int choice)
 	}
 	else if(race_name==UNDEAD)
 	{
-		if(choice == 1 && undead_taser<3)
+		if(choice == 1 && undead_taser<4)
 		{
 			undead_taser++;
 			str_format(buf, sizeof(buf), "Taser + %d",undead_taser);
 			game.send_broadcast(buf, client_id);
 			return true;
 		}
-		else if(choice == 2 && undead_vamp<3)
+		else if(choice == 2 && undead_vamp<4)
 		{
 			undead_vamp++;
 			str_format(buf, sizeof(buf), "Vampiric + %d",undead_vamp);
@@ -467,14 +467,14 @@ bool PLAYER::choose_ability(int choice)
 	}
 	else if(race_name==TAUREN)
 	{
-		if(choice == 1 && tauren_hot<3)
+		if(choice == 1 && tauren_hot<4)
 		{
 			tauren_hot++;
 			str_format(buf, sizeof(buf), "Hot %d tick",tauren_hot*2);
 			game.send_broadcast(buf, client_id);
 			return true;
 		}
-		else if(choice == 2 && tauren_ressurect<3)
+		else if(choice == 2 && tauren_ressurect<4)
 		{
 			tauren_ressurect++;
 			str_format(buf, sizeof(buf), "Ressurection + %d%%",tauren_ressurect*15);
@@ -502,8 +502,9 @@ void PLAYER::vamp(int amount)
 	if(!(game.controller)->is_rpg())
 		return;
 	if(character)
-	{
-		amount=amount/2;
+	{	
+		if(amount > undead_vamp)
+			amount=undead_vamp;
 		character->increase_health(amount);
 	}
 }
@@ -645,7 +646,7 @@ bool PLAYER::print_help()
 		{
 			str_format(buf,sizeof(buf),"ORC:");
 			game.send_chat_target(client_id, buf);
-			str_format(buf,sizeof(buf),"Damage : Damage +10/20/30%%");
+			str_format(buf,sizeof(buf),"Damage : Damage +15/30/45/60%%");
 			game.send_chat_target(client_id, buf);
 			str_format(buf,sizeof(buf),"Reload : Fire rate increase each level");
 			game.send_chat_target(client_id, buf);
@@ -656,9 +657,9 @@ bool PLAYER::print_help()
 		{
 			str_format(buf,sizeof(buf),"HUMAN:");
 			game.send_chat_target(client_id, buf);
-			str_format(buf,sizeof(buf),"Armor : Armor +10/20/30%%");
+			str_format(buf,sizeof(buf),"Armor : Armor +15/30/45/60%%");
 			game.send_chat_target(client_id, buf);
-			str_format(buf,sizeof(buf),"Mole : 20/40/60%% chance to respawn in enemy base");
+			str_format(buf,sizeof(buf),"Mole : 15/30/45/60%% chance to respawn in enemy base");
 			game.send_chat_target(client_id, buf);
 			str_format(buf,sizeof(buf),"Special : teleport you where you are aiming at (lvl 6 required)");
 			game.send_chat_target(client_id, buf);
@@ -667,9 +668,9 @@ bool PLAYER::print_help()
 		{
 			str_format(buf,sizeof(buf),"ELF:");
 			game.send_chat_target(client_id, buf);
-			str_format(buf,sizeof(buf),"Poison : Deal 1 damage each second during 2/4/6 tick");
+			str_format(buf,sizeof(buf),"Poison : Deal 1 damage each second during 2/4/6/8 tick");
 			game.send_chat_target(client_id, buf);
-			str_format(buf,sizeof(buf),"Mirror : Reverse 1/2/3 damage");
+			str_format(buf,sizeof(buf),"Mirror : Reverse 1/2/3/4 damage");
 			game.send_chat_target(client_id, buf);
 			str_format(buf,sizeof(buf),"Special : Immobilise the player you are aiming at (lvl 6 required)");
 			game.send_chat_target(client_id, buf);
@@ -689,11 +690,11 @@ bool PLAYER::print_help()
 		{
 			str_format(buf,sizeof(buf),"TAUREN:");
 			game.send_chat_target(client_id, buf);
-			str_format(buf,sizeof(buf),"Tauren have a native ability wich is healing with grenade launcher(2 hp / sec)");
+			str_format(buf,sizeof(buf),"Tauren have a native ability wich is healing with grenade launcher(2 hp / sec) range increased by lvl");
 			game.send_chat_target(client_id, buf);
-			str_format(buf,sizeof(buf),"Hot : Healing(hp and armor) over time for 2/4/6 ticks with pistol(like a poison)");
+			str_format(buf,sizeof(buf),"Hot : Healing(hp and armor) over time for 2/4/6/8 ticks with pistol(like a poison)");
 			game.send_chat_target(client_id, buf);
-			str_format(buf,sizeof(buf),"Ressurection : 15/30/45%% chance to ressurect at the place where one died");
+			str_format(buf,sizeof(buf),"Ressurection : 15/30/45/60%% chance to ressurect at the place where one died");
 			game.send_chat_target(client_id, buf);
 			str_format(buf,sizeof(buf),"Special : Invincible for 3 sec(lvl 6 required)");
 			game.send_chat_target(client_id, buf);

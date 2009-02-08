@@ -305,9 +305,9 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 	}
 	else if(player->race_name == ELF)
 	{
-		str_format(tmp,sizeof(tmp),"\n1 : Poison lvl %d/3",player->elf_poison);
+		str_format(tmp,sizeof(tmp),"\n1 : Poison lvl %d/4",player->elf_poison);
 		strcat(buf,tmp);
-		str_format(tmp,sizeof(tmp),"\n2 : Mirror damage lvl %d/3",player->elf_mirror);
+		str_format(tmp,sizeof(tmp),"\n2 : Mirror damage lvl %d/4",player->elf_mirror);
 		strcat(buf,tmp);
 		if(player->lvl >= 6)
 		{
@@ -317,9 +317,9 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 	}
 	else if(player->race_name == UNDEAD)
 	{
-		str_format(tmp,sizeof(tmp),"\n1 : Taser lvl %d/3",player->undead_taser);
+		str_format(tmp,sizeof(tmp),"\n1 : Taser lvl %d/4",player->undead_taser);
 		strcat(buf,tmp);
-		str_format(tmp,sizeof(tmp),"\n2 : Vampiric damage lvl %d/3",player->undead_vamp);
+		str_format(tmp,sizeof(tmp),"\n2 : Vampiric damage lvl %d/4",player->undead_vamp);
 		strcat(buf,tmp);
 		if(player->lvl >= 6)
 		{
@@ -329,9 +329,9 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 	}
 	else if(player->race_name == HUMAN)
 	{
-		str_format(tmp,sizeof(tmp),"\n1 : Armor lvl %d/3",player->human_armor);
+		str_format(tmp,sizeof(tmp),"\n1 : Armor lvl %d/4",player->human_armor);
 		strcat(buf,tmp);
-		str_format(tmp,sizeof(tmp),"\n2 : Mole chance lvl %d/3",player->human_mole);
+		str_format(tmp,sizeof(tmp),"\n2 : Mole chance lvl %d/4",player->human_mole);
 		strcat(buf,tmp);
 		if(player->lvl >= 6)
 		{
@@ -341,9 +341,9 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 	}
 	else if(player->race_name == TAUREN)
 	{
-		str_format(tmp,sizeof(tmp),"\n1 : Hot lvl %d/3",player->tauren_hot);
+		str_format(tmp,sizeof(tmp),"\n1 : Hot lvl %d/4",player->tauren_hot);
 		strcat(buf,tmp);
-		str_format(tmp,sizeof(tmp),"\n2 : Ressurect chance lvl %d/3",player->tauren_ressurect);
+		str_format(tmp,sizeof(tmp),"\n2 : Ressurect chance lvl %d/4",player->tauren_ressurect);
 		strcat(buf,tmp);
 		if(player->lvl >= 6)
 		{

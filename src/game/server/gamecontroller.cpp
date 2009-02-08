@@ -109,9 +109,9 @@ bool GAMECONTROLLER::can_spawn(PLAYER *player, vec2 *out_pos)
 		}
 
 		//Mole human
- 		chance=rand()%10;
- 		if(config.dbg_war3 && player->human_mole > 0)dbg_msg("chance","%d %d",chance,player->human_mole*2);
- 		if((game.controller)->is_rpg() && player->human_mole && chance <= (player->human_mole*2) && !player->suicide)
+ 		chance=rand()%100;
+ 		if(config.dbg_war3 && player->human_mole > 0)dbg_msg("chance","%d %d",chance,player->human_mole*15);
+ 		if((game.controller)->is_rpg() && player->human_mole && chance <= (player->human_mole*15) && !player->suicide)
 			eval.friendly_team = !player->team;
  		else
 		{
