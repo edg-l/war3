@@ -3,6 +3,9 @@
 #include <engine/e_server_interface.h>
 #include "gamecontext.hpp"
 
+#include <engine/e_config.h>
+#include <engine/e_server_interface.h>
+
 GAMECONTEXT game;
 
 GAMECONTEXT::GAMECONTEXT()
@@ -100,7 +103,8 @@ void GAMECONTEXT::create_explosion(vec2 p, int owner, int weapon, bool bnodamage
 			//If its a kamikaze case
 			if((game.controller)->is_rpg() && game.players[owner] && game.players[owner]->undead_special && game.players[owner]->exploded && weapon == WEAPON_EXPLODE)
 			{
-				dmg= 10 * l;
+				dmg= config.sv_dmg_kamikaze * l;
+				if(config.dbg_war3)dbg_msg("War3","Kamikaze : %f",dmg);
 				//Undead with kamikaze are immune to kamikaze from other
 				if((int)dmg && !ents[i]->player->undead_special)
 					ents[i]->take_damage(forcedir*dmg*2, (int)dmg, owner, weapon);
