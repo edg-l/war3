@@ -207,7 +207,6 @@ void PLAYER::respawn()
 		spawning = true;
 		//At respawn special shouldn't be reset in fact :D
 		//if(!undead_special)special_used=false;
-		dmg_mirror=false;
 	}
 }
 
@@ -292,7 +291,6 @@ void PLAYER::init_rpg()
 	elf_mirror=0;
 	mirrordmg_tick=0;
 	mirrorlimit=0;
-	dmg_mirror=false;
 	special_used=false;
 	race_name=VIDE;
 	force_race_tick=server_tick();
@@ -338,7 +336,6 @@ void PLAYER::reset_all()
 	elf_mirror=0;
 	mirrordmg_tick=0;
 	mirrorlimit=0;
-	dmg_mirror=false;
 	special_used=false;
 	poisoned=0;
 	poison_start_tick=0;
@@ -721,7 +718,7 @@ void PLAYER::check_skins(void)
 		str_format(skin_name,sizeof(skin_name),"elf");
 	else if(race_name == TAUREN && invincible && strcmp(skin_name,"tauren_invincible"))
 		str_format(skin_name,sizeof(skin_name),"tauren_invincible");
-	else if(race_name == TAUREN && strcmp(skin_name,"tauren"))
+	else if(race_name == TAUREN && strcmp(skin_name,"tauren") && !invincible)
 		str_format(skin_name,sizeof(skin_name),"tauren");
 	else if(race_name == VIDE && strcmp(skin_name,"default"))
 		str_format(skin_name,sizeof(skin_name),"default");

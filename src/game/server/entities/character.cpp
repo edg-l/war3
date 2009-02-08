@@ -965,12 +965,14 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 		return false;
 
 	//Invicible
-	if((game.controller)->is_rpg() && player->invincible)
+	if((game.controller)->is_rpg() && player->invincible && weapon != WEAPON_MIRROR)
 	{
 		if(game.players[from] && game.players[from]->get_character())
-			game.players[from]->get_character()->take_damage(force,dmg,player->client_id,weapon);
+			game.players[from]->get_character()->take_damage(force,dmg,player->client_id,WEAPON_MIRROR);
 		return false;
 	}
+	else if((game.controller)->is_rpg() && player->invincible)
+		return false;
 
 	//Armor reduce and damage increase
 	if((game.controller)->is_rpg() && from != player->client_id)
@@ -993,13 +995,11 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 			player->poisoner=from;
 			player->start_poison=game.players[from]->elf_poison*2;
 		}
-		if(from != player->client_id && player->elf_mirror && !game.players[from]->elf_mirror && game.players[from]->get_character() && game.players[from]->get_character()->alive && player->mirrorlimit < 3 && !player->dmg_mirror)
+		if(from != player->client_id && player->elf_mirror && !game.players[from]->elf_mirror && game.players[from]->get_character() && game.players[from]->get_character()->alive && player->mirrorlimit < 3 && weapon != WEAPON_MIRROR)
 		{
 			int mirrordmg=dmg;
 			if(mirrordmg > player->elf_mirror)mirrordmg=player->elf_mirror;
-			game.players[from]->dmg_mirror=true;
 			game.players[from]->get_character()->take_damage(vec2(0,0),mirrordmg,player->client_id,WEAPON_MIRROR);
-			if(game.players[from])game.players[from]->dmg_mirror=false;
 			player->mirrordmg_tick=server_tick();
 			player->mirrorlimit++;
 		}
