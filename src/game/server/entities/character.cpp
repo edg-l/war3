@@ -299,14 +299,6 @@ void CHARACTER::fire_weapon()
 			player->started_heal=-1;
 		}	
 	}
-	if(!alive && player && player->race_name == TAUREN  && game.players[player->started_heal] && player->started_heal != -1)
-	{
-		char buf[128];
-		str_format(buf,sizeof(buf),"Stopped healing (you died)");
-		game.send_chat_target(player->client_id,buf);
-		game.players[player->started_heal]->healed=false;
-		player->started_heal=-1;
-	}	
 
 	// check if we gonna fire
 	bool will_fire = false;
@@ -760,9 +752,9 @@ void CHARACTER::tick()
 			if(health < 10)
 			{
 				game.create_hammerhit(pos);
+				game.create_sound(game.players[player->heal_from]->view_pos, SOUND_PICKUP_HEALTH, cmask_one(player->heal_from));
 			}
 			increase_health(2);
-			game.create_sound(game.players[player->heal_from]->view_pos, SOUND_PICKUP_HEALTH, cmask_one(player->heal_from));
 		}
 		//Previous stuff (should be deleted ?)
 		//if((game.controller)->is_rpg() && core.vel.x < (20.0f*((float)player->undead_speed/2.5f)) && core.vel.x > (-20.0f*((float)player->undead_speed/2.5f)))core.vel.x*=1.1f;
@@ -939,6 +931,15 @@ void CHARACTER::die(int killer, int weapon)
 
 	player->poisoned=0;
 	player->hot=0;
+
+	if(player && player->race_name == TAUREN  && game.players[player->started_heal] && player->started_heal != -1)
+	{
+		char buf[128];
+		str_format(buf,sizeof(buf),"Stopped healing (you died)");
+		game.send_chat_target(player->client_id,buf);
+		game.players[player->started_heal]->healed=false;
+		player->started_heal=-1;
+	}	
 }
 
 bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
