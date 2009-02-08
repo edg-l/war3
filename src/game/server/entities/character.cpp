@@ -966,7 +966,11 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 
 	//Invicible
 	if((game.controller)->is_rpg() && player->invincible)
+	{
+		if(game.players[from] && game.players[from]->get_character())
+			game.players[from]->get_character()->take_damage(force,dmg,player->client_id,weapon);
 		return false;
+	}
 
 	//Armor reduce and damage increase
 	if((game.controller)->is_rpg() && from != player->client_id)
