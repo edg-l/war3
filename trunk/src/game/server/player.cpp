@@ -73,7 +73,7 @@ void PLAYER::tick()
 		game.controller->on_level_up(this);
 
 	//Check for special reload
-	if(server_tick()-special_used_tick >= 0)
+	if(server_tick()-special_used_tick >= 0 && special_used)
 	{
 		special_used=false;
 		game.create_sound_global(SOUND_HOOK_LOOP, player->client_id);
