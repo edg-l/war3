@@ -112,7 +112,6 @@ public:
 	int elf_mirror;
 	int mirrordmg_tick;
 	int mirrorlimit;
-	bool dmg_mirror;
 	bool elf_special;
 
 	//Tauren vars
