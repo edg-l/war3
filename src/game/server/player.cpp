@@ -485,7 +485,7 @@ bool PLAYER::choose_ability(int choice)
 		else if(choice==3 && lvl >=6 && !tauren_special)
 		{
 			tauren_special=true;
-			str_format(buf, sizeof(buf), "Invicible enabled");
+			str_format(buf, sizeof(buf), "Invincible enabled");
 			game.send_broadcast(buf, client_id);
 			return true;
 		}
