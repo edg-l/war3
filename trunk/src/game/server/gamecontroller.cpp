@@ -736,3 +736,4 @@ void GAMECONTROLLER::display_stats(PLAYER *player,PLAYER *from){}
 int GAMECONTROLLER::drop_flag_orc(PLAYER *player){return 0;}
 void GAMECONTROLLER::load_xp_table(){}
 int GAMECONTROLLER::init_xp(int level){return 0;}
+int GAMECONTROLLER::get_level_max(){return 0;}

@@ -319,8 +319,10 @@ void PLAYER::reset_all()
 {	
 	if(!(game.controller)->is_rpg())
 		return;
-	levelmax=false;
+	if(lvl < game.controller->get_level_max())levelmax=false;
+	else levelmax=true;
 	leveled=lvl-1;
+	nextlvl = game.controller->init_xp(lvl);
 	human_armor=0;
 	human_mole=0;
 	human_special=false;
