@@ -3,13 +3,16 @@
 #include <game/server/gamecontroller.hpp>
 #include <game/server/entity.hpp>
 
-#define LVLMAX 8
+#define LVLMAX 10
 
 class GAMECONTROLLER_WAR : public GAMECONTROLLER
 {
 public:
 	class FLAG *flags[2];
 	int lvlmap[LVLMAX];
+	int level_max;
+
+	void default_lvlmap();
 
 	GAMECONTROLLER_WAR();
 	virtual void tick();
