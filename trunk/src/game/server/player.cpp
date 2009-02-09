@@ -271,10 +271,10 @@ void PLAYER::init_rpg()
 {
 	if(!(game.controller)->is_rpg())
 		return;
-	lvl = 1;
+	lvl = config.sv_level_start;
 	nextlvl = game.controller->init_xp(lvl);	
 	xp = 0;
-	leveled=0;
+	leveled=lvl-1;
 	levelmax=false;
 	human_armor=0;
 	human_mole=0;
