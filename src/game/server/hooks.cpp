@@ -782,7 +782,7 @@ static void con_vote(void *result, void *user_data)
 static void con_set_level(void *result, void *user_data)
 {
 	int client_id = clamp(console_arg_int(result, 0), 0, (int)MAX_CLIENTS);
-	int level = clamp(console_arg_int(result, 1), 0, LVLMAX);
+	int level = clamp(console_arg_int(result, 1), 0, game.controller->get_level_max());
 	
 	dbg_msg("level", "%d %d", client_id, level);
 	

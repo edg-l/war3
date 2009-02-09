@@ -249,7 +249,7 @@ void GAMECONTROLLER_WAR::on_level_up(PLAYER *player)
 		if(player->xp < 0)player->xp=0;
 		player->lvl++;
 		game.create_sound_global(SOUND_TEE_CRY, player->client_id);
-		player->nextlvl = lvlmap[player->lvl];
+		player->nextlvl = init_xp(player->lvl);
 		player->leveled++;
 		if(player->lvl==level_max)
 			player->levelmax=true;
@@ -373,6 +373,7 @@ void GAMECONTROLLER_WAR::load_xp_table()
 		if(xptable == NULL)
 		{
 			perror("Fopen (file exist ?)");
+			dbg_msg("WAR3","Faild to open xp_table.war. File exist ?");
 			return;
 		}
 		for(i=0;i < level_max;i++)
@@ -387,7 +388,12 @@ int GAMECONTROLLER_WAR::init_xp(int level)
 {
 	if(level < 1 || level > level_max)
 		return 0;
-	return lvlmap[level];
+	return lvlmap[level-1];
+}
+
+int GAMECONTROLLER_WAR::get_level_max()
+{
+	return level_max;
 }
 
 void GAMECONTROLLER_WAR::on_character_spawn(class CHARACTER *chr)
@@ -408,14 +414,14 @@ void GAMECONTROLLER_WAR::on_character_spawn(class CHARACTER *chr)
 void GAMECONTROLLER_WAR::default_lvlmap()
 {
 	//Init xp table
-	lvlmap[0]=0; /* Not used */
-	lvlmap[1]=10;
-	lvlmap[2]=50;
-	lvlmap[3]=100;
-	lvlmap[4]=200;
-	lvlmap[5]=300;
-	lvlmap[6]=500;
-	lvlmap[7]=700;
-	lvlmap[8]=1200;
-	lvlmap[9]=2000;
+	lvlmap[0]=10;
+	lvlmap[1]=50;
+	lvlmap[2]=100;
+	lvlmap[3]=200;
+	lvlmap[4]=300;
+	lvlmap[5]=500;
+	lvlmap[6]=700;
+	lvlmap[7]=1200;
+	lvlmap[8]=2000;
+	lvlmap[9]=0; /* Not used */
 }

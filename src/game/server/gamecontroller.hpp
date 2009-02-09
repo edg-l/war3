@@ -139,6 +139,7 @@ public:
 	virtual int drop_flag_orc(PLAYER *player);
 	virtual void load_xp_table();
 	virtual int init_xp(int level);
+	virtual int get_level_max();
 };
 
 #endif
