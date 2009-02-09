@@ -17,15 +17,8 @@ GAMECONTROLLER_WAR::GAMECONTROLLER_WAR()
 	flags[0] = 0;
 	flags[1] = 0;
 	game_flags = GAMEFLAG_TEAMS|GAMEFLAG_FLAGS;
-	//Init xp table
-	lvlmap[0]=0; /* Not used */
-	lvlmap[1]=10;
-	lvlmap[2]=50;
-	lvlmap[3]=100;
-	lvlmap[4]=200;
-	lvlmap[5]=300;
-	lvlmap[6]=500;
-	lvlmap[7]=700;
+	level_max=config.sv_level_max;
+	default_lvlmap();
 	load_xp_table();
 }
 
@@ -250,7 +243,7 @@ bool GAMECONTROLLER_WAR::is_rpg() const
 //Level up stuff
 void GAMECONTROLLER_WAR::on_level_up(PLAYER *player)
 {
-	if(player->race_name != VIDE && !player->levelmax && player->lvl < LVLMAX)
+	if(player->race_name != VIDE && !player->levelmax && player->lvl < level_max)
 	{
 		player->xp-=player->nextlvl;
 		if(player->xp < 0)player->xp=0;
@@ -258,7 +251,7 @@ void GAMECONTROLLER_WAR::on_level_up(PLAYER *player)
 		game.create_sound_global(SOUND_TEE_CRY, player->client_id);
 		player->nextlvl = lvlmap[player->lvl];
 		player->leveled++;
-		if(player->lvl==LVLMAX)
+		if(player->lvl==level_max)
 			player->levelmax=true;
 		display_stats(player,player);
 	}
@@ -268,9 +261,9 @@ void GAMECONTROLLER_WAR::on_level_up(PLAYER *player)
 		str_format(buf, sizeof(buf), "Please choose a race\n say \"/race name\"");
 		game.send_broadcast(buf, player->client_id);
 	}
-	else if(!player->levelmax && player->lvl >= LVLMAX)
+	else if(!player->levelmax && player->lvl >= level_max)
 	{
-		player->lvl=LVLMAX;
+		player->lvl=level_max;
 		game.create_sound_global(SOUND_TEE_CRY, player->client_id);
 		player->levelmax=true;
 		display_stats(player,player);
@@ -286,7 +279,7 @@ void GAMECONTROLLER_WAR::display_stats(PLAYER *player,PLAYER *from)
 	{
 			str_format(buf, sizeof(buf), "Stats : (%d point to spend)",player->leveled);
 	}
-	else if(player->lvl >= LVLMAX)
+	else if(player->lvl >= level_max)
 		str_format(buf, sizeof(buf), "Final lvl Stats : (%d point to spend)",player->leveled);
 	else
 		str_format(buf, sizeof(buf), "Stats : ");
@@ -382,7 +375,7 @@ void GAMECONTROLLER_WAR::load_xp_table()
 			perror("Fopen (file exist ?)");
 			return;
 		}
-		for(i=0;i < LVLMAX;i++)
+		for(i=0;i < level_max;i++)
 		{
 			fscanf(xptable,"%d\n",&lvlmap[i]);
 		}
@@ -392,7 +385,7 @@ void GAMECONTROLLER_WAR::load_xp_table()
 //Yes its ugly and ?
 int GAMECONTROLLER_WAR::init_xp(int level)
 {
-	if(level < 1 || level > LVLMAX)
+	if(level < 1 || level > level_max)
 		return 0;
 	return lvlmap[level];
 }
@@ -410,4 +403,19 @@ void GAMECONTROLLER_WAR::on_character_spawn(class CHARACTER *chr)
 	chr->weapons[WEAPON_HAMMER].ammo = -1;
 	chr->weapons[WEAPON_GUN].got = 1;
 	chr->weapons[WEAPON_GUN].ammo = 10;
+}
+
+void GAMECONTROLLER_WAR::default_lvlmap()
+{
+	//Init xp table
+	lvlmap[0]=0; /* Not used */
+	lvlmap[1]=10;
+	lvlmap[2]=50;
+	lvlmap[3]=100;
+	lvlmap[4]=200;
+	lvlmap[5]=300;
+	lvlmap[6]=500;
+	lvlmap[7]=700;
+	lvlmap[8]=1200;
+	lvlmap[9]=2000;
 }

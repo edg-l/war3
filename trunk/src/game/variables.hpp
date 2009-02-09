@@ -73,12 +73,16 @@ MACRO_CONFIG_INT(dbg_war3, 0, 0, 1, CFGFLAG_SERVER, "")
 MACRO_CONFIG_INT(dbg_focus, 0, 0, 1, CFGFLAG_CLIENT, "")
 MACRO_CONFIG_INT(dbg_tuning, 0, 0, 1, CFGFLAG_CLIENT, "")
 
+/* Reserved slots */
+MACRO_CONFIG_INT(sv_reserved_slots, 0, 0, 16, CFGFLAG_SERVER, "Number of reserved slots")
+MACRO_CONFIG_STR(sv_reserved_slots_pass, 32, "", CFGFLAG_SERVER, "Pass to connect to reserved slots")
+
 /* war3 */
 MACRO_CONFIG_INT(sv_specialtime, 5, 0, 30, CFGFLAG_SERVER, "Reload time for special")
 MACRO_CONFIG_INT(sv_max_tauren, 1, 0, 8, CFGFLAG_SERVER, "Max tauren per team")
 MACRO_CONFIG_INT(sv_race_tag, 1, 0, 1, CFGFLAG_SERVER, "Show race in name")
 MACRO_CONFIG_INT(sv_force_race, 1, 0, 10, CFGFLAG_SERVER, "Enable/disable forcing race choice after x min")
-MACRO_CONFIG_INT(sv_reserved_slots, 0, 0, 16, CFGFLAG_SERVER, "")
-MACRO_CONFIG_STR(sv_reserved_slots_pass, 32, "", CFGFLAG_SERVER, "")
 MACRO_CONFIG_INT(sv_dmg_kamikaze, 25, 0, 100, CFGFLAG_SERVER, "Kamikaze damage")
+MACRO_CONFIG_INT(sv_level_max, 8, 1, 10, CFGFLAG_SERVER, "Level max")
+MACRO_CONFIG_INT(sv_level_start, 1, 1, 10, CFGFLAG_SERVER, "Starting level")
 

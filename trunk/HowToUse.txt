@@ -11,6 +11,8 @@ Server command		Default/Min/Max		Desc
 "sv_force_race"		1/0/1			Enable/disable auto race change if none is selected
 "sv_dmg_kamikaze"	25/0/100		Set kamikaze dommage
 "sv_max_tauren"		1/0/8			Set the limit of tauren / team.
+"sv_level_max"		8/1/10			Level max(need to reload the map)
+"sv_level_start"	1/1/10			Starting level
 
 Rcon command		Arg			Desc
 "set_level"		x y			Set the player (id=x) to level y.

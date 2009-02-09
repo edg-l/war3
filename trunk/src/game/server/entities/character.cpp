@@ -968,7 +968,7 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 	if((game.controller)->is_rpg() && player->invincible)
 	{
 		if(game.players[from] && game.players[from]->get_character() && weapon != WEAPON_MIRROR)
-			game.players[from]->get_character()->take_damage(vec(0,0),dmg,player->client_id,WEAPON_MIRROR);
+			game.players[from]->get_character()->take_damage(vec2(0,0),dmg,player->client_id,WEAPON_MIRROR);
 		return false;
 	}
 
