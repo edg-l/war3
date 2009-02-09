@@ -9,6 +9,8 @@ Server command		Default/Min/Max		Desc
 "sv_specialtime"	5/0/30			Reload time for special (Its a multiplier)
 "sv_race_tag"		1/0/1			Show race-tag in name
 "sv_force_race"		1/0/1			Enable/disable auto race change if none is selected
+"sv_dmg_kamikaze"	25/0/100		Set kamikaze dommage
+"sv_max_tauren"		1/0/8			Set the limit of tauren / team.
 
 Rcon command		Arg			Desc
 "set_level"		x y			Set the player (id=x) to level y.
@@ -40,6 +42,11 @@ Step 2 : choose a key for example f
 Step 3 : type "bind key say /ability" so for me it is : "bind f say /ability"
 Step 4 : go pwn !
 
+Thx to :
+Sushi for his server where I can test my mod and his ideas.
+Landil for his skins, sounds and ideas too!
+And all other players that helped me to test.
+
 
 
 -----------------------------------
@@ -47,6 +54,15 @@ Changelog:
 -----------------------------------
 2.0:
 	Poison changed.
+	Normal abilites now goes to lvl 4.
+	Added a new race : Tauren.
+	Improved xp for killing.
+	Changed reserved slots.
+	Kamikaze buffed.
+	Vampiric fixed.
+	Mirror dmg fixed.
+	Added sound for special reload.
+	Added new cvars : sv_max_tauren and sv_dmg_kamikaze.
 	Fixed spectator getting a team.
 	Fixed changing race while dead was increasing score.
 	Fixed some error in text.
