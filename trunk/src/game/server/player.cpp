@@ -682,7 +682,7 @@ bool PLAYER::print_help()
 		{
 			str_format(buf,sizeof(buf),"UNDEAD:");
 			game.send_chat_target(client_id, buf);
-			str_format(buf,sizeof(buf),"Taser: Hook deals damage");
+			str_format(buf,sizeof(buf),"Taser: Hook deals 1/2/3/4 damages");
 			game.send_chat_target(client_id, buf);
 			str_format(buf,sizeof(buf),"Vampiric: Absorb ennemy hp");
 			game.send_chat_target(client_id, buf);
