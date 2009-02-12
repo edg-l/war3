@@ -593,7 +593,7 @@ int PLAYER::use_special()
 			invincible=true;
 			game.send_chat_target(client_id,"Shield used");
 			check=true;
-			special_used_tick=server_tick()+server_tickspeed()*config.sv_specialtime*12;
+			special_used_tick=server_tick()+server_tickspeed()*config.sv_specialtime*9;
 			return 0;
 		}
 	}
