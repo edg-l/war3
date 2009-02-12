@@ -237,10 +237,10 @@ void PLAYER::set_team(int new_team)
 		if(count_tauren >= config.sv_max_tauren)
 		{
 			race_name=HUMAN;
-			check=true;
 			reset_all();
 		}
 	}
+	check=true;
 	dbg_msg("game", "team_join player='%d:%s' team=%d", client_id, server_clientname(client_id), team);
 	
 	game.controller->on_player_info_change(game.players[client_id]);
@@ -625,6 +625,7 @@ bool PLAYER::print_otherlvl()
 			else if(game.players[i]->race_name == UNDEAD)str_format(tmprace,sizeof(tmprace),"UNDEAD");
 			else if(game.players[i]->race_name == ELF)str_format(tmprace,sizeof(tmprace),"ELF");
 			else if(game.players[i]->race_name == HUMAN)str_format(tmprace,sizeof(tmprace),"HUMAN");
+			else if(game.players[i]->race_name == TAUREN)str_format(tmprace,sizeof(tmprace),"TAUREN");
 			str_format(buf,sizeof(buf),"%s : race : %s level : %d",server_clientname(i),tmprace,game.players[i]->lvl);
 			game.send_chat_target(client_id, buf);
 		}
