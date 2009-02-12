@@ -351,8 +351,6 @@ void PLAYER::reset_all()
 	started_heal=-1;
 	heal_from=-1;
 	death_tile=false;
-	special_used=true;
-	special_used_tick=server_tick();
 }
 
 //Choose an ability
