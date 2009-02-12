@@ -338,11 +338,6 @@ void PLAYER::reset_all()
 	elf_mirror=0;
 	mirrordmg_tick=0;
 	mirrorlimit=0;
-	special_used=false;
-	poisoned=0;
-	poison_start_tick=0;
-	start_poison=0;
-	poisoner=-1;
 	tauren_special=false;
 	tauren_hot=0;
 	tauren_ressurect=0;
@@ -356,6 +351,8 @@ void PLAYER::reset_all()
 	started_heal=-1;
 	heal_from=-1;
 	death_tile=false;
+	special_used=true;
+	special_used_tick=server_tick();
 }
 
 //Choose an ability
