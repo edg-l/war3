@@ -544,8 +544,18 @@ void CHARACTER::fire_weapon()
 		
 		case WEAPON_RIFLE:
 		{
-			new LASER(pos, direction, tuning.laser_reach, player->client_id);
-			game.create_sound(pos, SOUND_RIFLE_FIRE);
+			if(player->race_name == TAUREN)
+			{
+				player->bounces=4;
+				player->last_healed=-1;
+				new LASER(pos, direction, tuning.laser_reach, player->client_id,player->lvl*player->bounces);
+				game.create_sound(pos, SOUND_RIFLE_FIRE);
+			}
+			else
+			{
+				new LASER(pos, direction, tuning.laser_reach, player->client_id);
+				game.create_sound(pos, SOUND_RIFLE_FIRE);
+			}
 		} break;
 		
 		case WEAPON_NINJA:
@@ -588,10 +598,12 @@ void CHARACTER::fire_weapon()
 				break;
 		}
 	}
-	if(!reload_timer && player->race_name != TAUREN || player->race_name == TAUREN && active_weapon != WEAPON_GRENADE)
+	if(!reload_timer && player->race_name != TAUREN || player->race_name == TAUREN && active_weapon != WEAPON_GRENADE && active_weapon != WEAPON_RIFLE)
 		reload_timer = data->weapons.id[active_weapon].firedelay * server_tickspeed() / 1000;
 	else if(!reload_timer && player->race_name == TAUREN && active_weapon == WEAPON_GRENADE)
 		reload_timer = data->weapons.id[active_weapon].firedelay * server_tickspeed() / 3000;
+	else if(!reload_timer && player->race_name == TAUREN && active_weapon == WEAPON_RIFLE)
+		reload_timer = data->weapons.id[active_weapon].firedelay * server_tickspeed()/ 250;
 }
 
 int CHARACTER::handle_weapons()
@@ -771,6 +783,14 @@ void CHARACTER::tick()
 	}
 	// Previnput
 	previnput = input;
+
+	if(player->is_chain_heal && server_tick()-player->bounce_tick > server_tickspeed()/2)
+	{
+		vec2 targ_pos=normalize(player->heal_char->pos - pos);
+		player->is_chain_heal=false;
+		new LASER(pos, targ_pos, tuning.laser_reach, player->chain_heal_from,(game.players[player->chain_heal_from]->lvl*game.players[player->chain_heal_from]->bounces),player->client_id);
+		game.create_sound(pos, SOUND_RIFLE_FIRE);
+	}
 	return;
 }
 
@@ -961,6 +981,41 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 		player->start_hot=game.players[from]->tauren_hot*2;
 		return true;
 	}
+
+	//Tauren chain heal
+	if(game.players[from] && game.players[from]->get_character() && game.players[from]->bounces > 1 && game.controller->is_friendly_fire(player->client_id, from) && game.players[from]->race_name == TAUREN && weapon == WEAPON_RIFLE && from != player->client_id)
+	{
+		CHARACTER *ents[64];
+		player->heal_char=NULL;
+		float mindist=-1;
+		int num = game.world.find_entities(pos, 500.0f, (ENTITY**)ents, 64, NETOBJTYPE_CHARACTER);
+		for(int i = 0; i < num; i++)
+		{
+			if(ents[i]==this || ents[i]->player->client_id == game.players[from]->last_healed || ents[i]==game.players[from]->get_character() || ents[i]->player->team != player->team && game.controller->is_teamplay())
+				continue;
+			CHARACTER *hit;
+			vec2 at;
+			float dist = distance(ents[i]->pos,pos);
+			vec2 to = pos+normalize(ents[i]->pos - pos)*500;
+			col_intersect_line(pos, to, 0x0, &to);
+			hit = game.world.intersect_character(pos, to, 0.0f, at, this);
+			if((dist < mindist || mindist == -1) && hit)
+			{
+				player->heal_char = hit;
+			}
+		}
+		if(player->heal_char)
+		{
+			game.players[from]->bounces--;
+			player->bounce_tick=server_tick();
+			player->is_chain_heal=true;
+			player->chain_heal_from=from;
+		}
+		game.players[from]->last_healed=player->client_id;
+		increase_health(dmg);
+		return true;
+	}
+
 	if(game.controller->is_friendly_fire(player->client_id, from) && !config.sv_teamdamage)
 		return false;
 
@@ -973,7 +1028,7 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 	}
 
 	//Armor reduce and damage increase
-	if((game.controller)->is_rpg() && from != player->client_id)
+	if((game.controller)->is_rpg() && from != player->client_id && game.players[from])
 	{
 		float dmgincrease=(float)dmg*((float)game.players[from]->orc_dmg*15.0f/100.0f);
 		float dmgdecrease=(float)dmg*((float)player->human_armor*15.0f/100.0f);

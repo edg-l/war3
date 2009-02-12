@@ -11,17 +11,19 @@ class LASER : public ENTITY
 {
 	vec2 from;
 	vec2 dir;
+	int dmg;
 	float energy;
 	int bounces;
 	int eval_tick;
 	int owner;
+	int second_owner;
 	
 	bool hit_character(vec2 from, vec2 to);
 	void do_bounce();
 	
 public:
 	
-	LASER(vec2 pos, vec2 direction, float start_energy, int owner);
+	LASER(vec2 pos, vec2 direction, float start_energy, int owner, int dmg=tuning.laser_damage,int second_owner=-1);
 	
 	virtual void reset();
 	virtual void tick();

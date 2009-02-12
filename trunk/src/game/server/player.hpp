@@ -131,6 +131,12 @@ public:
 	int heal_from;
 	int started_heal;
 	bool death_tile;
+	int bounces;
+	int bounce_tick;
+	CHARACTER *heal_char;
+	int last_healed;
+	bool is_chain_heal;
+	int chain_heal_from;
 
 	//Other
 	bool special_used;
