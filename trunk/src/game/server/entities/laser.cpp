@@ -7,12 +7,11 @@
 //////////////////////////////////////////////////
 // laser
 //////////////////////////////////////////////////
-LASER::LASER(vec2 pos, vec2 direction, float start_energy, int owner,int dmg,int second_owner)
+LASER::LASER(vec2 pos, vec2 direction, float start_energy, int owner,int second_owner)
 : ENTITY(NETOBJTYPE_LASER)
 {
 	this->pos = pos;
 	this->owner = owner;
-	this->dmg = dmg;
 	this->second_owner = second_owner;
 	energy = start_energy;
 	dir = direction;
@@ -36,7 +35,7 @@ bool LASER::hit_character(vec2 from, vec2 to)
 	this->from = from;
 	pos = at;
 	energy = -1;
-	hit->take_damage(vec2(0,0), dmg, owner, WEAPON_RIFLE);
+	hit->take_damage(vec2(0,0), tuning.laser_damage, owner, WEAPON_RIFLE);
 	return true;
 }
 

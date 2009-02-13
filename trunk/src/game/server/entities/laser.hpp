@@ -11,7 +11,6 @@ class LASER : public ENTITY
 {
 	vec2 from;
 	vec2 dir;
-	int dmg;
 	float energy;
 	int bounces;
 	int eval_tick;
@@ -23,7 +22,7 @@ class LASER : public ENTITY
 	
 public:
 	
-	LASER(vec2 pos, vec2 direction, float start_energy, int owner, int dmg=tuning.laser_damage,int second_owner=-1);
+	LASER(vec2 pos, vec2 direction, float start_energy, int owner,int second_owner=-1);
 	
 	virtual void reset();
 	virtual void tick();
