@@ -548,7 +548,7 @@ void CHARACTER::fire_weapon()
 			{
 				player->bounces=4;
 				player->last_healed=-1;
-				new LASER(pos, direction, tuning.laser_reach, player->client_id,player->lvl*player->bounces);
+				new LASER(pos, direction, tuning.laser_reach, player->client_id);
 				game.create_sound(pos, SOUND_RIFLE_FIRE);
 			}
 			else
@@ -788,7 +788,7 @@ void CHARACTER::tick()
 	{
 		vec2 targ_pos=normalize(player->heal_char->pos - pos);
 		player->is_chain_heal=false;
-		new LASER(pos, targ_pos, tuning.laser_reach, player->chain_heal_from,(game.players[player->chain_heal_from]->lvl*game.players[player->chain_heal_from]->bounces),player->client_id);
+		new LASER(pos, targ_pos, tuning.laser_reach, player->chain_heal_from,player->client_id);
 		game.create_sound(pos, SOUND_RIFLE_FIRE);
 	}
 	return;
@@ -1004,6 +1004,7 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 				player->heal_char = hit;
 			}
 		}
+		int tmpdmg=game.players[from]->lvl*game.players[from]->bounces;
 		if(player->heal_char)
 		{
 			game.players[from]->bounces--;
@@ -1013,8 +1014,8 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 		}
 		game.players[from]->last_healed=player->client_id;
 		game.players[from]->xp+=dmg;
-		increase_health(dmg/2);
-		increase_armor(dmg/2);
+		increase_health(tmpdmg/2);
+		increase_armor(tmpdmg/2);
 		return true;
 	}
 
