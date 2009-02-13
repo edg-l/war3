@@ -1012,7 +1012,9 @@ bool CHARACTER::take_damage(vec2 force, int dmg, int from, int weapon)
 			player->chain_heal_from=from;
 		}
 		game.players[from]->last_healed=player->client_id;
-		increase_health(dmg);
+		game.players[from]->xp+=dmg;
+		increase_health(dmg/2);
+		increase_armor(dmg/2);
 		return true;
 	}
 
