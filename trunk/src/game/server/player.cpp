@@ -691,6 +691,8 @@ bool PLAYER::print_help()
 			game.send_chat_target(client_id, buf);
 			str_format(buf,sizeof(buf),"Tauren have a native ability wich is healing with grenade launcher(2 hp / sec) range increased by lvl");
 			game.send_chat_target(client_id, buf);
+			str_format(buf,sizeof(buf),"Tauren can heal with laser too wich will make a chain heal");
+			game.send_chat_target(client_id, buf);
 			str_format(buf,sizeof(buf),"Hot : Healing(hp and armor) over time for 2/4/6/8 ticks with pistol(like a poison)");
 			game.send_chat_target(client_id, buf);
 			str_format(buf,sizeof(buf),"Ressurection : 15/30/45/60%% chance to ressurect at the place where one died");
