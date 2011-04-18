@@ -9,6 +9,8 @@
 #include "gamecontroller.h"
 #include "gamecontext.h"
 
+//For rand
+#include <time.h>
 
 IGameController::IGameController(class CGameContext *pGameServer)
 {
@@ -33,6 +35,9 @@ IGameController::IGameController(class CGameContext *pGameServer)
 	m_aNumSpawnPoints[0] = 0;
 	m_aNumSpawnPoints[1] = 0;
 	m_aNumSpawnPoints[2] = 0;
+
+	//Init rand to time
+	srand (time (NULL));
 }
 
 IGameController::~IGameController()
@@ -118,9 +123,10 @@ void IGameController::FindFreeSpawn(CSpawnEval *pEval, int Type)
 	}
 }
 
-bool IGameController::CanSpawn(int Team, vec2 *pOutPos)
+bool IGameController::CanSpawn(int Team, vec2 *pOutPos, CPlayer *player)
 {
 	CSpawnEval Eval;
+	int chance=0,chance2=0;
 	
 	// spectators can't spawn
 	if(Team == TEAM_SPECTATORS)
@@ -128,10 +134,44 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos)
 	
 	if(IsTeamplay())
 	{
-		Eval.m_FriendlyTeam = Team;
-		
-		// first try own team spawn, then normal spawn and then enemy
-		EvaluateSpawnType(&Eval, 1+(Team&1));
+
+		//Ressurect
+		if(player != 0)
+		{
+			chance2=rand()%100;
+ 			if(GameServer()->m_pController->is_rpg() && player->tauren_ressurect && chance2 <= (player->tauren_ressurect*15) && !player->death_tile)
+			{
+				*pOutPos=player->death_pos;
+				player->ressurected=true;
+				player->death_tile=false;
+				return true;
+			}
+			else
+			{
+				player->death_tile=false;
+				player->ressurected=false;
+			}
+
+			//Mole human
+ 			chance=rand()%100;
+ 			if(g_Config.m_DbgWar3 && player->human_mole > 0)dbg_msg("chance","%d %d",chance,player->human_mole*15);
+ 			if(GameServer()->m_pController->is_rpg() && player->human_mole && chance <= (player->human_mole*15) && !player->suicide)
+				Eval.m_FriendlyTeam = !player->GetTeam();
+ 			else
+			{
+				player->suicide=false;
+				Eval.m_FriendlyTeam = Team;
+			}
+	  		
+  			// try first try own team spawn, then normal spawn and then enemy
+ 			if(player->human_mole && chance <= player->human_mole)
+ 				EvaluateSpawnType(&Eval, 1+(!(player->GetTeam())&1));
+ 			else
+				EvaluateSpawnType(&Eval, 1+(Team&1));
+		}
+		else
+			EvaluateSpawnType(&Eval, 1+(Team&1));
+
 		if(!Eval.m_Got)
 		{
 			EvaluateSpawnType(&Eval, 0);
@@ -365,6 +405,8 @@ void IGameController::PostReset()
 void IGameController::OnPlayerInfoChange(class CPlayer *pP)
 {
 	const int aTeamColors[2] = {65387, 10223467};
+	CPlayer *p = pP;
+
 	if(IsTeamplay())
 	{
 		pP->m_TeeInfos.m_UseCustomColor = 1;
@@ -377,6 +419,28 @@ void IGameController::OnPlayerInfoChange(class CPlayer *pP)
 		{
 			pP->m_TeeInfos.m_ColorBody = 12895054;
 			pP->m_TeeInfos.m_ColorFeet = 12895054;
+		}
+	}
+
+	//Load custom skin for race
+	if(p->race_name != VIDE && GameServer()->m_pController->is_rpg())
+	{
+		switch(p->race_name)
+		{
+			case ORC:
+				str_format(p->m_TeeInfos.m_SkinName,sizeof(p->m_TeeInfos.m_SkinName),"orc");
+				break;
+			case UNDEAD:
+				str_format(p->m_TeeInfos.m_SkinName,sizeof(p->m_TeeInfos.m_SkinName),"undead");
+				break;
+			case HUMAN:
+				str_format(p->m_TeeInfos.m_SkinName,sizeof(p->m_TeeInfos.m_SkinName),"human");
+				break;
+			case ELF:
+				str_format(p->m_TeeInfos.m_SkinName,sizeof(p->m_TeeInfos.m_SkinName),"elf");
+				break;
+			default:
+				str_format(p->m_TeeInfos.m_SkinName,sizeof(p->m_TeeInfos.m_SkinName),"default");
 		}
 	}
 }
@@ -763,3 +827,16 @@ int IGameController::ClampTeam(int Team)
 		return Team&1;
 	return 0;
 }
+
+bool IGameController::is_rpg()
+{
+	return false;
+}
+
+void IGameController::on_level_up(CPlayer *player){}
+void IGameController::display_level(CPlayer *player){}
+void IGameController::display_stats(CPlayer *player,CPlayer *from){}
+int IGameController::drop_flag_orc(CPlayer *player){return 0;}
+void IGameController::load_xp_table(){}
+int IGameController::init_xp(int level){return 0;}
+int IGameController::get_level_max(){return 0;}

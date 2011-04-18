@@ -12,7 +12,6 @@ class CCollision
 	int m_Height;
 	class CLayers *m_pLayers;
 
-	bool IsTileSolid(int x, int y);
 	int GetTile(int x, int y);
 
 public:
@@ -23,6 +22,7 @@ public:
 		COLFLAG_NOHOOK=4,
 	};
 
+	bool IsTileSolid(int x, int y);
 	CCollision();
 	void Init(class CLayers *pLayers);
 	bool CheckPoint(float x, float y) { return IsTileSolid(round(x), round(y)); }

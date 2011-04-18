@@ -60,9 +60,9 @@ MACRO_CONFIG_INT(SvTeamdamage, sv_teamdamage, 0, 0, 1, CFGFLAG_SERVER, "Team dam
 MACRO_CONFIG_STR(SvMaprotation, sv_maprotation, 768, "", CFGFLAG_SERVER, "Maps to rotate between")
 MACRO_CONFIG_INT(SvRoundsPerMap, sv_rounds_per_map, 1, 1, 100, CFGFLAG_SERVER, "Number of rounds on each map before rotating")
 MACRO_CONFIG_INT(SvPowerups, sv_powerups, 1, 0, 1, CFGFLAG_SERVER, "Allow powerups like ninja")
-MACRO_CONFIG_INT(SvScorelimit, sv_scorelimit, 20, 0, 1000, CFGFLAG_SERVER, "Score limit (0 disables)")
+MACRO_CONFIG_INT(SvScorelimit, sv_scorelimit, 20, 0, 5000, CFGFLAG_SERVER, "Score limit (0 disables)")
 MACRO_CONFIG_INT(SvTimelimit, sv_timelimit, 0, 0, 1000, CFGFLAG_SERVER, "Time limit in minutes (0 disables)")
-MACRO_CONFIG_STR(SvGametype, sv_gametype, 32, "dm", CFGFLAG_SERVER, "Game type (dm, tdm, ctf)")
+MACRO_CONFIG_STR(SvGametype, sv_gametype, 32, "war3", CFGFLAG_SERVER, "Game type (dm, tdm, ctf)")
 MACRO_CONFIG_INT(SvTournamentMode, sv_tournament_mode, 0, 0, 1, CFGFLAG_SERVER, "Tournament mode. When enabled, players joins the server as spectator")
 MACRO_CONFIG_INT(SvSpamprotection, sv_spamprotection, 1, 0, 1, CFGFLAG_SERVER, "Spam protection")
 
@@ -82,7 +82,18 @@ MACRO_CONFIG_INT(SvVoteKickBantime, sv_vote_kick_bantime, 5, 0, 1440, CFGFLAG_SE
 #ifdef CONF_DEBUG // this one can crash the server if not used correctly
 	MACRO_CONFIG_INT(DbgDummies, dbg_dummies, 0, 0, 15, CFGFLAG_SERVER, "")
 #endif
+MACRO_CONFIG_INT(DbgWar3, dbg_war3, 0, 0, 1, CFGFLAG_SERVER, "")
 
 MACRO_CONFIG_INT(DbgFocus, dbg_focus, 0, 0, 1, CFGFLAG_CLIENT, "")
 MACRO_CONFIG_INT(DbgTuning, dbg_tuning, 0, 0, 1, CFGFLAG_CLIENT, "")
+
+/* war3 */
+MACRO_CONFIG_INT(SvSpecialTime, sv_specialtime, 5, 0, 30, CFGFLAG_SERVER, "Reload time for special")
+MACRO_CONFIG_INT(SvMaxTauren, sv_max_tauren, 1, 0, 8, CFGFLAG_SERVER, "Max tauren per team")
+MACRO_CONFIG_INT(SvRaceTag, sv_race_tag, 1, 0, 1, CFGFLAG_SERVER, "Show race in name")
+MACRO_CONFIG_INT(SvForceRace, sv_force_race, 1, 0, 10, CFGFLAG_SERVER, "Enable/disable forcing race choice after x min")
+MACRO_CONFIG_INT(SvDmgKamikaze, sv_dmg_kamikaze, 25, 0, 100, CFGFLAG_SERVER, "Kamikaze damage")
+MACRO_CONFIG_INT(SvLevelMax, sv_level_max, 8, 1, 10, CFGFLAG_SERVER, "Level max")
+MACRO_CONFIG_INT(SvLevelStart, sv_level_start, 1, 1, 10, CFGFLAG_SERVER, "Starting level")
+
 #endif

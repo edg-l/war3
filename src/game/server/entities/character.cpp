@@ -77,12 +77,19 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 
 	GameServer()->m_pController->OnCharacterSpawn(this);
 
+	//Human respawn with armor.
+	if(GameServer()->m_pController->is_rpg())
+		m_Armor=m_pPlayer->human_armor*2;
+
 	return true;
 }
 
 void CCharacter::Destroy()
 {
 	GameServer()->m_World.m_Core.m_apCharacters[m_pPlayer->GetCID()] = 0;
+	//Reset players power (not sure it should be here)
+	if(GameServer()->m_pController->is_rpg())
+		m_pPlayer->init_rpg();
 	m_Alive = false;
 }
 
@@ -183,7 +190,7 @@ void CCharacter::HandleNinja()
 				if(m_NumObjectsHit < 10)
 					m_apHitObjects[m_NumObjectsHit++] = aEnts[i];
 					
-				aEnts[i]->TakeDamage(vec2(0, 10.0f), g_pData->m_Weapons.m_Ninja.m_pBase->m_Damage, m_pPlayer->GetCID(), WEAPON_NINJA);
+				aEnts[i]->TakeDamage(vec2(0, 10.0f), g_pData->m_Weapons.m_Ninja.m_pBase->m_Damage,m_pPlayer->GetCID(), WEAPON_NINJA);
 			}
 		}
 		
@@ -257,6 +264,35 @@ void CCharacter::FireWeapon()
 	if(m_ActiveWeapon == WEAPON_GRENADE || m_ActiveWeapon == WEAPON_SHOTGUN || m_ActiveWeapon == WEAPON_RIFLE)
 		FullAuto = true;
 
+	//Orc at reload lvl 3 can FullAuto with gun
+	if(m_ActiveWeapon == WEAPON_GUN && m_pPlayer->orc_reload == 4)
+		FullAuto = true;
+ 
+	if(m_ActiveWeapon != WEAPON_GRENADE && m_pPlayer && m_pPlayer->race_name == TAUREN && m_pPlayer->started_heal != -1)
+	{
+		char buf[128];
+		if(GameServer()->m_apPlayers[m_pPlayer->started_heal] && GameServer()->m_apPlayers[m_pPlayer->started_heal]->GetCharacter())
+		{
+			str_format(buf,sizeof(buf),"Stopped healing (wrong weapon)");
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(),buf);
+			GameServer()->m_apPlayers[m_pPlayer->started_heal]->healed=false;
+			m_pPlayer->started_heal=-1;
+		}					
+		else if(GameServer()->m_apPlayers[m_pPlayer->started_heal])
+			{
+			str_format(buf,sizeof(buf),"Stopped healing (the healed character is dead)");
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(),buf);
+			GameServer()->m_apPlayers[m_pPlayer->started_heal]->healed=false;
+			m_pPlayer->started_heal=-1;
+		}
+		else
+		{
+			str_format(buf,sizeof(buf),"Stopped healing ");
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(),buf);
+			m_pPlayer->started_heal=-1;
+		}	
+		return;
+	}
 
 	// check if we gonna fire
 	bool WillFire = false;
@@ -275,6 +311,30 @@ void CCharacter::FireWeapon()
 		// 125ms is a magical limit of how fast a human can click
 		m_ReloadTimer = 125 * Server()->TickSpeed() / 1000;
 		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO);
+		if(m_pPlayer && m_pPlayer->race_name == TAUREN && m_pPlayer->started_heal != -1)
+		{
+			char buf[128];
+			if(GameServer()->m_apPlayers[m_pPlayer->started_heal] && GameServer()->m_apPlayers[m_pPlayer->started_heal]->GetCharacter())
+			{
+				str_format(buf,sizeof(buf),"Stopped healing (you didn't hold fire)");
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(),buf);
+				GameServer()->m_apPlayers[m_pPlayer->started_heal]->healed=false;
+				m_pPlayer->started_heal=-1;
+			}					
+			else if(GameServer()->m_apPlayers[m_pPlayer->started_heal])
+				{
+				str_format(buf,sizeof(buf),"Stopped healing (the healed character is dead)");
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(),buf);
+				GameServer()->m_apPlayers[m_pPlayer->started_heal]->healed=false;
+				m_pPlayer->started_heal=-1;
+			}
+			else
+			{
+				str_format(buf,sizeof(buf),"Stopped healing ");
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(),buf);
+				m_pPlayer->started_heal=-1;
+			}	
+		}
 		return;
 	}
 	
@@ -349,6 +409,8 @@ void CCharacter::FireWeapon()
 		case WEAPON_SHOTGUN:
 		{
 			int ShotSpread = 2;
+			//Orc at damage lvl 3 fire more bullet with shotgun
+			if(m_pPlayer->orc_dmg>=3 && (GameServer()->m_pController)->is_rpg())ShotSpread = 3;
 
 			CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
 			Msg.AddInt(ShotSpread*2+1);
@@ -382,30 +444,91 @@ void CCharacter::FireWeapon()
 
 		case WEAPON_GRENADE:
 		{
-			CProjectile *pProj = new CProjectile(GameWorld(), WEAPON_GRENADE,
-				m_pPlayer->GetCID(),
-				ProjStartPos,
-				Direction,
-				(int)(Server()->TickSpeed()*GameServer()->Tuning()->m_GrenadeLifetime),
-				1, true, 0, SOUND_GRENADE_EXPLODE, WEAPON_GRENADE);
+			if(m_pPlayer && m_pPlayer->race_name == TAUREN && m_pPlayer->started_heal == -1)
+			{
+				vec2 direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
+				vec2 at;
+				CCharacter *hit;
+				char buf[128];
+				vec2 to=m_Core.m_Pos+direction*150*m_pPlayer->lvl;
+				GameServer()->Collision()->IntersectLine(m_Core.m_Pos, to, 0x0, &to);
+				hit = GameServer()->m_World.IntersectCharacter(m_Core.m_Pos, to, 0.0f, at, this);
+				if(hit && hit->m_pPlayer->GetTeam() == m_pPlayer->GetTeam())
+				{
+					hit->m_pPlayer->healed=true;
+					hit->m_pPlayer->heal_tick=Server()->Tick();
+					m_pPlayer->started_heal=hit->m_pPlayer->GetCID();
+					hit->m_pPlayer->heal_from=m_pPlayer->GetCID();
+					str_format(buf,sizeof(buf),"Started healing %s",Server()->ClientName(hit->m_pPlayer->GetCID()));
+					GameServer()->SendChatTarget(m_pPlayer->GetCID(),buf);
+				}
+			}
+			else if(m_pPlayer && m_pPlayer->race_name == TAUREN && m_pPlayer->started_heal != -1)
+			{
+				char buf[128];
+				int dist;
+				if(GameServer()->m_apPlayers[m_pPlayer->started_heal] && GameServer()->m_apPlayers[m_pPlayer->started_heal]->GetCharacter())
+				{
+					dist=distance(m_Pos,GameServer()->m_apPlayers[m_pPlayer->started_heal]->GetCharacter()->m_Pos);
+					if(dist > 150*m_pPlayer->lvl)
+					{
+						str_format(buf,sizeof(buf),"Stopped healing (You are too far from the healed character)");
+						GameServer()->SendChatTarget(m_pPlayer->GetCID(),buf);
+						GameServer()->m_apPlayers[m_pPlayer->started_heal]->healed=false;
+						m_pPlayer->started_heal=-1;
+					}
+				}					
+				else if(GameServer()->m_apPlayers[m_pPlayer->started_heal])
+				{
+					str_format(buf,sizeof(buf),"Stopped healing  (the healed character is dead)");
+					GameServer()->SendChatTarget(m_pPlayer->GetCID(),buf);
+					GameServer()->m_apPlayers[m_pPlayer->started_heal]->healed=false;
+					m_pPlayer->started_heal=-1;
+				}
+				else
+				{
+					str_format(buf,sizeof(buf),"Stopped healing ");
+					GameServer()->SendChatTarget(m_pPlayer->GetCID(),buf);
+					m_pPlayer->started_heal=-1;
+				}	
+			}
+			else
+			{
+				CProjectile *pProj = new CProjectile(GameWorld(), WEAPON_GRENADE,
+					m_pPlayer->GetCID(),
+					ProjStartPos,
+					Direction,
+					(int)(Server()->TickSpeed()*GameServer()->Tuning()->m_GrenadeLifetime),
+					1, true, 0, SOUND_GRENADE_EXPLODE, WEAPON_GRENADE);
 
-			// pack the Projectile and send it to the client Directly
-			CNetObj_Projectile p;
-			pProj->FillInfo(&p);
-			
-			CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
-			Msg.AddInt(1);
-			for(unsigned i = 0; i < sizeof(CNetObj_Projectile)/sizeof(int); i++)
-				Msg.AddInt(((int *)&p)[i]);
-			Server()->SendMsg(&Msg, 0, m_pPlayer->GetCID());
-			
-			GameServer()->CreateSound(m_Pos, SOUND_GRENADE_FIRE);
+				// pack the Projectile and send it to the client Directly
+				CNetObj_Projectile p;
+				pProj->FillInfo(&p);
+				
+				CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
+				Msg.AddInt(1);
+				for(unsigned i = 0; i < sizeof(CNetObj_Projectile)/sizeof(int); i++)
+					Msg.AddInt(((int *)&p)[i]);
+				Server()->SendMsg(&Msg, 0, m_pPlayer->GetCID());
+				
+				GameServer()->CreateSound(m_Pos, SOUND_GRENADE_FIRE);
+			}
 		} break;
 		
 		case WEAPON_RIFLE:
 		{
-			new CLaser(GameWorld(), m_Pos, Direction, GameServer()->Tuning()->m_LaserReach, m_pPlayer->GetCID());
-			GameServer()->CreateSound(m_Pos, SOUND_RIFLE_FIRE);
+			if(m_pPlayer->race_name == TAUREN)
+			{
+				m_pPlayer->bounces=4;
+				m_pPlayer->last_healed=-1;
+				new CLaser(GameWorld(), m_Pos, Direction, GameServer()->Tuning()->m_LaserReach, m_pPlayer->GetCID());
+				GameServer()->CreateSound(m_Pos, SOUND_RIFLE_FIRE);
+			}
+			else
+			{
+				new CLaser(GameWorld(), m_Pos, Direction, GameServer()->Tuning()->m_LaserReach, m_pPlayer->GetCID());
+				GameServer()->CreateSound(m_Pos, SOUND_RIFLE_FIRE);
+			}
 		} break;
 		
 		case WEAPON_NINJA:
@@ -424,11 +547,35 @@ void CCharacter::FireWeapon()
 	
 	m_AttackTick = Server()->Tick();
 	
-	if(m_aWeapons[m_ActiveWeapon].m_Ammo > 0) // -1 == unlimited
+	if(m_aWeapons[m_ActiveWeapon].m_Ammo > 0 && m_pPlayer->race_name != TAUREN || m_pPlayer->race_name == TAUREN && m_ActiveWeapon!=WEAPON_GRENADE && m_aWeapons[m_ActiveWeapon].m_Ammo > 0) // -1 == unlimited
 		m_aWeapons[m_ActiveWeapon].m_Ammo--;
 	
-	if(!m_ReloadTimer)
+
+	//Orc reload stuff
+ 	if((GameServer()->m_pController)->is_rpg() && m_pPlayer->orc_reload != 0 && !m_ReloadTimer)
+	{
+		switch(m_pPlayer->orc_reload)
+		{
+			case 1:
+		 		m_ReloadTimer=(g_pData->m_Weapons.m_aId[m_ActiveWeapon].m_Firedelay * Server()->TickSpeed() )/ 1150;
+				break;
+			case 2:
+		 		m_ReloadTimer=(g_pData->m_Weapons.m_aId[m_ActiveWeapon].m_Firedelay * Server()->TickSpeed() )/ 1300;
+				break;
+			case 3:
+		 		m_ReloadTimer=(g_pData->m_Weapons.m_aId[m_ActiveWeapon].m_Firedelay * Server()->TickSpeed() )/ 1450;
+				break;
+			case 4:
+		 		m_ReloadTimer=(g_pData->m_Weapons.m_aId[m_ActiveWeapon].m_Firedelay * Server()->TickSpeed() )/ 1600;
+				break;
+		}
+	}
+	if(!m_ReloadTimer && m_pPlayer->race_name != TAUREN || m_pPlayer->race_name == TAUREN && m_ActiveWeapon != WEAPON_GRENADE && m_ActiveWeapon != WEAPON_RIFLE)
 		m_ReloadTimer = g_pData->m_Weapons.m_aId[m_ActiveWeapon].m_Firedelay * Server()->TickSpeed() / 1000;
+	else if(!m_ReloadTimer && m_pPlayer->race_name == TAUREN && m_ActiveWeapon == WEAPON_GRENADE)
+		m_ReloadTimer = g_pData->m_Weapons.m_aId[m_ActiveWeapon].m_Firedelay * Server()->TickSpeed() / 3000;
+	else if(!m_ReloadTimer && m_pPlayer->race_name == TAUREN && m_ActiveWeapon == WEAPON_RIFLE)
+		m_ReloadTimer = g_pData->m_Weapons.m_aId[m_ActiveWeapon].m_Firedelay * Server()->TickSpeed()/ 250;
 }
 
 void CCharacter::HandleWeapons()
@@ -560,6 +707,65 @@ void CCharacter::Tick()
 
 	// Previnput
 	m_PrevInput = m_Input;
+
+	//Poison Hot tick ect
+	if((GameServer()->m_pController)->is_rpg())
+	{
+		if(m_pPlayer->poisoned && Server()->Tick()-m_pPlayer->poison_start_tick > Server()->TickSpeed() && GameServer()->m_apPlayers[m_pPlayer->poisoner])
+		{
+			m_pPlayer->poison_start_tick=Server()->Tick();
+			TakeDamage(vec2 (0,0),m_pPlayer->poisoned,GameServer()->m_apPlayers[m_pPlayer->poisoner]->GetCID(),WEAPON_POISON);
+			m_pPlayer->start_poison--;
+		}
+		if(m_pPlayer->start_poison <=0)
+			m_pPlayer->poisoned=0;
+
+		if(m_pPlayer->hot && Server()->Tick()-m_pPlayer->hot_start_tick > Server()->TickSpeed() && GameServer()->m_apPlayers[m_pPlayer->hot_from])
+		{
+			m_pPlayer->hot_start_tick=Server()->Tick();
+			//if(health < 10)
+				IncreaseHealth(1);
+			//else
+				IncreaseArmor(1);
+			GameServer()->m_apPlayers[m_pPlayer->hot_from]->xp++;
+			GameServer()->CreateSound(GameServer()->m_apPlayers[m_pPlayer->hot_from]->m_ViewPos, SOUND_PICKUP_HEALTH, m_pPlayer->hot_from);
+			m_pPlayer->start_hot--;
+		}
+		if(m_pPlayer->start_hot <=0)
+			m_pPlayer->hot=0;
+
+		//Grenade heal
+		if(m_pPlayer->healed && Server()->Tick()-m_pPlayer->heal_tick > Server()->TickSpeed() && GameServer()->m_apPlayers[m_pPlayer->heal_from])
+		{
+			m_pPlayer->heal_tick=Server()->Tick();
+			if(m_Health < 10)
+			{
+				GameServer()->CreateHammerHit(m_Pos);
+				GameServer()->CreateSound(GameServer()->m_apPlayers[m_pPlayer->heal_from]->m_ViewPos, SOUND_PICKUP_HEALTH, m_pPlayer->heal_from);
+			}
+			IncreaseHealth(2);
+		}
+		//Previous stuff (should be deleted ?)
+		//if((GameServer()->m_pController)->is_rpg() && m_Core.m_Vel.x < (20.0f*((float)m_pPlayer->undead_speed/2.5f)) && m_Core.m_Vel.x > (-20.0f*((float)m_pPlayer->undead_speed/2.5f)))m_Core.m_Vel.x*=1.1f;
+		//dbg_msg("test","%f %d",m_Core.m_Vel.x,m_Core.m_Vel.x);
+
+		if(stucked && Server()->Tick()-stucked < Server()->TickSpeed()*3)
+			m_Core.m_Vel=vec2(0.0f,0.0f);
+
+		if (m_pPlayer->undead_taser && m_Core.m_HookedPlayer != -1 && Server()->Tick()-m_pPlayer->undead_taser_tick > Server()->TickSpeed() && GameServer()->m_apPlayers[m_Core.m_HookedPlayer]->GetTeam() != m_pPlayer->GetTeam())
+		{
+			GameServer()->m_apPlayers[m_Core.m_HookedPlayer]->GetCharacter()->TakeDamage(vec2(0,-1.0f), m_pPlayer->undead_taser, m_pPlayer->GetCID(), WEAPON_TASER);
+			m_pPlayer->undead_taser_tick=Server()->Tick();
+		}
+	}
+
+	if(m_pPlayer->is_chain_heal && Server()->Tick()-m_pPlayer->bounce_tick > Server()->TickSpeed()/2)
+	{
+		vec2 targ_m_Pos=normalize(m_pPlayer->heal_char->m_Pos - m_Pos);
+		m_pPlayer->is_chain_heal=false;
+		new CLaser(GameWorld(), m_Pos, targ_m_Pos, GameServer()->Tuning()->m_LaserReach, m_pPlayer->chain_heal_from, m_pPlayer->GetCID());
+		GameServer()->CreateSound(m_Pos, SOUND_RIFLE_FIRE);
+	}
 	return;
 }
 
@@ -648,6 +854,14 @@ void CCharacter::TickDefered()
 
 bool CCharacter::IncreaseHealth(int Amount)
 {
+	/*//Not used yet i was planing on buff undead
+	if(player && m_pPlayer->race_name == UNDEAD)
+	{
+		if(health >= 15)
+			return false;
+		health = clamp(health+amount, 0, 15);
+		return true;
+	}*/
 	if(m_Health >= 10)
 		return false;
 	m_Health = clamp(m_Health+Amount, 0, 10);
@@ -656,6 +870,7 @@ bool CCharacter::IncreaseHealth(int Amount)
 
 bool CCharacter::IncreaseArmor(int Amount)
 {
+	//Same as heal
 	if(m_Armor >= 10)
 		return false;
 	m_Armor = clamp(m_Armor+Amount, 0, 10);
@@ -666,6 +881,19 @@ void CCharacter::Die(int Killer, int Weapon)
 {
 	// we got to wait 0.5 secs before respawning
 	m_pPlayer->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()/2;
+
+	m_pPlayer->poisoned=0;
+	m_pPlayer->hot=0;
+
+	if(m_pPlayer && m_pPlayer->race_name == TAUREN  && GameServer()->m_apPlayers[m_pPlayer->started_heal] && m_pPlayer->started_heal != -1)
+	{
+		char buf[128];
+		str_format(buf,sizeof(buf),"Stopped healing (you died)");
+		GameServer()->SendChatTarget(m_pPlayer->GetCID(),buf);
+		GameServer()->m_apPlayers[m_pPlayer->started_heal]->healed=false;
+		m_pPlayer->started_heal=-1;
+	}	
+
 	int ModeSpecial = GameServer()->m_pController->OnCharacterDeath(this, GameServer()->m_apPlayers[Killer], Weapon);
 
 	char aBuf[256];
@@ -687,6 +915,10 @@ void CCharacter::Die(int Killer, int Weapon)
 	
 	// this is for auto respawn after 3 secs
 	m_pPlayer->m_DieTick = Server()->Tick();
+
+	m_pPlayer->death_pos=m_Pos;
+	if(Weapon==WEAPON_WORLD)
+		m_pPlayer->death_tile=true;
 	
 	m_Alive = false;
 	GameServer()->m_World.RemoveEntity(this);
@@ -697,13 +929,119 @@ void CCharacter::Die(int Killer, int Weapon)
 bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 {
 	m_Core.m_Vel += Force;
-	
+
+	//Tauren hot
+	if(GameServer()->m_pController->IsFriendlyFire(m_pPlayer->GetCID(), From) && GameServer()->m_apPlayers[From]->tauren_hot && Weapon == WEAPON_GUN && m_pPlayer->hot!=1)
+	{
+		m_pPlayer->hot=1;
+		m_pPlayer->hot_start_tick=Server()->Tick();
+		m_pPlayer->hot_from=From;
+		m_pPlayer->start_hot=GameServer()->m_apPlayers[From]->tauren_hot*2;
+		return true;
+	}
+	else if(GameServer()->m_pController->IsFriendlyFire(m_pPlayer->GetCID(), From) && GameServer()->m_apPlayers[From]->tauren_hot && Weapon == WEAPON_GUN && m_pPlayer->hot == 1)
+	{
+		m_pPlayer->hot_from=From;
+		m_pPlayer->start_hot=GameServer()->m_apPlayers[From]->tauren_hot*2;
+		return true;
+	}
+
+	//Tauren chain heal
+	if(GameServer()->m_apPlayers[From] && GameServer()->m_apPlayers[From]->GetCharacter() && GameServer()->m_apPlayers[From]->bounces > 1 && GameServer()->m_pController->IsFriendlyFire(m_pPlayer->GetCID(), From) && GameServer()->m_apPlayers[From]->race_name == TAUREN && Weapon == WEAPON_RIFLE && From != m_pPlayer->GetCID())
+	{
+		CCharacter *ents[64];
+		m_pPlayer->heal_char=NULL;
+		float mindist=-1;
+		int num = GameServer()->m_World.FindEntities(m_Pos, 500.0f, (CEntity**)ents, 64, NETOBJTYPE_CHARACTER);
+		for(int i = 0; i < num; i++)
+		{
+			if(ents[i]==this || ents[i]->m_pPlayer->GetCID() == GameServer()->m_apPlayers[From]->last_healed || ents[i]==GameServer()->m_apPlayers[From]->GetCharacter() || ents[i]->m_pPlayer->GetTeam() != m_pPlayer->GetTeam() && GameServer()->m_pController->IsTeamplay())
+				continue;
+			CCharacter *hit;
+			vec2 at;
+			float dist = distance(ents[i]->m_Pos,m_Pos);
+			vec2 to = m_Pos+normalize(ents[i]->m_Pos - m_Pos)*500;
+			GameServer()->Collision()->IntersectLine(m_Pos, to, 0x0, &to);
+			hit = GameServer()->m_World.IntersectCharacter(m_Pos, to, 0.0f, at, this);
+			if((dist < mindist || mindist == -1) && hit)
+			{
+				m_pPlayer->heal_char = hit;
+			}
+		}
+		int tmpdmg=GameServer()->m_apPlayers[From]->lvl*GameServer()->m_apPlayers[From]->bounces;
+		if(m_pPlayer->heal_char)
+		{
+			GameServer()->m_apPlayers[From]->bounces--;
+			m_pPlayer->bounce_tick=Server()->Tick();
+			m_pPlayer->is_chain_heal=true;
+			m_pPlayer->chain_heal_from=From;
+		}
+		GameServer()->m_apPlayers[From]->last_healed=m_pPlayer->GetCID();
+		GameServer()->m_apPlayers[From]->xp+=tmpdmg;
+		IncreaseHealth(tmpdmg/2);
+		IncreaseArmor(tmpdmg/2);
+		return true;
+	}
+
+
 	if(GameServer()->m_pController->IsFriendlyFire(m_pPlayer->GetCID(), From) && !g_Config.m_SvTeamdamage)
 		return false;
+
+	//Invicible
+	if((GameServer()->m_pController)->is_rpg() && m_pPlayer->invincible)
+	{
+		if(GameServer()->m_apPlayers[From] && GameServer()->m_apPlayers[From]->GetCharacter() && Weapon != WEAPON_MIRROR)
+			GameServer()->m_apPlayers[From]->GetCharacter()->TakeDamage(vec2(0,0),Dmg,m_pPlayer->GetCID(),WEAPON_MIRROR);
+		return false;
+	}
+
+	//Armor reduce and damage increase
+	if((GameServer()->m_pController)->is_rpg() && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
+	{
+		float dmgincrease=(float)Dmg*((float)GameServer()->m_apPlayers[From]->orc_dmg*15.0f/100.0f);
+		float dmgdecrease=(float)Dmg*((float)m_pPlayer->human_armor*15.0f/100.0f);
+		Dmg=(int)round((float)Dmg+dmgincrease-dmgdecrease);
+		if(Dmg<=0)Dmg=1;
+		if(g_Config.m_DbgWar3)dbg_msg("damage","decrease : %f increase : %f dmg recieve : %d",dmgincrease,dmgdecrease,Dmg);
+	}
+
+	//Poison | vampire | mirror
+	if((GameServer()->m_pController)->is_rpg())
+	{
+		if(GameServer()->m_apPlayers[From]->undead_vamp && From != m_pPlayer->GetCID())GameServer()->m_apPlayers[From]->vamp(Dmg);
+		if(GameServer()->m_apPlayers[From]->elf_poison && From != m_pPlayer->GetCID() && !m_pPlayer->poisoned && Weapon != WEAPON_MIRROR)
+		{
+			m_pPlayer->poisoned=1;
+			m_pPlayer->poison_start_tick=Server()->Tick();
+			m_pPlayer->poisoner=From;
+			m_pPlayer->start_poison=GameServer()->m_apPlayers[From]->elf_poison*2;
+		}
+		if(From != m_pPlayer->GetCID() && m_pPlayer->elf_mirror && GameServer()->m_apPlayers[From] && !GameServer()->m_apPlayers[From]->elf_mirror && GameServer()->m_apPlayers[From]->GetCharacter() && GameServer()->m_apPlayers[From]->GetCharacter()->m_Alive && m_pPlayer->mirrorlimit < m_pPlayer->elf_mirror && Weapon != WEAPON_MIRROR)
+		{
+			int mirrordmg=Dmg;
+			if(mirrordmg > m_pPlayer->elf_mirror)mirrordmg=m_pPlayer->elf_mirror;
+			GameServer()->m_apPlayers[From]->GetCharacter()->TakeDamage(vec2(0,0),mirrordmg,m_pPlayer->GetCID(),WEAPON_MIRROR);
+			m_pPlayer->mirrordmg_tick=Server()->Tick();
+			m_pPlayer->mirrorlimit++;
+		}
+		if(Server()->Tick()-m_pPlayer->mirrordmg_tick > Server()->TickSpeed()/2)
+		{
+			m_pPlayer->mirrorlimit=0;
+		}
+	}
 
 	// m_pPlayer only inflicts half damage on self
 	if(From == m_pPlayer->GetCID())
 		Dmg = max(1, Dmg/2);
+
+	//Increasing xp with damage
+	else if((GameServer()->m_pController)->is_rpg() && (GameServer()->m_apPlayers[From]->GetTeam() != m_pPlayer->GetTeam() || !(GameServer()->m_pController)->IsTeamplay()))
+	{
+		CPlayer *p=GameServer()->m_apPlayers[From];
+		p->xp+=Dmg;
+		if(p->healed && GameServer()->m_apPlayers[p->heal_from])
+			GameServer()->m_apPlayers[p->heal_from]->xp+=Dmg;
+	}
 
 	m_DamageTaken++;
 
@@ -753,8 +1091,19 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	// check for death
 	if(m_Health <= 0)
 	{
+		/*else if((GameServer()->m_pController)->is_rpg() && m_pPlayer->other_invincible && !m_pPlayer->invincible_used)
+		{
+			m_pPlayer->invincible_used=true;
+			m_pPlayer->invincible=1;
+			m_pPlayer->invincible_start_tick=Server()->Tick();
+			health=1;
+		}*/
 		Die(From, Weapon);
 		
+		//Reset poison at death
+		m_pPlayer->poisoned=0;
+		m_pPlayer->hot=0;
+
 		// set attacker's face to happy (taunt!)
 		if (From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
 		{
