@@ -60,6 +60,12 @@ class CGameContext : public IGameServer
 	static void ConClearVotes(IConsole::IResult *pResult, void *pUserData);
 	static void ConVote(IConsole::IResult *pResult, void *pUserData);
 	static void ConchainSpecialMotdupdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
+	static void con_set_level(IConsole::IResult *pResult, void *pUserData);
+	static void con_level_up(IConsole::IResult *pResult, void *pUserData);
+	static void con_load_table(IConsole::IResult *pResult, void *pUserData);
+	static void con_play_sound(IConsole::IResult *pResult, void *pUserData);
+	static void con_print_help_to(IConsole::IResult *pResult, void *pUserData);
+	static void con_print_special_to(IConsole::IResult *pResult, void *pUserData);
 	
 	CGameContext(int Resetting);
 	void Construct(int Resetting);
@@ -70,6 +76,8 @@ public:
 	class IConsole *Console() { return m_pConsole; }
 	CCollision *Collision() { return &m_Collision; }
 	CTuningParams *Tuning() { return &m_Tuning; }
+
+	class CGameControllerWAR *WARController() { return (CGameControllerWAR*)m_pController; }
 
 	CGameContext();
 	~CGameContext();
@@ -171,4 +179,11 @@ inline int CmaskAll() { return -1; }
 inline int CmaskOne(int ClientID) { return 1<<ClientID; }
 inline int CmaskAllExceptOne(int ClientID) { return 0x7fffffff^CmaskOne(ClientID); }
 inline bool CmaskIsSet(int Mask, int ClientID) { return (Mask&CmaskOne(ClientID)) != 0; }
+
+//Enum for race
+enum {VIDE=0,HUMAN,ORC,UNDEAD,ELF,TAUREN,NBRACE};
+
+//New Weapons
+enum {WEAPON_POISON=-3,WEAPON_EXPLODE=-3,WEAPON_MIRROR=-3,WEAPON_TASER=-3};
+
 #endif

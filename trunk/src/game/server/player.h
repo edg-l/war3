@@ -95,6 +95,92 @@ public:
 		int m_Max;	
 	} m_Latency;
 	
+			//War3
+	void init_rpg();
+	void reset_all();
+	bool choose_ability(int choice);
+
+	//Levels var
+	int lvl;
+	int nextlvl;
+	int xp;
+	int leveled;
+	bool levelmax;
+	
+	//Human vars
+	int human_armor;
+	int human_mole;
+	bool human_special;
+	//For human killing themself for mole
+	bool suicide;
+
+	//Orcs var
+	int orc_dmg;
+	int orc_reload;
+	bool orc_special;
+
+	//Undead vars
+	int undead_taser;
+	int undead_taser_tick;
+	int undead_vamp;
+	void vamp(int amount);
+	bool undead_special;
+	bool exploded;
+
+	//Elf vars
+	int elf_poison;
+	int poisoned;
+	int poison_start_tick;
+	int start_poison;
+	int poisoner;
+	int elf_mirror;
+	int mirrordmg_tick;
+	int mirrorlimit;
+	bool elf_special;
+
+	//Tauren vars
+	bool tauren_special;
+	int tauren_hot;
+	int tauren_ressurect;
+	bool ressurected;
+	int hot;
+	int hot_start_tick;
+	int start_hot;
+	int hot_from;
+	vec2 death_pos;
+	bool invincible;
+	int invincible_start_tick;
+	bool healed;
+	int heal_tick;
+	int heal_from;
+	int started_heal;
+	bool death_tile;
+	int bounces;
+	int bounce_tick;
+	CCharacter *heal_char;
+	int last_healed;
+	bool is_chain_heal;
+	int chain_heal_from;
+
+	//Other
+	bool special_used;
+	int special_used_tick;
+	int race_name;
+
+	//Unused skills
+
+
+	//Functions
+	int use_special(void);
+	bool print_otherlvl(void);
+	bool print_help(void);
+
+	//Checking :D
+	int force_race_tick;
+	bool check;
+	void check_skins(void);
+	void check_name(void);
+
 private:
 	CCharacter *Character;
 	CGameContext *m_pGameServer;

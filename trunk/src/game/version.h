@@ -5,4 +5,7 @@
 #include "generated/nethash.c"
 #define GAME_VERSION "0.6.0"
 #define GAME_NETVERSION "0.6 " GAME_NETVERSION_HASH
+
+//War3 version
+#define WAR3_VERSION "2.0 for 0.6 ugly bah noob sux"
 #endif

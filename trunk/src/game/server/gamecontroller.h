@@ -130,7 +130,7 @@ public:
 	virtual void OnPlayerInfoChange(class CPlayer *pP);
 
 	//
-	virtual bool CanSpawn(int Team, vec2 *pPos);
+	virtual bool CanSpawn(int Team, vec2 *pPos, CPlayer *player = 0);
 
 	/*
 	
@@ -143,6 +143,15 @@ public:
 	int ClampTeam(int Team);
 
 	virtual void PostReset();
+
+	virtual bool is_rpg();
+	virtual void on_level_up(CPlayer *player);
+	virtual void display_level(CPlayer *player);
+	virtual void display_stats(CPlayer *player,CPlayer *from);
+	virtual int drop_flag_orc(CPlayer *player);
+	virtual void load_xp_table();
+	virtual int init_xp(int level);
+	virtual int get_level_max();
 };
 
 #endif

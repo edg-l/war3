@@ -61,7 +61,26 @@ public:
 	
 	bool IsAlive() const { return m_Alive; }
 	class CPlayer *GetPlayer() { return m_pPlayer; }
+
+	CNetObj_PlayerInput m_LatestInput;
+
+		// the player core for the physics	
+	CCharacterCore m_Core;
 	
+	//Used for immobilise
+	int stucked;
+	
+	int m_Health;
+	int m_Armor;
+
+	struct WeaponStat
+	{
+		int m_AmmoRegenStart;
+		int m_Ammo;
+		int m_Ammocost;
+		bool m_Got;
+		
+	} m_aWeapons[NUM_WEAPONS];
 private:
 	// player controlling this character
 	class CPlayer *m_pPlayer;
@@ -71,15 +90,6 @@ private:
 	// weapon info
 	CEntity *m_apHitObjects[10];
 	int m_NumObjectsHit;
-	
-	struct WeaponStat
-	{
-		int m_AmmoRegenStart;
-		int m_Ammo;
-		int m_Ammocost;
-		bool m_Got;
-		
-	} m_aWeapons[NUM_WEAPONS];
 	
 	int m_ActiveWeapon;
 	int m_LastWeapon;
@@ -98,7 +108,6 @@ private:
 
 	// these are non-heldback inputs
 	CNetObj_PlayerInput m_LatestPrevInput;
-	CNetObj_PlayerInput m_LatestInput;
 
 	// input	
 	CNetObj_PlayerInput m_PrevInput;
@@ -108,9 +117,6 @@ private:
 	
 	int m_DamageTakenTick;
 
-	int m_Health;
-	int m_Armor;
-
 	// ninja
 	struct
 	{
@@ -119,15 +125,11 @@ private:
 		int m_CurrentMoveTime;
 		int m_OldVelAmount;
 	} m_Ninja;
-
-	// the player core for the physics	
-	CCharacterCore m_Core;
 	
 	// info for dead reckoning
 	int m_ReckoningTick; // tick that we are performing dead reckoning From
 	CCharacterCore m_SendCore; // core that we should send
 	CCharacterCore m_ReckoningCore; // the dead reckoning core
-
 };
 
 #endif
