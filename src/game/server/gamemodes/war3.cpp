@@ -28,15 +28,31 @@ bool CGameControllerWAR::OnEntity(int index, vec2 pos)
 		return true;
 	
 	int team = -1;
-	if(index == ENTITY_FLAGSTAND_RED) team = 0;
-	if(index == ENTITY_FLAGSTAND_BLUE) team = 1;
-	if(team == -1)
+	if(index == ENTITY_FLAGSTAND_RED) team = TEAM_RED;
+	if(index == ENTITY_FLAGSTAND_BLUE) team = TEAM_BLUE;
+	if(team == -1 || flags[team])
 		return false;
 		
 	CFlag *f = new CFlag(&GameServer()->m_World, team);
 	f->m_StandPos = pos;
 	f->m_Pos = pos;
 	flags[team] = f;
+	GameServer()->m_World.InsertEntity(f);
+	return true;
+}
+
+bool CGameControllerWAR::CanBeMovedOnBalance(int ClientID)
+{
+	CCharacter* Character = GameServer()->m_apPlayers[ClientID]->GetCharacter();
+	if(Character)
+	{
+		for(int fi = 0; fi < 2; fi++)
+		{
+			CFlag *F = flags[fi];
+			if(F->m_pCarryingCharacter == Character)
+				return false;
+		}
+	}
 	return true;
 }
 
@@ -93,6 +109,42 @@ int CGameControllerWAR::OnCharacterDeath(class CCharacter *victim, class CPlayer
 
 	return had_flag;
 }
+
+void CGameControllerWAR::Snap(int SnappingClient)
+{
+	IGameController::Snap(SnappingClient);
+
+	CNetObj_GameData *pGameDataObj = (CNetObj_GameData *)Server()->SnapNewItem(NETOBJTYPE_GAMEDATA, 0, sizeof(CNetObj_GameData));
+	if(!pGameDataObj)
+		return;
+
+	pGameDataObj->m_TeamscoreRed = m_aTeamscore[TEAM_RED];
+	pGameDataObj->m_TeamscoreBlue = m_aTeamscore[TEAM_BLUE];
+
+	if(flags[TEAM_RED])
+	{
+		if(flags[TEAM_RED]->m_AtStand)
+			pGameDataObj->m_FlagCarrierRed = FLAG_ATSTAND;
+		else if(flags[TEAM_RED]->m_pCarryingCharacter && flags[TEAM_RED]->m_pCarryingCharacter->GetPlayer())
+			pGameDataObj->m_FlagCarrierRed = flags[TEAM_RED]->m_pCarryingCharacter->GetPlayer()->GetCID();
+		else
+			pGameDataObj->m_FlagCarrierRed = FLAG_TAKEN;
+	}
+	else
+		pGameDataObj->m_FlagCarrierRed = FLAG_MISSING;
+	if(flags[TEAM_BLUE])
+	{
+		if(flags[TEAM_BLUE]->m_AtStand)
+			pGameDataObj->m_FlagCarrierBlue = FLAG_ATSTAND;
+		else if(flags[TEAM_BLUE]->m_pCarryingCharacter && flags[TEAM_BLUE]->m_pCarryingCharacter->GetPlayer())
+			pGameDataObj->m_FlagCarrierBlue = flags[TEAM_BLUE]->m_pCarryingCharacter->GetPlayer()->GetCID();
+		else
+			pGameDataObj->m_FlagCarrierBlue = FLAG_TAKEN;
+	}
+	else
+		pGameDataObj->m_FlagCarrierBlue = FLAG_MISSING;
+}
+
 
 void CGameControllerWAR::Tick()
 {
@@ -158,10 +210,10 @@ void CGameControllerWAR::Tick()
 		else
 		{
 			CCharacter *close_characters[MAX_CLIENTS];
-			int num = GameServer()->m_World.FindEntities(f->m_Pos, 32.0f, (CEntity**)close_characters, MAX_CLIENTS, NETOBJTYPE_CHARACTER);
+			int num = GameServer()->m_World.FindEntities(f->m_Pos, CFlag::ms_PhysSize, (CEntity**)close_characters, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
 			for(int i = 0; i < num; i++)
 			{
-				if(!close_characters[i]->IsAlive() || close_characters[i]->GetPlayer()->GetTeam() == -1 || GameServer()->Collision()->IntersectLine(f->m_Pos, close_characters[i]->m_Pos, NULL, NULL))
+				if(!close_characters[i]->IsAlive() || close_characters[i]->GetPlayer()->GetTeam() == TEAM_SPECTATORS || GameServer()->Collision()->IntersectLine(f->m_Pos, close_characters[i]->m_Pos, NULL, NULL))
 					continue;
 				
 				if(close_characters[i]->GetPlayer()->GetTeam() == f->m_Team)

@@ -2,6 +2,7 @@
 #ifndef GAME_SERVER_GAMEMODES_WAR_H
 #define GAME_SERVER_GAMEMODES_WAR_H
 #include <game/server/gamecontroller.h>
+#include <game/server/entity.h>
 
 #define LVLMAX 10
 
@@ -16,6 +17,8 @@ public:
 
 	CGameControllerWAR(class CGameContext *pGameServer);
 	virtual void Tick();
+	virtual void Snap(int SnappingClient);
+	virtual bool CanBeMovedOnBalance(int ClientID);
 	virtual int OnCharacterDeath(class CCharacter *victim, class CPlayer *killer, int weapon);
 	virtual bool OnEntity(int index, vec2 pos);
 	virtual bool is_rpg();
