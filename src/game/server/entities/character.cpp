@@ -952,7 +952,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 		CCharacter *ents[64];
 		m_pPlayer->m_pHealChar=NULL;
 		float mindist=-1;
-		int num = GameServer()->m_World.FindEntities(m_Pos, 500.0f, (CEntity**)ents, 64, NETOBJTYPE_CHARACTER);
+		int num = GameServer()->m_World.FindEntities(m_Pos, 500.0f, (CEntity**)ents, 64, CGameWorld::ENTTYPE_CHARACTER);
 		for(int i = 0; i < num; i++)
 		{
 			if(ents[i]==this || ents[i]->m_pPlayer->GetCID() == GameServer()->m_apPlayers[From]->m_LastHealed || ents[i]==GameServer()->m_apPlayers[From]->GetCharacter() || (ents[i]->m_pPlayer->GetTeam() != m_pPlayer->GetTeam() && GameServer()->m_pController->IsTeamplay()))
