@@ -1117,7 +1117,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			else if(p->m_RaceName == TAUREN)
 				str_format(tmp,sizeof(tmp),"[TAU]");
 			strncat(tmp,newname,MAX_NAME_LENGTH-6);
-			tmp[MAX_NAME_LENGTH]=0;
+			tmp[MAX_NAME_LENGTH-1]=0;
 			Server()->SetClientName(ClientID, tmp);
 		}
 		else
@@ -1240,7 +1240,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			else if(p->m_RaceName == TAUREN)
 				str_format(tmp,sizeof(tmp),"[TAU]");
 			strncat(tmp,newname,MAX_NAME_LENGTH-6);
-			tmp[MAX_NAME_LENGTH]=0;
+			tmp[MAX_NAME_LENGTH-1]=0;
 			Server()->SetClientName(ClientID, tmp);
 		}
 		else
