@@ -137,7 +137,7 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 		float InnerRadius = 48.0f;
 
 		//If its a kamikaze case
-		if(m_pController->is_rpg() && m_apPlayers[Owner] && m_apPlayers[Owner]->undead_special && m_apPlayers[Owner]->exploded && Weapon == WEAPON_EXPLODE)
+		if(m_pController->IsRpg() && m_apPlayers[Owner] && m_apPlayers[Owner]->m_UndeadSpecial && m_apPlayers[Owner]->m_Exploded && Weapon == WEAPON_EXPLODE)
  			Radius= 512.0f;
 
 		int Num = m_World.FindEntities(Pos, Radius, (CEntity**)apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
@@ -152,12 +152,12 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 			float Dmg = 6 * l;
 
 			//If its a kamikaze case
-			if(m_pController->is_rpg() && m_apPlayers[Owner] && m_apPlayers[Owner]->undead_special && m_apPlayers[Owner]->exploded && Weapon == WEAPON_EXPLODE)
+			if(m_pController->IsRpg() && m_apPlayers[Owner] && m_apPlayers[Owner]->m_UndeadSpecial && m_apPlayers[Owner]->m_Exploded && Weapon == WEAPON_EXPLODE)
 			{
 				Dmg= g_Config.m_SvDmgKamikaze * l;
 				if(g_Config.m_DbgWar3)dbg_msg("War3","Kamikaze : %f",Dmg);
 				//Undead with kamikaze are immune to kamikaze from other
-				if((int)Dmg && !apEnts[i]->GetPlayer()->undead_special)
+				if((int)Dmg && !apEnts[i]->GetPlayer()->m_UndeadSpecial)
 					apEnts[i]->TakeDamage(ForceDir*Dmg*2, (int)Dmg, Owner, Weapon);
 			}
 			else
@@ -531,7 +531,7 @@ void CGameContext::OnClientEnter(int ClientID)
 	m_apPlayers[ClientID]->Respawn();
 
 	//Reset player power on entering game
-	m_apPlayers[ClientID]->init_rpg();
+	m_apPlayers[ClientID]->InitRpg();
 
 	char aBuf[512];
 	str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientID), m_pController->GetTeamName(m_apPlayers[ClientID]->GetTeam()));
@@ -619,12 +619,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		bool is_command=!strcmp(pMsg->m_pMessage, ".info") || !strcmp(pMsg->m_pMessage, "/stats") || !strcmp(pMsg->m_pMessage, "/lvl") ||
 			!strncmp(pMsg->m_pMessage,"/race",5) || !strcmp(pMsg->m_pMessage, "/ability") || !strcmp(pMsg->m_pMessage, "/otherlvl") ||
 			!strcmp(pMsg->m_pMessage, "/help");
-		if(g_Config.m_SvSpamprotection && pPlayer->m_LastChat && pPlayer->m_LastChat+Server()->TickSpeed() > Server()->Tick() && (m_pController->is_rpg() && !is_command || !m_pController->is_rpg()))
+		if(g_Config.m_SvSpamprotection && pPlayer->m_LastChat && pPlayer->m_LastChat+Server()->TickSpeed() > Server()->Tick() && (m_pController->IsRpg() && !is_command || !m_pController->IsRpg()))
 		{
 			pPlayer->m_LastChat = Server()->Tick();
 			return;
 		}
-		else if(m_pController->is_rpg())
+		else if(m_pController->IsRpg())
  		{
 			//Special command stuff !!!!!
 			if(!strcmp(pMsg->m_pMessage, ".info"))
@@ -637,9 +637,9 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			else if(!strcmp(pMsg->m_pMessage, "/stats"))
 			{
 				char buf[128];
-				if(pPlayer->race_name!=VIDE)
+				if(pPlayer->m_RaceName!=VIDE)
 				{
-					m_pController->display_stats(pPlayer,pPlayer);
+					m_pController->DisplayStats(pPlayer,pPlayer);
 				}
 				else
 				{
@@ -650,16 +650,16 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			else if(!strcmp(pMsg->m_pMessage, "/lvl"))
 			{
 				char buf[128];
-				if(p->race_name!=VIDE)
+				if(p->m_RaceName!=VIDE)
 				{
-					if(p->levelmax)
+					if(p->m_LevelMax)
 					{
-						str_format(buf, sizeof(buf), "Final Lvl\n%d points to spend(/stats)",p->leveled);
+						str_format(buf, sizeof(buf), "Final Lvl\n%d points to spend(/stats)",p->m_Leveled);
 						SendBroadcast(buf, ClientID);
 					}
 					else
 					{
-						str_format(buf, sizeof(buf), "LVL: %d | %d/%d\n%d points to spend(/stats)", p->lvl,p->xp,p->nextlvl,p->leveled);
+						str_format(buf, sizeof(buf), "LVL: %d | %d/%d\n%d points to spend(/stats)", p->m_Lvl,p->m_Xp,p->m_NextLvl,p->m_Leveled);
 						SendBroadcast(buf, ClientID);
 					}
 				}
@@ -676,8 +676,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					char buf[128];
 					str_format(buf, sizeof(buf), "Orc chosen");
 					SendBroadcast(buf, ClientID);
-					p->init_rpg();
-					p->race_name=ORC;
+					p->InitRpg();
+					p->m_RaceName=ORC;
 					if(p->GetCharacter() && p->GetCharacter()->IsAlive())
 					{
 						p->KillCharacter(-1);
@@ -689,8 +689,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					char buf[128];
 					str_format(buf, sizeof(buf), "Elf chosen");
 					SendBroadcast(buf, ClientID);
-					p->init_rpg();
-					p->race_name=ELF;
+					p->InitRpg();
+					p->m_RaceName=ELF;
 					if(p->GetCharacter() && p->GetCharacter()->IsAlive())
 					{
 						p->KillCharacter(-1);
@@ -702,8 +702,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					char buf[128];
 					str_format(buf, sizeof(buf), "Undead chosen");
 					SendBroadcast(buf, ClientID);
-					p->init_rpg();
-					p->race_name=UNDEAD;
+					p->InitRpg();
+					p->m_RaceName=UNDEAD;
 					if(p->GetCharacter() && p->GetCharacter()->IsAlive())
 					{
 						p->KillCharacter(-1);
@@ -715,8 +715,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					char buf[128];
 					str_format(buf, sizeof(buf), "Human chosen");
 					SendBroadcast(buf, ClientID);
-					p->init_rpg();
-					p->race_name=HUMAN;
+					p->InitRpg();
+					p->m_RaceName=HUMAN;
 					if(p->GetCharacter() && p->GetCharacter()->IsAlive())
 					{
 						p->KillCharacter(-1);
@@ -729,7 +729,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					int i;
 					for(i=0;i < MAX_CLIENTS;i++)
 					{
-						if(m_apPlayers[i] && m_apPlayers[i]->GetCID() != -1 && m_apPlayers[i]->race_name == TAUREN && m_apPlayers[i]->GetTeam() == p->GetTeam())
+						if(m_apPlayers[i] && m_apPlayers[i]->GetCID() != -1 && m_apPlayers[i]->m_RaceName == TAUREN && m_apPlayers[i]->GetTeam() == p->GetTeam())
 							count_tauren++;
 					}
 					if(count_tauren  < g_Config.m_SvMaxTauren)
@@ -737,8 +737,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						char buf[128];
 						str_format(buf, sizeof(buf), "Tauren chosen");
 						SendBroadcast(buf, ClientID);
-						p->init_rpg();
-						p->race_name=TAUREN;
+						p->InitRpg();
+						p->m_RaceName=TAUREN;
 						if(p->GetCharacter() && p->GetCharacter()->IsAlive())
 						{
 							p->KillCharacter(-1);
@@ -758,35 +758,35 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					str_format(buf, sizeof(buf), "Wrong race : orc/human/elf/undead/tauren");
 					SendBroadcast(buf, ClientID);
 				}
-				p->check=true;
+				p->m_Check=true;
 			}
-			else if(!strcmp(pMsg->m_pMessage, "/1") && p->leveled)
+			else if(!strcmp(pMsg->m_pMessage, "/1") && p->m_Leveled)
 			{
 				char buf[128];
-				if(p->choose_ability(1))
-					p->leveled--;
+				if(p->ChooseAbility(1))
+					p->m_Leveled--;
 				else
 				{
 					str_format(buf, sizeof(buf), "Wrong number");
 					SendBroadcast(buf, ClientID);
 				}
 			}
-			else if(!strcmp(pMsg->m_pMessage, "/2") && p->leveled)
+			else if(!strcmp(pMsg->m_pMessage, "/2") && p->m_Leveled)
 			{
 				char buf[128];
-				if(p->choose_ability(2))
-					p->leveled--;
+				if(p->ChooseAbility(2))
+					p->m_Leveled--;
 				else
 				{
 					str_format(buf, sizeof(buf), "Wrong number");
 					SendBroadcast(buf, ClientID);
 				}
 			}
-			else if(!strcmp(pMsg->m_pMessage, "/3") && p->leveled)
+			else if(!strcmp(pMsg->m_pMessage, "/3") && p->m_Leveled)
 			{
 				char buf[128];
-				if(p->choose_ability(3))
-					p->leveled--;
+				if(p->ChooseAbility(3))
+					p->m_Leveled--;
 				else
 				{
 					str_format(buf, sizeof(buf), "Wrong number");
@@ -796,7 +796,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			}
 			else if(!strcmp(pMsg->m_pMessage, "/ability"))
 			{
-				int res=p->use_special();
+				int res=p->UseSpecial();
 				char buf[128];
 				if(res==-1)
 				{
@@ -821,7 +821,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			}
 			else if(!strcmp(pMsg->m_pMessage, "/otherlvl"))
 			{
-				if(!p->print_otherlvl())
+				if(!p->PrintOtherLvl())
 				{
 					char buf[128];
 					str_format(buf, sizeof(buf), "error");
@@ -830,7 +830,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			}
 			else if(!strcmp(pMsg->m_pMessage, "/help"))
 			{
-				if(!p->print_help())
+				if(!p->PrintHelp())
 				{
 					char buf[128];
 					str_format(buf, sizeof(buf), "Error (Do you have a race ?)");
@@ -853,7 +853,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			}
 			else if(!strcmp(pMsg->m_pMessage, "/reset"))
 			{
-				p->reset_all();
+				p->ResetAll();
 			}
 			else if(!strncmp(pMsg->m_pMessage, "/",1))
 			{
@@ -1099,22 +1099,22 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		
 		// set start infos
 		// Name with race
-		if(g_Config.m_SvRaceTag && m_pController->is_rpg())
+		if(g_Config.m_SvRaceTag && m_pController->IsRpg())
 		{
 			char newname[MAX_NAME_LENGTH];
 			char tmp[MAX_NAME_LENGTH];
 			str_copy(newname,pMsg->m_pName,MAX_NAME_LENGTH);
-			if(p->race_name == VIDE)
+			if(p->m_RaceName == VIDE)
 				str_format(tmp,sizeof(tmp),"[___]");
-			else if(p->race_name == ORC)
+			else if(p->m_RaceName == ORC)
 				str_format(tmp,sizeof(tmp),"[ORC]");
-			else if(p->race_name == UNDEAD)
+			else if(p->m_RaceName == UNDEAD)
 				str_format(tmp,sizeof(tmp),"[UND]");
-			else if(p->race_name == HUMAN)
+			else if(p->m_RaceName == HUMAN)
 				str_format(tmp,sizeof(tmp),"[HUM]");
-			else if(p->race_name == ELF)
+			else if(p->m_RaceName == ELF)
 				str_format(tmp,sizeof(tmp),"[ELF]");
-			else if(p->race_name == TAUREN)
+			else if(p->m_RaceName == TAUREN)
 				str_format(tmp,sizeof(tmp),"[TAU]");
 			strncat(tmp,newname,MAX_NAME_LENGTH-6);
 			tmp[MAX_NAME_LENGTH]=0;
@@ -1222,22 +1222,22 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		char aOldName[MAX_NAME_LENGTH];
 		str_copy(aOldName, Server()->ClientName(ClientID), sizeof(aOldName));	
 		// Name with race
-		if(g_Config.m_SvRaceTag && m_pController->is_rpg())
+		if(g_Config.m_SvRaceTag && m_pController->IsRpg())
 		{
 			char newname[MAX_NAME_LENGTH];
 			char tmp[MAX_NAME_LENGTH];
 			str_copy(newname,pMsg->m_pName,MAX_NAME_LENGTH);
-			if(p->race_name == VIDE)
+			if(p->m_RaceName == VIDE)
 				str_format(tmp,sizeof(tmp),"[___]");
-			else if(p->race_name == ORC)
+			else if(p->m_RaceName == ORC)
 				str_format(tmp,sizeof(tmp),"[ORC]");
-			else if(p->race_name == UNDEAD)
+			else if(p->m_RaceName == UNDEAD)
 				str_format(tmp,sizeof(tmp),"[UND]");
-			else if(p->race_name == HUMAN)
+			else if(p->m_RaceName == HUMAN)
 				str_format(tmp,sizeof(tmp),"[HUM]");
-			else if(p->race_name == ELF)
+			else if(p->m_RaceName == ELF)
 				str_format(tmp,sizeof(tmp),"[ELF]");
-			else if(p->race_name == TAUREN)
+			else if(p->m_RaceName == TAUREN)
 				str_format(tmp,sizeof(tmp),"[TAU]");
 			strncat(tmp,newname,MAX_NAME_LENGTH-6);
 			tmp[MAX_NAME_LENGTH]=0;
@@ -1278,7 +1278,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		pPlayer->m_LastKill = Server()->Tick();
 		pPlayer->KillCharacter(WEAPON_SELF);
 		//Suicide
-		p->suicide=true;
+		p->m_Suicide=true;
 	}
 }
 
@@ -1626,24 +1626,24 @@ void CGameContext::con_set_level(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int ClientID = clamp(pResult->GetInteger(0), 0, (int)MAX_CLIENTS);
-	int level = clamp(pResult->GetInteger(1), 0, pSelf->m_pController->get_level_max());
+	int level = clamp(pResult->GetInteger(1), 0, pSelf->m_pController->GetLevelMax());
 	
 	dbg_msg("level", "%d %d", ClientID, level);
 	
-	if(!pSelf->m_apPlayers[ClientID] || !pSelf->m_pController->is_rpg())
+	if(!pSelf->m_apPlayers[ClientID] || !pSelf->m_pController->IsRpg())
 		return;
 	
 	if(level==0)
 	{
-		pSelf->m_apPlayers[ClientID]->init_rpg();
+		pSelf->m_apPlayers[ClientID]->InitRpg();
 	}
-	else if(level != pSelf->m_apPlayers[ClientID]->lvl)
+	else if(level != pSelf->m_apPlayers[ClientID]->m_Lvl)
 	{
-		pSelf->m_apPlayers[ClientID]->lvl=level;
-		pSelf->m_apPlayers[ClientID]->leveled=level-1;
-		pSelf->m_apPlayers[ClientID]->xp=0;
-		pSelf->m_apPlayers[ClientID]->nextlvl=pSelf->m_pController->init_xp(level);
-		pSelf->m_apPlayers[ClientID]->reset_all();
+		pSelf->m_apPlayers[ClientID]->m_Lvl=level;
+		pSelf->m_apPlayers[ClientID]->m_Leveled=level-1;
+		pSelf->m_apPlayers[ClientID]->m_Xp=0;
+		pSelf->m_apPlayers[ClientID]->m_NextLvl=pSelf->m_pController->InitXp(level);
+		pSelf->m_apPlayers[ClientID]->ResetAll();
 	}
 
 	char buf[512];
@@ -1659,10 +1659,10 @@ void CGameContext::con_level_up(IConsole::IResult *pResult, void *pUserData)
 	
 	dbg_msg("level", "%d", ClientID);
 	
-	if(!pSelf->m_apPlayers[ClientID] || !pSelf->m_pController->is_rpg())
+	if(!pSelf->m_apPlayers[ClientID] || !pSelf->m_pController->IsRpg())
 		return;
 	
-	pSelf->m_pController->on_level_up(pSelf->m_apPlayers[ClientID]);
+	pSelf->m_pController->OnLevelUp(pSelf->m_apPlayers[ClientID]);
 
 	//Admin abus
 	char buf[512];
@@ -1674,7 +1674,7 @@ void CGameContext::con_level_up(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::con_load_table(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	pSelf->m_pController->load_xp_table();
+	pSelf->m_pController->LoadXpTable();
 }
 
 //Crazy command
@@ -1693,7 +1693,7 @@ void CGameContext::con_print_help_to(IConsole::IResult *pResult, void *pUserData
 	if(!pSelf->m_apPlayers[ClientID])
 		return;
 
-	pSelf->m_apPlayers[ClientID]->print_help();
+	pSelf->m_apPlayers[ClientID]->PrintHelp();
 }
 
 //Print how to use special to the player

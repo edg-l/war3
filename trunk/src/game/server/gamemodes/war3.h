@@ -21,7 +21,7 @@ public:
 	virtual bool CanBeMovedOnBalance(int ClientID);
 	virtual int OnCharacterDeath(class CCharacter *victim, class CPlayer *killer, int weapon);
 	virtual bool OnEntity(int index, vec2 pos);
-	virtual bool is_rpg();
+	virtual bool IsRpg();
 	virtual void on_level_up(CPlayer *player);
 	virtual void display_stats(CPlayer *player,CPlayer *from);
 	virtual int drop_flag_orc(CPlayer *player);

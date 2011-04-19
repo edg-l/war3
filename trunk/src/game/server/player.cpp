@@ -80,27 +80,27 @@ void CPlayer::Tick()
 	else if(m_Spawning && m_RespawnTick <= Server()->Tick())
 		TryRespawn();
 
-	if(!GameServer()->m_pController->is_rpg())
+	if(!GameServer()->m_pController->IsRpg())
 		return;
 
 	//Leveling up gratz !
-	if(xp>nextlvl && !levelmax && race_name != VIDE)
-		GameServer()->m_pController->on_level_up(this);
+	if(m_Xp>m_NextLvl && !m_LevelMax && m_RaceName != VIDE)
+		GameServer()->m_pController->OnLevelUp(this);
 
 	//Check for special reload
-	if(Server()->Tick()-special_used_tick >= 0 && special_used)
+	if(Server()->Tick()-m_SpecialUsedTick >= 0 && m_SpecialUsed)
 	{
-		special_used=false;
+		m_SpecialUsed=false;
 		GameServer()->CreateSoundGlobal(SOUND_HOOK_LOOP, m_ClientID);
 	}
 	//Invicible (not used)
-	if(invincible && Server()->Tick()-invincible_start_tick > Server()->TickSpeed()*3)
+	if(m_Invincible && Server()->Tick()-m_InvincibleStartTick > Server()->TickSpeed()*3)
 	{
-		invincible=false;
-		check=true;
+		m_Invincible=false;
+		m_Check=true;
 	}
 	//Dumb people don't choose race ? oO
-	if(race_name==VIDE && Server()->Tick()%(Server()->TickSpeed()*2)==0 && m_Team != -1)
+	if(m_RaceName==VIDE && Server()->Tick()%(Server()->TickSpeed()*2)==0 && m_Team != -1)
 	{
 		char buf[128];
 		str_format(buf, sizeof(buf), "Choose a race say \"/race undead/orc/human/elf/tauren\"");
@@ -108,14 +108,14 @@ void CPlayer::Tick()
 	}
 
 	//Forcing a race
-	if(g_Config.m_SvForceRace && m_Team != -1 && race_name == VIDE && Server()->Tick()-force_race_tick >= Server()->TickSpeed()*g_Config.m_SvForceRace*60)
+	if(g_Config.m_SvForceRace && m_Team != -1 && m_RaceName == VIDE && Server()->Tick()-m_ForceRaceTick >= Server()->TickSpeed()*g_Config.m_SvForceRace*60)
 	{
 		int i,force_race=-1;
 		int nbRace[NBRACE]={0};
 		for (i=0;i < MAX_CLIENTS;i++)
 		{
-			if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->race_name != VIDE)
-				nbRace[GameServer()->m_apPlayers[i]->race_name]++;
+			if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->m_RaceName != VIDE)
+				nbRace[GameServer()->m_apPlayers[i]->m_RaceName]++;
 		}
 		for (i=1;i < NBRACE;i++)
 		{
@@ -125,20 +125,20 @@ void CPlayer::Tick()
 		char buf[128];
 		str_format(buf, sizeof(buf), "Race forced");
 		GameServer()->SendBroadcast(buf, m_ClientID);
-		init_rpg();
-		race_name = force_race;
+		InitRpg();
+		m_RaceName = force_race;
 		KillCharacter(-1);
 		m_Score++;
-		dbg_msg("war3","Forcing player : %s to race : %d",Server()->ClientName(m_ClientID),race_name);
-		check=true;
+		dbg_msg("war3","Forcing player : %s to race : %d",Server()->ClientName(m_ClientID),m_RaceName);
+		m_Check=true;
 	}
 
 	//Dunno about CPU usage
-	if(check)
+	if(m_Check)
 	{
-		check_skins();
-		check_name();
-		check=false;
+		CheckSkins();
+		CheckName();
+		m_Check=false;
 	}
 }
 
@@ -293,23 +293,23 @@ void CPlayer::SetTeam(int Team)
 	// we got to wait 0.5 secs before respawning
 	m_RespawnTick = Server()->Tick()+Server()->TickSpeed()/2;
 	
-	if(m_Team==-1)init_rpg();
-	if(race_name == TAUREN)
+	if(m_Team==-1)InitRpg();
+	if(m_RaceName == TAUREN)
 	{
 		int count_tauren=0;
 		int i;
 		for(i=0;i < MAX_CLIENTS;i++)
 		{
-			if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetCID() != -1 && GameServer()->m_apPlayers[i]->race_name == TAUREN && GameServer()->m_apPlayers[i]->GetTeam() == m_Team && GameServer()->m_apPlayers[i]->GetCID() != m_ClientID)
+			if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetCID() != -1 && GameServer()->m_apPlayers[i]->m_RaceName == TAUREN && GameServer()->m_apPlayers[i]->GetTeam() == m_Team && GameServer()->m_apPlayers[i]->GetCID() != m_ClientID)
 				count_tauren++;
 		}
 		if(count_tauren >= g_Config.m_SvMaxTauren)
 		{
-			race_name=HUMAN;
-			reset_all();
+			m_RaceName=HUMAN;
+			ResetAll();
 		}
 	}
-	check=true;
+	m_Check=true;
 
 	str_format(aBuf, sizeof(aBuf), "m_Team_join player='%d:%s' m_Team=%d", m_ClientID, Server()->ClientName(m_ClientID), m_Team);
 	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
@@ -341,117 +341,117 @@ void CPlayer::TryRespawn()
 }
 
 //Init vars
-void CPlayer::init_rpg()
+void CPlayer::InitRpg()
 {
-	if(!GameServer()->m_pController->is_rpg())
+	if(!GameServer()->m_pController->IsRpg())
 		return;
-	lvl = g_Config.m_SvLevelStart;
-	nextlvl = GameServer()->m_pController->init_xp(lvl);	
-	xp = 0;
-	leveled=lvl-1;
-	levelmax=false;
-	human_armor=0;
-	human_mole=0;
-	human_special=false;
-	orc_dmg=0;
-	orc_reload=0;
-	orc_special=false;
-	undead_taser=0;
-	undead_vamp=0;
-	undead_special=false;
-	exploded=false;
-	elf_poison=0;
-	elf_special=false;
-	elf_mirror=0;
-	mirrordmg_tick=0;
-	mirrorlimit=0;
-	special_used=false;
-	race_name=VIDE;
-	force_race_tick=Server()->Tick();
-	poisoned=0;
-	poison_start_tick=0;
-	start_poison=0;
-	poisoner=-1;
-	tauren_special=false;
-	tauren_hot=0;
-	tauren_ressurect=0;
-	ressurected=false;
-	hot=0;
-	hot_start_tick=0;
-	start_hot=0;
-	hot_from=-1;
-	healed=false;
-	heal_tick=-1;
-	started_heal=-1;
-	heal_from=-1;
-	death_tile=false;
-	check=true;
+	m_Lvl = g_Config.m_SvLevelStart;
+	m_NextLvl = GameServer()->m_pController->InitXp(m_Lvl);	
+	m_Xp = 0;
+	m_Leveled=m_Lvl-1;
+	m_LevelMax=false;
+	m_HumanArmor=0;
+	m_HumanMole=0;
+	m_HumanSpecial=false;
+	m_OrcDmg=0;
+	m_OrcReload=0;
+	m_OrcSpecial=false;
+	m_UndeadTaser=0;
+	m_UndeadVamp=0;
+	m_UndeadSpecial=false;
+	m_Exploded=false;
+	m_ElfPoison=0;
+	m_ElfSpecial=false;
+	m_ElfMirror=0;
+	m_MirrorDmgTick=0;
+	m_MirrorLimit=0;
+	m_SpecialUsed=false;
+	m_RaceName=VIDE;
+	m_ForceRaceTick=Server()->Tick();
+	m_Poisoned=0;
+	m_PoisonStartTick=0;
+	m_StartPoison=0;
+	m_Poisoner=-1;
+	m_TaurenSpecial=false;
+	m_TaurenHot=0;
+	m_TaurenRessurect=0;
+	m_Ressurected=false;
+	m_Hot=0;
+	m_HotStartTick=0;
+	m_StartHot=0;
+	m_HotFrom=-1;
+	m_Healed=false;
+	m_HealTick=-1;
+	m_StartedHeal=-1;
+	m_HealFrom=-1;
+	m_DeathTile=false;
+	m_Check=true;
 }
 
 //Reset vars
-void CPlayer::reset_all()
+void CPlayer::ResetAll()
 {	
-	if(!GameServer()->m_pController->is_rpg())
+	if(!GameServer()->m_pController->IsRpg())
 		return;
-	if(lvl < GameServer()->m_pController->get_level_max())levelmax=false;
-	else levelmax=true;
-	leveled=lvl-1;
-	nextlvl = GameServer()->m_pController->init_xp(lvl);
-	human_armor=0;
-	human_mole=0;
-	human_special=false;
-	orc_dmg=0;
-	orc_reload=0;
-	orc_special=false;
-	undead_taser=0;
-	undead_vamp=0;
-	undead_special=false;
-	exploded=false;
-	elf_poison=0;
-	elf_special=false;
-	elf_mirror=0;
-	mirrordmg_tick=0;
-	mirrorlimit=0;
-	tauren_special=false;
-	tauren_hot=0;
-	tauren_ressurect=0;
-	ressurected=false;
-	hot=0;
-	hot_start_tick=0;
-	start_hot=0;
-	hot_from=-1;
-	healed=false;
-	heal_tick=-1;
-	started_heal=-1;
-	heal_from=-1;
-	death_tile=false;
+	if(m_Lvl < GameServer()->m_pController->GetLevelMax())m_LevelMax=false;
+	else m_LevelMax=true;
+	m_Leveled=m_Lvl-1;
+	m_NextLvl = GameServer()->m_pController->InitXp(m_Lvl);
+	m_HumanArmor=0;
+	m_HumanMole=0;
+	m_HumanSpecial=false;
+	m_OrcDmg=0;
+	m_OrcReload=0;
+	m_OrcSpecial=false;
+	m_UndeadTaser=0;
+	m_UndeadVamp=0;
+	m_UndeadSpecial=false;
+	m_Exploded=false;
+	m_ElfPoison=0;
+	m_ElfSpecial=false;
+	m_ElfMirror=0;
+	m_MirrorDmgTick=0;
+	m_MirrorLimit=0;
+	m_TaurenSpecial=false;
+	m_TaurenHot=0;
+	m_TaurenRessurect=0;
+	m_Ressurected=false;
+	m_Hot=0;
+	m_HotStartTick=0;
+	m_StartHot=0;
+	m_HotFrom=-1;
+	m_Healed=false;
+	m_HealTick=-1;
+	m_StartedHeal=-1;
+	m_HealFrom=-1;
+	m_DeathTile=false;
 }
 
 //Choose an ability
-bool CPlayer::choose_ability(int choice)
+bool CPlayer::ChooseAbility(int Choice)
 {
-	if(!GameServer()->m_pController->is_rpg())
+	if(!GameServer()->m_pController->IsRpg())
 		return false;
 	char buf[128];
-	if(race_name==ORC)
+	if(m_RaceName==ORC)
 	{
-		if(choice == 1 && orc_dmg<4)
+		if(Choice == 1 && m_OrcDmg<4)
 		{
-			orc_dmg++;
-			str_format(buf, sizeof(buf), "Damage + %d%%",orc_dmg*15);
+			m_OrcDmg++;
+			str_format(buf, sizeof(buf), "Damage + %d%%",m_OrcDmg*15);
 			GameServer()->SendBroadcast(buf, m_ClientID);
 			return true;
 		}
-		else if(choice == 2 && orc_reload<4)
+		else if(Choice == 2 && m_OrcReload<4)
 		{
-			orc_reload++;
-			str_format(buf, sizeof(buf), "Reload faster + %d",orc_reload);
+			m_OrcReload++;
+			str_format(buf, sizeof(buf), "Reload faster + %d",m_OrcReload);
 			GameServer()->SendBroadcast(buf, m_ClientID);
 			return true;
 		}
-		else if(choice==3 && lvl >=6 && !orc_special)
+		else if(Choice==3 && m_Lvl >=6 && !m_OrcSpecial)
 		{
-			orc_special=true;
+			m_OrcSpecial=true;
 			str_format(buf, sizeof(buf), "Teleport Backup enable");
 			GameServer()->SendBroadcast(buf, m_ClientID);
 			return true;
@@ -459,25 +459,25 @@ bool CPlayer::choose_ability(int choice)
 		else
 			return false;
 	}
-	else if(race_name==HUMAN)
+	else if(m_RaceName==HUMAN)
 	{
-		if(choice == 1 && human_armor<4)
+		if(Choice == 1 && m_HumanArmor<4)
 		{
-			human_armor++;
-			str_format(buf, sizeof(buf), "Armor + %d%%",human_armor*15);
+			m_HumanArmor++;
+			str_format(buf, sizeof(buf), "Armor + %d%%",m_HumanArmor*15);
 			GameServer()->SendBroadcast(buf, m_ClientID);
 			return true;
 		}
-		else if(choice == 2 && human_mole<4)
+		else if(Choice == 2 && m_HumanMole<4)
 		{
-			human_mole++;
-			str_format(buf, sizeof(buf), "Mole chance = %d%%",human_mole*15);
+			m_HumanMole++;
+			str_format(buf, sizeof(buf), "Mole chance = %d%%",m_HumanMole*15);
 			GameServer()->SendBroadcast(buf, m_ClientID);
 			return true;
 		}
-		else if(choice==3 && lvl >=6 && !human_special)
+		else if(Choice==3 && m_Lvl >=6 && !m_HumanSpecial)
 		{
-			human_special=true;
+			m_HumanSpecial=true;
 			str_format(buf, sizeof(buf), "Teleport enable");
 			GameServer()->SendBroadcast(buf, m_ClientID);
 			return true;
@@ -485,25 +485,25 @@ bool CPlayer::choose_ability(int choice)
 		else
 			return false;
 	}
-	else if(race_name==ELF)
+	else if(m_RaceName==ELF)
 	{
-		if(choice == 1 && elf_poison<4)
+		if(Choice == 1 && m_ElfPoison<4)
 		{
-			elf_poison++;
-			str_format(buf, sizeof(buf), "Poison %d ticks",elf_poison*2);
+			m_ElfPoison++;
+			str_format(buf, sizeof(buf), "Poison %d ticks",m_ElfPoison*2);
 			GameServer()->SendBroadcast(buf, m_ClientID);
 			return true;
 		}
-		else if(choice == 2 && elf_mirror<4)
+		else if(Choice == 2 && m_ElfMirror<4)
 		{
-			elf_mirror++;
-			str_format(buf, sizeof(buf), "Mirror damage + %d",elf_mirror);
+			m_ElfMirror++;
+			str_format(buf, sizeof(buf), "Mirror damage + %d",m_ElfMirror);
 			GameServer()->SendBroadcast(buf, m_ClientID);
 			return true;
 		}
-		else if(choice==3 && lvl >=6 && !elf_special)
+		else if(Choice==3 && m_Lvl >=6 && !m_ElfSpecial)
 		{
-			elf_special=true;
+			m_ElfSpecial=true;
 			str_format(buf, sizeof(buf), "Immobilise enable");
 			GameServer()->SendBroadcast(buf, m_ClientID);
 			return true;
@@ -511,25 +511,25 @@ bool CPlayer::choose_ability(int choice)
 		else
 			return false;
 	}
-	else if(race_name==UNDEAD)
+	else if(m_RaceName==UNDEAD)
 	{
-		if(choice == 1 && undead_taser<4)
+		if(Choice == 1 && m_UndeadTaser<4)
 		{
-			undead_taser++;
-			str_format(buf, sizeof(buf), "Taser + %d",undead_taser);
+			m_UndeadTaser++;
+			str_format(buf, sizeof(buf), "Taser + %d",m_UndeadTaser);
 			GameServer()->SendBroadcast(buf, m_ClientID);
 			return true;
 		}
-		else if(choice == 2 && undead_vamp<4)
+		else if(Choice == 2 && m_UndeadVamp<4)
 		{
-			undead_vamp++;
-			str_format(buf, sizeof(buf), "Vampiric + %d",undead_vamp);
+			m_UndeadVamp++;
+			str_format(buf, sizeof(buf), "Vampiric + %d",m_UndeadVamp);
 			GameServer()->SendBroadcast(buf, m_ClientID);
 			return true;
 		}
-		else if(choice==3 && lvl >=6 && !undead_special)
+		else if(Choice==3 && m_Lvl >=6 && !m_UndeadSpecial)
 		{
-			undead_special=true;
+			m_UndeadSpecial=true;
 			str_format(buf, sizeof(buf), "Kamikaze enabled");
 			GameServer()->SendBroadcast(buf, m_ClientID);
 			return true;
@@ -537,25 +537,25 @@ bool CPlayer::choose_ability(int choice)
 		else
 			return false;
 	}
-	else if(race_name==TAUREN)
+	else if(m_RaceName==TAUREN)
 	{
-		if(choice == 1 && tauren_hot<4)
+		if(Choice == 1 && m_TaurenHot<4)
 		{
-			tauren_hot++;
-			str_format(buf, sizeof(buf), "Hot %d tick",tauren_hot*2);
+			m_TaurenHot++;
+			str_format(buf, sizeof(buf), "Hot %d tick",m_TaurenHot*2);
 			GameServer()->SendBroadcast(buf, m_ClientID);
 			return true;
 		}
-		else if(choice == 2 && tauren_ressurect<4)
+		else if(Choice == 2 && m_TaurenRessurect<4)
 		{
-			tauren_ressurect++;
-			str_format(buf, sizeof(buf), "Ressurection + %d%%",tauren_ressurect*15);
+			m_TaurenRessurect++;
+			str_format(buf, sizeof(buf), "Ressurection + %d%%",m_TaurenRessurect*15);
 			GameServer()->SendBroadcast(buf, m_ClientID);
 			return true;
 		}
-		else if(choice==3 && lvl >=6 && !tauren_special)
+		else if(Choice==3 && m_Lvl >=6 && !m_TaurenSpecial)
 		{
-			tauren_special=true;
+			m_TaurenSpecial=true;
 			str_format(buf, sizeof(buf), "Shield enabled");
 			GameServer()->SendBroadcast(buf, m_ClientID);
 			return true;
@@ -569,29 +569,29 @@ bool CPlayer::choose_ability(int choice)
 
 
 //Vamp function
-void CPlayer::vamp(int amount)
+void CPlayer::Vamp(int Amount)
 {
-	if(!GameServer()->m_pController->is_rpg())
+	if(!GameServer()->m_pController->IsRpg())
 		return;
 	if(Character)
 	{	
-		if(amount > undead_vamp)
-			amount=undead_vamp;
-		Character->IncreaseHealth(amount);
+		if(Amount > m_UndeadVamp)
+			Amount=m_UndeadVamp;
+		Character->IncreaseHealth(Amount);
 	}
 }
 
 //Function for using special
-int CPlayer::use_special()
+int CPlayer::UseSpecial()
 {
-	if(!GameServer()->m_pController->is_rpg())
+	if(!GameServer()->m_pController->IsRpg())
 		return -3;
-	if(!special_used)
+	if(!m_SpecialUsed)
 	{
-		if(elf_special && GameServer()->m_apPlayers[m_ClientID]->GetCharacter())
+		if(m_ElfSpecial && GameServer()->m_apPlayers[m_ClientID]->GetCharacter())
 		{
-			special_used=true;
-			special_used_tick=Server()->Tick()+Server()->TickSpeed()*g_Config.m_SvSpecialTime*2;
+			m_SpecialUsed=true;
+			m_SpecialUsedTick=Server()->Tick()+Server()->TickSpeed()*g_Config.m_SvSpecialTime*2;
 			vec2 direction = normalize(vec2(Character->m_LatestInput.m_TargetX, Character->m_LatestInput.m_TargetY));
 			vec2 at;
 			CCharacter *hit;
@@ -600,16 +600,16 @@ int CPlayer::use_special()
 			hit = GameServer()->m_World.IntersectCharacter(Character->m_Core.m_Pos, to, 0.0f, at, Character);
 			//if(hit)dbg_msg("test","hit : %d",hit->GetPlayer()->m_ClientID);
 			if(!hit || (hit->GetPlayer()->m_Team == m_Team && !g_Config.m_SvTeamdamage))
-				special_used=false;
+				m_SpecialUsed=false;
 			else if(hit->GetPlayer()->m_Team != m_Team || g_Config.m_SvTeamdamage)
 				hit->stucked=Server()->Tick();
 			return 0;
 		}
-		else if(human_special && GameServer()->m_apPlayers[m_ClientID]->GetCharacter())
+		else if(m_HumanSpecial && GameServer()->m_apPlayers[m_ClientID]->GetCharacter())
 		{
-			special_used=true;
+			m_SpecialUsed=true;
 			GetCharacter()->stucked=0;
-			special_used_tick=Server()->Tick()+Server()->TickSpeed()*g_Config.m_SvSpecialTime;
+			m_SpecialUsedTick=Server()->Tick()+Server()->TickSpeed()*g_Config.m_SvSpecialTime;
 			vec2 direction = normalize(vec2(Character->m_LatestInput.m_TargetX, Character->m_LatestInput.m_TargetY));
 			vec2 prevdir=direction;
 			vec2 tmpvec;
@@ -622,17 +622,17 @@ int CPlayer::use_special()
 			}
 			else
 			{
-				special_used=false;
+				m_SpecialUsed=false;
 				return -4;
 			}
 		}
-		else if(orc_special && GameServer()->m_apPlayers[m_ClientID]->GetCharacter())
+		else if(m_OrcSpecial && GameServer()->m_apPlayers[m_ClientID]->GetCharacter())
 		{
 			int res;
-			special_used=true;
-			special_used_tick=Server()->Tick()+Server()->TickSpeed()*g_Config.m_SvSpecialTime*4;
-			poisoned=0;
-			res=GameServer()->m_pController->drop_flag_orc(this);
+			m_SpecialUsed=true;
+			m_SpecialUsedTick=Server()->Tick()+Server()->TickSpeed()*g_Config.m_SvSpecialTime*4;
+			m_Poisoned=0;
+			res=GameServer()->m_pController->DropFlagOrc(this);
 			if(res==-1)
 			{
 				vec2 spawnpos = vec2(100.0f, -60.0f);
@@ -653,31 +653,31 @@ int CPlayer::use_special()
 			}			
 			return 0;
 		}
-		else if(undead_special && GameServer()->m_apPlayers[m_ClientID]->GetCharacter())
+		else if(m_UndeadSpecial && GameServer()->m_apPlayers[m_ClientID]->GetCharacter())
 		{
 			KillCharacter(WEAPON_SELF);
 			return 0;
 		}
-		else if(tauren_special && GameServer()->m_apPlayers[m_ClientID]->GetCharacter())
+		else if(m_TaurenSpecial && GameServer()->m_apPlayers[m_ClientID]->GetCharacter())
 		{
-			special_used=true;
-			invincible_start_tick=Server()->Tick();
-			invincible=true;
+			m_SpecialUsed=true;
+			m_InvincibleStartTick=Server()->Tick();
+			m_Invincible=true;
 			GameServer()->SendChatTarget(m_ClientID,"Shield used");
-			check=true;
-			special_used_tick=Server()->Tick()+Server()->TickSpeed()*g_Config.m_SvSpecialTime*9;
+			m_Check=true;
+			m_SpecialUsedTick=Server()->Tick()+Server()->TickSpeed()*g_Config.m_SvSpecialTime*9;
 			return 0;
 		}
 	}
-	else if(special_used)
+	else if(m_SpecialUsed)
 	{
 					
 		char buf[128];
-		str_format(buf, sizeof(buf), "Special reloading : %d sec",(int)((float)(special_used_tick-Server()->Tick())/(float)Server()->TickSpeed())+1);
+		str_format(buf, sizeof(buf), "Special reloading : %d sec",(int)((float)(m_SpecialUsedTick-Server()->Tick())/(float)Server()->TickSpeed())+1);
 		GameServer()->SendBroadcast(buf, m_ClientID);
 		return 0;
 	}
-	if(!human_special && !orc_special && !elf_special && !undead_special && !tauren_special)
+	if(!m_HumanSpecial && !m_OrcSpecial && !m_ElfSpecial && !m_UndeadSpecial && !m_TaurenSpecial)
 		return -1;
 	else if(!GameServer()->m_apPlayers[m_ClientID]->GetCharacter())
 		return -2;
@@ -685,22 +685,22 @@ int CPlayer::use_special()
 }
 
 //Print other players level
-bool CPlayer::print_otherlvl()
+bool CPlayer::PrintOtherLvl()
 {
-	if(!GameServer()->m_pController->is_rpg())
+	if(!GameServer()->m_pController->IsRpg())
 		return false;
 	char buf[128];
 	char tmprace[30];
 	for(int i=0;i<MAX_CLIENTS;i++)
 	{
-		if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->race_name != VIDE && GameServer()->m_apPlayers[i]->GetTeam() == m_Team)
+		if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->m_RaceName != VIDE && GameServer()->m_apPlayers[i]->GetTeam() == m_Team)
 		{
-			if(GameServer()->m_apPlayers[i]->race_name == ORC)str_format(tmprace,sizeof(tmprace),"ORC");
-			else if(GameServer()->m_apPlayers[i]->race_name == UNDEAD)str_format(tmprace,sizeof(tmprace),"UNDEAD");
-			else if(GameServer()->m_apPlayers[i]->race_name == ELF)str_format(tmprace,sizeof(tmprace),"ELF");
-			else if(GameServer()->m_apPlayers[i]->race_name == HUMAN)str_format(tmprace,sizeof(tmprace),"HUMAN");
-			else if(GameServer()->m_apPlayers[i]->race_name == TAUREN)str_format(tmprace,sizeof(tmprace),"TAUREN");
-			str_format(buf,sizeof(buf),"%s : race : %s level : %d",Server()->ClientName(i),tmprace,GameServer()->m_apPlayers[i]->lvl);
+			if(GameServer()->m_apPlayers[i]->m_RaceName == ORC)str_format(tmprace,sizeof(tmprace),"ORC");
+			else if(GameServer()->m_apPlayers[i]->m_RaceName == UNDEAD)str_format(tmprace,sizeof(tmprace),"UNDEAD");
+			else if(GameServer()->m_apPlayers[i]->m_RaceName == ELF)str_format(tmprace,sizeof(tmprace),"ELF");
+			else if(GameServer()->m_apPlayers[i]->m_RaceName == HUMAN)str_format(tmprace,sizeof(tmprace),"HUMAN");
+			else if(GameServer()->m_apPlayers[i]->m_RaceName == TAUREN)str_format(tmprace,sizeof(tmprace),"TAUREN");
+			str_format(buf,sizeof(buf),"%s : race : %s level : %d",Server()->ClientName(i),tmprace,GameServer()->m_apPlayers[i]->m_Lvl);
 			GameServer()->SendChatTarget(m_ClientID, buf);
 		}
 	}
@@ -708,14 +708,14 @@ bool CPlayer::print_otherlvl()
 }
 
 //Print help
-bool CPlayer::print_help()
+bool CPlayer::PrintHelp()
 {
-	if(!GameServer()->m_pController->is_rpg())
+	if(!GameServer()->m_pController->IsRpg())
 		return false;
 	char buf[128];
-	if(race_name != VIDE)
+	if(m_RaceName != VIDE)
 	{
-		if(race_name == ORC)
+		if(m_RaceName == ORC)
 		{
 			str_format(buf,sizeof(buf),"ORC:");
 			GameServer()->SendChatTarget(m_ClientID, buf);
@@ -726,7 +726,7 @@ bool CPlayer::print_help()
 			str_format(buf,sizeof(buf),"Special : Teleport you to spawn or to your m_Teammates with the flag (lvl 6 required)");
 			GameServer()->SendChatTarget(m_ClientID, buf);
 		}
-		else if(race_name == HUMAN)
+		else if(m_RaceName == HUMAN)
 		{
 			str_format(buf,sizeof(buf),"HUMAN:");
 			GameServer()->SendChatTarget(m_ClientID, buf);
@@ -737,7 +737,7 @@ bool CPlayer::print_help()
 			str_format(buf,sizeof(buf),"Special : teleport you where you are aiming at (lvl 6 required)");
 			GameServer()->SendChatTarget(m_ClientID, buf);
 		}
-		else if(race_name == ELF)
+		else if(m_RaceName == ELF)
 		{
 			str_format(buf,sizeof(buf),"ELF:");
 			GameServer()->SendChatTarget(m_ClientID, buf);
@@ -748,7 +748,7 @@ bool CPlayer::print_help()
 			str_format(buf,sizeof(buf),"Special : Immobilise the player you are aiming at (lvl 6 required)");
 			GameServer()->SendChatTarget(m_ClientID, buf);
 		}
-		else if(race_name == UNDEAD)
+		else if(m_RaceName == UNDEAD)
 		{
 			str_format(buf,sizeof(buf),"UNDEAD:");
 			GameServer()->SendChatTarget(m_ClientID, buf);
@@ -759,7 +759,7 @@ bool CPlayer::print_help()
 			str_format(buf,sizeof(buf),"Special : Kamikaze, when you die you explode dealing lot of damage (lvl 6 required)");
 			GameServer()->SendChatTarget(m_ClientID, buf);
 		}
-		else if(race_name == TAUREN)
+		else if(m_RaceName == TAUREN)
 		{
 			str_format(buf,sizeof(buf),"TAUREN:");
 			GameServer()->SendChatTarget(m_ClientID, buf);
@@ -780,55 +780,55 @@ bool CPlayer::print_help()
 		return false;
 }
 
-void CPlayer::check_skins(void)
+void CPlayer::CheckSkins(void)
 {
-	if(race_name == ORC && strcmp(m_TeeInfos.m_SkinName,"orc"))
+	if(m_RaceName == ORC && strcmp(m_TeeInfos.m_SkinName,"orc"))
 		str_format(m_TeeInfos.m_SkinName,sizeof(m_TeeInfos.m_SkinName),"orc");
-	else if(race_name == HUMAN && strcmp(m_TeeInfos.m_SkinName,"human"))
+	else if(m_RaceName == HUMAN && strcmp(m_TeeInfos.m_SkinName,"human"))
 		str_format(m_TeeInfos.m_SkinName,sizeof(m_TeeInfos.m_SkinName),"human");
-	else if(race_name == UNDEAD && strcmp(m_TeeInfos.m_SkinName,"undead"))
+	else if(m_RaceName == UNDEAD && strcmp(m_TeeInfos.m_SkinName,"undead"))
 		str_format(m_TeeInfos.m_SkinName,sizeof(m_TeeInfos.m_SkinName),"undead");
-	else if(race_name == ELF && strcmp(m_TeeInfos.m_SkinName,"elf"))
+	else if(m_RaceName == ELF && strcmp(m_TeeInfos.m_SkinName,"elf"))
 		str_format(m_TeeInfos.m_SkinName,sizeof(m_TeeInfos.m_SkinName),"elf");
-	else if(race_name == TAUREN && invincible && strcmp(m_TeeInfos.m_SkinName,"tauren_invincible"))
-		str_format(m_TeeInfos.m_SkinName,sizeof(m_TeeInfos.m_SkinName),"tauren_invincible");
-	else if(race_name == TAUREN && strcmp(m_TeeInfos.m_SkinName,"tauren") && !invincible)
+	else if(m_RaceName == TAUREN && m_Invincible && strcmp(m_TeeInfos.m_SkinName,"tauren_m_Invincible"))
+		str_format(m_TeeInfos.m_SkinName,sizeof(m_TeeInfos.m_SkinName),"tauren_m_Invincible");
+	else if(m_RaceName == TAUREN && strcmp(m_TeeInfos.m_SkinName,"tauren") && !m_Invincible)
 		str_format(m_TeeInfos.m_SkinName,sizeof(m_TeeInfos.m_SkinName),"tauren");
-	else if(race_name == VIDE && strcmp(m_TeeInfos.m_SkinName,"default"))
+	else if(m_RaceName == VIDE && strcmp(m_TeeInfos.m_SkinName,"default"))
 		str_format(m_TeeInfos.m_SkinName,sizeof(m_TeeInfos.m_SkinName),"default");
 }
 
-void CPlayer::check_name(void)
+void CPlayer::CheckName(void)
 {
 	if(!g_Config.m_SvRaceTag)
 		return;
 
-	if(race_name == ORC && !strncmp(Server()->ClientName(m_ClientID),"[ORC]",5))
+	if(m_RaceName == ORC && !strncmp(Server()->ClientName(m_ClientID),"[ORC]",5))
 		return;
-	else if(race_name == HUMAN && !strncmp(Server()->ClientName(m_ClientID),"[HUM]",5))
+	else if(m_RaceName == HUMAN && !strncmp(Server()->ClientName(m_ClientID),"[HUM]",5))
 		return;
-	else if(race_name == UNDEAD && !strncmp(Server()->ClientName(m_ClientID),"[UND]",5))
+	else if(m_RaceName == UNDEAD && !strncmp(Server()->ClientName(m_ClientID),"[UND]",5))
 		return;
-	else if(race_name == ELF && !strncmp(Server()->ClientName(m_ClientID),"[ELF]",5))
+	else if(m_RaceName == ELF && !strncmp(Server()->ClientName(m_ClientID),"[ELF]",5))
 		return;
-	else if(race_name == TAUREN && !strncmp(Server()->ClientName(m_ClientID),"[TAU]",5))
+	else if(m_RaceName == TAUREN && !strncmp(Server()->ClientName(m_ClientID),"[TAU]",5))
 		return;
-	else if(race_name == VIDE && !strncmp(Server()->ClientName(m_ClientID),"[___]",5))
+	else if(m_RaceName == VIDE && !strncmp(Server()->ClientName(m_ClientID),"[___]",5))
 		return;
 	char newname[MAX_NAME_LENGTH];
 	char tmp[MAX_NAME_LENGTH];
 	str_copy(newname,Server()->ClientName(m_ClientID),MAX_NAME_LENGTH);
-	if(race_name == VIDE)
+	if(m_RaceName == VIDE)
 		str_format(tmp,sizeof(tmp),"[___]");
-	else if(race_name == ORC)
+	else if(m_RaceName == ORC)
 		str_format(tmp,sizeof(tmp),"[ORC]");
-	else if(race_name == UNDEAD)
+	else if(m_RaceName == UNDEAD)
 		str_format(tmp,sizeof(tmp),"[UND]");
-	else if(race_name == HUMAN)
+	else if(m_RaceName == HUMAN)
 		str_format(tmp,sizeof(tmp),"[HUM]");
-	else if(race_name == ELF)
+	else if(m_RaceName == ELF)
 		str_format(tmp,sizeof(tmp),"[ELF]");
-	else if(race_name == TAUREN)
+	else if(m_RaceName == TAUREN)
 		str_format(tmp,sizeof(tmp),"[TAU]");
 	strncat(tmp,newname+5,MAX_NAME_LENGTH-7);
 	tmp[MAX_NAME_LENGTH-1]=0;
