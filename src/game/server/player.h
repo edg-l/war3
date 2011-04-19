@@ -95,91 +95,91 @@ public:
 		int m_Max;	
 	} m_Latency;
 	
-			//War3
-	void init_rpg();
-	void reset_all();
-	bool choose_ability(int choice);
+	//War3
+	void InitRpg();
+	void ResetAll();
+	bool ChooseAbility(int Choice);
 
 	//Levels var
-	int lvl;
-	int nextlvl;
-	int xp;
-	int leveled;
-	bool levelmax;
+	int m_Lvl;
+	int m_NextLvl;
+	int m_Xp;
+	int m_Leveled;
+	bool m_LevelMax;
 	
 	//Human vars
-	int human_armor;
-	int human_mole;
-	bool human_special;
+	int m_HumanArmor;
+	int m_HumanMole;
+	bool m_HumanSpecial;
 	//For human killing themself for mole
-	bool suicide;
+	bool m_Suicide;
 
 	//Orcs var
-	int orc_dmg;
-	int orc_reload;
-	bool orc_special;
+	int m_OrcDmg;
+	int m_OrcReload;
+	bool m_OrcSpecial;
 
 	//Undead vars
-	int undead_taser;
-	int undead_taser_tick;
-	int undead_vamp;
-	void vamp(int amount);
-	bool undead_special;
-	bool exploded;
+	int m_UndeadTaser;
+	int m_UndeadTaserTick;
+	int m_UndeadVamp;
+	void Vamp(int Amount);
+	bool m_UndeadSpecial;
+	bool m_Exploded;
 
 	//Elf vars
-	int elf_poison;
-	int poisoned;
-	int poison_start_tick;
-	int start_poison;
-	int poisoner;
-	int elf_mirror;
-	int mirrordmg_tick;
-	int mirrorlimit;
-	bool elf_special;
+	int m_ElfPoison;
+	int m_Poisoned;
+	int m_PoisonStartTick;
+	int m_StartPoison;
+	int m_Poisoner;
+	int m_ElfMirror;
+	int m_MirrorDmgTick;
+	int m_MirrorLimit;
+	bool m_ElfSpecial;
 
 	//Tauren vars
-	bool tauren_special;
-	int tauren_hot;
-	int tauren_ressurect;
-	bool ressurected;
-	int hot;
-	int hot_start_tick;
-	int start_hot;
-	int hot_from;
-	vec2 death_pos;
-	bool invincible;
-	int invincible_start_tick;
-	bool healed;
-	int heal_tick;
-	int heal_from;
-	int started_heal;
-	bool death_tile;
-	int bounces;
-	int bounce_tick;
-	CCharacter *heal_char;
-	int last_healed;
-	bool is_chain_heal;
-	int chain_heal_from;
+	bool m_TaurenSpecial;
+	int m_TaurenHot;
+	int m_TaurenRessurect;
+	bool m_Ressurected;
+	int m_Hot;
+	int m_HotStartTick;
+	int m_StartHot;
+	int m_HotFrom;
+	vec2 m_DeathPos;
+	bool m_Invincible;
+	int m_InvincibleStartTick;
+	bool m_Healed;
+	int m_HealTick;
+	int m_HealFrom;
+	int m_StartedHeal;
+	bool m_DeathTile;
+	int m_Bounces;
+	int m_BounceTick;
+	CCharacter *m_pHealChar;
+	int m_LastHealed;
+	bool m_IsChainHeal;
+	int m_ChainHealFrom;
 
 	//Other
-	bool special_used;
-	int special_used_tick;
-	int race_name;
+	bool m_SpecialUsed;
+	int m_SpecialUsedTick;
+	int m_RaceName;
 
 	//Unused skills
 
 
 	//Functions
-	int use_special(void);
-	bool print_otherlvl(void);
-	bool print_help(void);
+	int UseSpecial(void);
+	bool PrintOtherLvl(void);
+	bool PrintHelp(void);
 
 	//Checking :D
-	int force_race_tick;
-	bool check;
-	void check_skins(void);
-	void check_name(void);
+	int m_ForceRaceTick;
+	bool m_Check;
+	void CheckSkins(void);
+	void CheckName(void);
 
 private:
 	CCharacter *Character;

@@ -139,32 +139,32 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, CPlayer *player)
 		if(player != 0)
 		{
 			chance2=rand()%100;
- 			if(GameServer()->m_pController->is_rpg() && player->tauren_ressurect && chance2 <= (player->tauren_ressurect*15) && !player->death_tile)
+ 			if(GameServer()->m_pController->IsRpg() && player->m_TaurenRessurect && chance2 <= (player->m_TaurenRessurect*15) && !player->m_DeathTile)
 			{
-				*pOutPos=player->death_pos;
-				player->ressurected=true;
-				player->death_tile=false;
+				*pOutPos=player->m_DeathPos;
+				player->m_Ressurected=true;
+				player->m_DeathTile=false;
 				return true;
 			}
 			else
 			{
-				player->death_tile=false;
-				player->ressurected=false;
+				player->m_DeathTile=false;
+				player->m_Ressurected=false;
 			}
 
 			//Mole human
  			chance=rand()%100;
- 			if(g_Config.m_DbgWar3 && player->human_mole > 0)dbg_msg("chance","%d %d",chance,player->human_mole*15);
- 			if(GameServer()->m_pController->is_rpg() && player->human_mole && chance <= (player->human_mole*15) && !player->suicide)
+ 			if(g_Config.m_DbgWar3 && player->m_HumanMole > 0)dbg_msg("chance","%d %d",chance,player->m_HumanMole*15);
+ 			if(GameServer()->m_pController->IsRpg() && player->m_HumanMole && chance <= (player->m_HumanMole*15) && !player->m_Suicide)
 				Eval.m_FriendlyTeam = !player->GetTeam();
  			else
 			{
-				player->suicide=false;
+				player->m_Suicide=false;
 				Eval.m_FriendlyTeam = Team;
 			}
 	  		
   			// try first try own team spawn, then normal spawn and then enemy
- 			if(player->human_mole && chance <= player->human_mole)
+ 			if(player->m_HumanMole && chance <= player->m_HumanMole)
  				EvaluateSpawnType(&Eval, 1+(!(player->GetTeam())&1));
  			else
 				EvaluateSpawnType(&Eval, 1+(Team&1));
@@ -423,9 +423,9 @@ void IGameController::OnPlayerInfoChange(class CPlayer *pP)
 	}
 
 	//Load custom skin for race
-	if(p->race_name != VIDE && GameServer()->m_pController->is_rpg())
+	if(p->m_RaceName != VIDE && GameServer()->m_pController->IsRpg())
 	{
-		switch(p->race_name)
+		switch(p->m_RaceName)
 		{
 			case ORC:
 				str_format(p->m_TeeInfos.m_SkinName,sizeof(p->m_TeeInfos.m_SkinName),"orc");
@@ -828,15 +828,15 @@ int IGameController::ClampTeam(int Team)
 	return 0;
 }
 
-bool IGameController::is_rpg()
+bool IGameController::IsRpg()
 {
 	return false;
 }
 
-void IGameController::on_level_up(CPlayer *player){}
-void IGameController::display_level(CPlayer *player){}
-void IGameController::display_stats(CPlayer *player,CPlayer *from){}
-int IGameController::drop_flag_orc(CPlayer *player){return 0;}
-void IGameController::load_xp_table(){}
-int IGameController::init_xp(int level){return 0;}
-int IGameController::get_level_max(){return 0;}
+void IGameController::OnLevelUp(CPlayer *pPlayer){}
+void IGameController::DisplayLevel(CPlayer *pPlayer){}
+void IGameController::DisplayStats(CPlayer *pPlayer,CPlayer *pFrom){}
+int IGameController::DropFlagOrc(CPlayer *pPlayer){return 0;}
+void IGameController::LoadXpTable(){}
+int IGameController::InitXp(int Level){return 0;}
+int IGameController::GetLevelMax(){return 0;}

@@ -144,14 +144,14 @@ public:
 
 	virtual void PostReset();
 
-	virtual bool is_rpg();
-	virtual void on_level_up(CPlayer *player);
-	virtual void display_level(CPlayer *player);
-	virtual void display_stats(CPlayer *player,CPlayer *from);
-	virtual int drop_flag_orc(CPlayer *player);
-	virtual void load_xp_table();
-	virtual int init_xp(int level);
-	virtual int get_level_max();
+	virtual bool IsRpg();
+	virtual void OnLevelUp(CPlayer *pPlayer);
+	virtual void DisplayLevel(CPlayer *pPlayer);
+	virtual void DisplayStats(CPlayer *pPlayer,CPlayer *pFrom);
+	virtual int DropFlagOrc(CPlayer *pPlayer);
+	virtual void LoadXpTable();
+	virtual int InitXp(int Level);
+	virtual int GetLevelMax();
 };
 
 #endif
