@@ -9,25 +9,25 @@
 class CGameControllerWAR : public IGameController
 {
 public:
-	class CFlag *flags[2];
-	int lvlmap[LVLMAX];
-	int level_max;
+	class CFlag *m_pFlags[2];
+	int m_apLvlMap[LVLMAX];
+	int m_LevelMax;
 
-	void default_lvlmap();
+	void DefaultLvlMap();
 
 	CGameControllerWAR(class CGameContext *pGameServer);
 	virtual void Tick();
 	virtual void Snap(int SnappingClient);
 	virtual bool CanBeMovedOnBalance(int ClientID);
-	virtual int OnCharacterDeath(class CCharacter *victim, class CPlayer *killer, int weapon);
-	virtual bool OnEntity(int index, vec2 pos);
+	virtual int OnCharacterDeath(class CCharacter *Victim, class CPlayer *Killer, int Weapon);
+	virtual bool OnEntity(int Index, vec2 Pos);
 	virtual bool IsRpg();
-	virtual void on_level_up(CPlayer *player);
-	virtual void display_stats(CPlayer *player,CPlayer *from);
-	virtual int drop_flag_orc(CPlayer *player);
-	virtual void load_xp_table();
-	virtual int init_xp(int level);
-	virtual int get_level_max();
-	virtual void OnCharacterSpawn(class CCharacter *chr);
+	virtual void OnLevelUp(CPlayer *Player);
+	virtual void DisplayStats(CPlayer *Player,CPlayer *From);
+	virtual int DropFlagOrc(CPlayer *Player);
+	virtual void LoadXpTable();
+	virtual int InitXp(int Level);
+	virtual int GetLevelMax();
+	virtual void OnCharacterSpawn(class CCharacter *Chr);
 };
 #endif

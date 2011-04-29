@@ -1622,37 +1622,39 @@ void CGameContext::ConchainSpecialMotdupdate(IConsole::IResult *pResult, void *p
 }
 
 //Admin command to set level
-void CGameContext::con_set_level(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConSetLevel(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int ClientID = clamp(pResult->GetInteger(0), 0, (int)MAX_CLIENTS);
-	int level = clamp(pResult->GetInteger(1), 0, pSelf->m_pController->GetLevelMax());
-	
-	dbg_msg("level", "%d %d", ClientID, level);
+	int Level = clamp(pResult->GetInteger(1), 0, pSelf->m_pController->GetLevelMax());
+	char aBuf[128]={0};
+
+	str_format(aBuf, sizeof(aBuf), "Admin change %s(%d)'s level to %d.", pSelf->Server()->ClientName(ClientID), ClientID, Level);
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "war3", aBuf);
 	
 	if(!pSelf->m_apPlayers[ClientID] || !pSelf->m_pController->IsRpg())
 		return;
 	
-	if(level==0)
+	if(Level==0)
 	{
 		pSelf->m_apPlayers[ClientID]->InitRpg();
 	}
-	else if(level != pSelf->m_apPlayers[ClientID]->m_Lvl)
+	else if(Level != pSelf->m_apPlayers[ClientID]->m_Lvl)
 	{
-		pSelf->m_apPlayers[ClientID]->m_Lvl=level;
-		pSelf->m_apPlayers[ClientID]->m_Leveled=level-1;
+		pSelf->m_apPlayers[ClientID]->m_Lvl=Level;
+		pSelf->m_apPlayers[ClientID]->m_Leveled=Level-1;
 		pSelf->m_apPlayers[ClientID]->m_Xp=0;
-		pSelf->m_apPlayers[ClientID]->m_NextLvl=pSelf->m_pController->InitXp(level);
+		pSelf->m_apPlayers[ClientID]->m_NextLvl=pSelf->m_pController->InitXp(Level);
 		pSelf->m_apPlayers[ClientID]->ResetAll();
 	}
 
 	char buf[512];
-	str_format(buf, sizeof(buf), "Admin changed %s's level to %d.", pSelf->Server()->ClientName(ClientID),level);
+	str_format(buf, sizeof(buf), "Admin changed %s's level to %d.", pSelf->Server()->ClientName(ClientID), Level);
 	pSelf->SendChat(-1, CHAT_ALL, buf);
 }
 
 //Admin command to give a level
-void CGameContext::con_level_up(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConLevelUp(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int ClientID = clamp(pResult->GetInteger(0), 0, (int)MAX_CLIENTS);
@@ -1671,21 +1673,21 @@ void CGameContext::con_level_up(IConsole::IResult *pResult, void *pUserData)
 }
 
 //Admin command to load new xp table
-void CGameContext::con_load_table(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConLoadTable(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	pSelf->m_pController->LoadXpTable();
 }
 
 //Crazy command
-void CGameContext::con_play_sound(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConPlaySound(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	pSelf->CreateSoundGlobal(pResult->GetInteger(0));
 }
 
 //Print the help to the player
-void CGameContext::con_print_help_to(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConPrintHelpTo(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int ClientID = clamp(pResult->GetInteger(0), 0, (int)MAX_CLIENTS);
@@ -1697,7 +1699,7 @@ void CGameContext::con_print_help_to(IConsole::IResult *pResult, void *pUserData
 }
 
 //Print how to use special to the player
-void CGameContext::con_print_special_to(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConPrintSpecialTo(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int ClientID = clamp(pResult->GetInteger(0), 0, (int)MAX_CLIENTS);
@@ -1733,12 +1735,12 @@ void CGameContext::OnConsoleInit()
 
 	Console()->Chain("sv_motd", ConchainSpecialMotdupdate, this);
 
-	Console()->Register("set_level", "ii", CFGFLAG_SERVER, con_set_level, this, "");
- 	Console()->Register("level_up", "i", CFGFLAG_SERVER, con_level_up, this, "");
-	Console()->Register("load_table", "", CFGFLAG_SERVER, con_load_table, this, "");
-	Console()->Register("play_sound", "i", CFGFLAG_SERVER, con_play_sound, this, "");
-	Console()->Register("print_help_to", "i", CFGFLAG_SERVER, con_print_help_to, this, "");
-	Console()->Register("print_special_to", "i", CFGFLAG_SERVER, con_print_special_to, this, "");
+	Console()->Register("set_level", "ii", CFGFLAG_SERVER, ConSetLevel, this, "");
+ 	Console()->Register("level_up", "i", CFGFLAG_SERVER, ConLevelUp, this, "");
+	Console()->Register("load_table", "", CFGFLAG_SERVER, ConLoadTable, this, "");
+	Console()->Register("play_sound", "i", CFGFLAG_SERVER, ConPlaySound, this, "");
+	Console()->Register("print_help_to", "i", CFGFLAG_SERVER, ConPrintHelpTo, this, "");
+	Console()->Register("print_special_to", "i", CFGFLAG_SERVER, ConPrintSpecialTo, this, "");
 }
 
 void CGameContext::OnInit(/*class IKernel *pKernel*/)

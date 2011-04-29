@@ -60,12 +60,12 @@ class CGameContext : public IGameServer
 	static void ConClearVotes(IConsole::IResult *pResult, void *pUserData);
 	static void ConVote(IConsole::IResult *pResult, void *pUserData);
 	static void ConchainSpecialMotdupdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
-	static void con_set_level(IConsole::IResult *pResult, void *pUserData);
-	static void con_level_up(IConsole::IResult *pResult, void *pUserData);
-	static void con_load_table(IConsole::IResult *pResult, void *pUserData);
-	static void con_play_sound(IConsole::IResult *pResult, void *pUserData);
-	static void con_print_help_to(IConsole::IResult *pResult, void *pUserData);
-	static void con_print_special_to(IConsole::IResult *pResult, void *pUserData);
+	static void ConSetLevel(IConsole::IResult *pResult, void *pUserData);
+	static void ConLevelUp(IConsole::IResult *pResult, void *pUserData);
+	static void ConLoadTable(IConsole::IResult *pResult, void *pUserData);
+	static void ConPlaySound(IConsole::IResult *pResult, void *pUserData);
+	static void ConPrintHelpTo(IConsole::IResult *pResult, void *pUserData);
+	static void ConPrintSpecialTo(IConsole::IResult *pResult, void *pUserData);
 	
 	CGameContext(int Resetting);
 	void Construct(int Resetting);
