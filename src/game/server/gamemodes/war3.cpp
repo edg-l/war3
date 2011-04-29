@@ -13,30 +13,30 @@
 CGameControllerWAR::CGameControllerWAR(class CGameContext *pGameServer): IGameController(pGameServer)
 {
 	m_pGameType = "WAR3";
-	flags[0] = 0;
-	flags[1] = 0;
+	m_pFlags[0] = 0;
+	m_pFlags[1] = 0;
 	m_GameFlags = GAMEFLAG_TEAMS|GAMEFLAG_FLAGS;
-	level_max=g_Config.m_SvLevelMax;
-	default_lvlmap();
-	load_xp_table();
+	m_LevelMax=g_Config.m_SvLevelMax;
+	DefaultLvlMap();
+	LoadXpTable();
 }
 
 
-bool CGameControllerWAR::OnEntity(int index, vec2 pos)
+bool CGameControllerWAR::OnEntity(int Index, vec2 Pos)
 {
-	if(IGameController::OnEntity(index, pos))
+	if(IGameController::OnEntity(Index, Pos))
 		return true;
 	
-	int team = -1;
-	if(index == ENTITY_FLAGSTAND_RED) team = TEAM_RED;
-	if(index == ENTITY_FLAGSTAND_BLUE) team = TEAM_BLUE;
-	if(team == -1 || flags[team])
+	int Team = -1;
+	if(Index == ENTITY_FLAGSTAND_RED) Team = TEAM_RED;
+	if(Index == ENTITY_FLAGSTAND_BLUE) Team = TEAM_BLUE;
+	if(Team == -1 || m_pFlags[Team])
 		return false;
 		
-	CFlag *f = new CFlag(&GameServer()->m_World, team);
-	f->m_StandPos = pos;
-	f->m_Pos = pos;
-	flags[team] = f;
+	CFlag *f = new CFlag(&GameServer()->m_World, Team);
+	f->m_StandPos = Pos;
+	f->m_Pos = Pos;
+	m_pFlags[Team] = f;
 	GameServer()->m_World.InsertEntity(f);
 	return true;
 }
@@ -48,7 +48,7 @@ bool CGameControllerWAR::CanBeMovedOnBalance(int ClientID)
 	{
 		for(int fi = 0; fi < 2; fi++)
 		{
-			CFlag *F = flags[fi];
+			CFlag *F = m_pFlags[fi];
 			if(F->m_pCarryingCharacter == Character)
 				return false;
 		}
@@ -56,55 +56,55 @@ bool CGameControllerWAR::CanBeMovedOnBalance(int ClientID)
 	return true;
 }
 
-int CGameControllerWAR::OnCharacterDeath(class CCharacter *victim, class CPlayer *killer, int weaponid)
+int CGameControllerWAR::OnCharacterDeath(class CCharacter *Victim, class CPlayer *Killer, int Weaponid)
 {
-	vec2 tempPos=victim->m_Core.m_Pos;
-	IGameController::OnCharacterDeath(victim, killer, weaponid);
+	vec2 tempPos=Victim->m_Core.m_Pos;
+	IGameController::OnCharacterDeath(Victim, Killer, Weaponid);
 
 	//Xp for killing
-	if(killer && killer->GetCID() != victim->GetPlayer()->GetCID())
+	if(Killer && Killer->GetCID() != Victim->GetPlayer()->GetCID())
 	{
-		killer->m_Xp+=(victim->GetPlayer()->m_Lvl*5);
-		if(killer->m_Healed && GameServer()->m_apPlayers[killer->m_HealFrom])
-			GameServer()->m_apPlayers[killer->m_HealFrom]->m_Xp+=(victim->GetPlayer()->m_Lvl*5);
+		Killer->m_Xp+=(Victim->GetPlayer()->m_Lvl*5);
+		if(Killer->m_Healed && GameServer()->m_apPlayers[Killer->m_HealFrom])
+			GameServer()->m_apPlayers[Killer->m_HealFrom]->m_Xp+=(Victim->GetPlayer()->m_Lvl*5);
 	}
 
 	int had_flag = 0;
 	
-	// drop flags
+	// drop m_pFlags
 	for(int fi = 0; fi < 2; fi++)
 	{
-		CFlag *f = flags[fi];
-		if(f && killer && f->m_pCarryingCharacter == killer->GetCharacter())
+		CFlag *f = m_pFlags[fi];
+		if(f && Killer && f->m_pCarryingCharacter == Killer->GetCharacter())
 			had_flag |= 2;
-		if(f && f->m_pCarryingCharacter == victim)
+		if(f && f->m_pCarryingCharacter == Victim)
 		{
 			GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
 			f->m_DropTick = Server()->Tick();
 			f->m_pCarryingCharacter = 0;
 			f->m_Vel = vec2(0,0);
 			
-			if(killer && killer->GetTeam() != victim->GetPlayer()->GetTeam())
-				killer->m_Score++;
+			if(Killer && Killer->GetTeam() != Victim->GetPlayer()->GetTeam())
+				Killer->m_Score++;
 				
 			had_flag |= 1;
 		}
 	}
 
 	//Exploding undead
-	if(victim->GetPlayer() && victim->GetPlayer()->m_UndeadSpecial && !victim->GetPlayer()->m_SpecialUsed && weaponid != WEAPON_WORLD)
+	if(Victim->GetPlayer() && Victim->GetPlayer()->m_UndeadSpecial && !Victim->GetPlayer()->m_SpecialUsed && Weaponid != WEAPON_WORLD)
 	{
-		victim->GetPlayer()->m_SpecialUsed=true;
+		Victim->GetPlayer()->m_SpecialUsed=true;
 		//exploded is used cause WEAPON_EXPLODE has not an unique ID
-		victim->GetPlayer()->m_Exploded=true;
-		victim->GetPlayer()->m_SpecialUsedTick=Server()->Tick()+Server()->TickSpeed()*g_Config.m_SvSpecialTime*3;
-		GameServer()->CreateExplosion(tempPos, victim->GetPlayer()->GetCID(), WEAPON_EXPLODE, false);
-		victim->GetPlayer()->m_Exploded=false;
+		Victim->GetPlayer()->m_Exploded=true;
+		Victim->GetPlayer()->m_SpecialUsedTick=Server()->Tick()+Server()->TickSpeed()*g_Config.m_SvSpecialTime*3;
+		GameServer()->CreateExplosion(tempPos, Victim->GetPlayer()->GetCID(), WEAPON_EXPLODE, false);
+		Victim->GetPlayer()->m_Exploded=false;
 	}
 	//Forgot this one at respawn -_-
-	/*else if(victim->GetPlayer() &&  !victim->GetPlayer()->m_UndeadSpecial)
+	/*else if(Victim->GetPlayer() &&  !Victim->GetPlayer()->m_UndeadSpecial)
 	{
-		victim->GetPlayer()->m_SpecialUsed=false;
+		Victim->GetPlayer()->m_SpecialUsed=false;
 	}*/
 
 	return had_flag;
@@ -121,23 +121,23 @@ void CGameControllerWAR::Snap(int SnappingClient)
 	pGameDataObj->m_TeamscoreRed = m_aTeamscore[TEAM_RED];
 	pGameDataObj->m_TeamscoreBlue = m_aTeamscore[TEAM_BLUE];
 
-	if(flags[TEAM_RED])
+	if(m_pFlags[TEAM_RED])
 	{
-		if(flags[TEAM_RED]->m_AtStand)
+		if(m_pFlags[TEAM_RED]->m_AtStand)
 			pGameDataObj->m_FlagCarrierRed = FLAG_ATSTAND;
-		else if(flags[TEAM_RED]->m_pCarryingCharacter && flags[TEAM_RED]->m_pCarryingCharacter->GetPlayer())
-			pGameDataObj->m_FlagCarrierRed = flags[TEAM_RED]->m_pCarryingCharacter->GetPlayer()->GetCID();
+		else if(m_pFlags[TEAM_RED]->m_pCarryingCharacter && m_pFlags[TEAM_RED]->m_pCarryingCharacter->GetPlayer())
+			pGameDataObj->m_FlagCarrierRed = m_pFlags[TEAM_RED]->m_pCarryingCharacter->GetPlayer()->GetCID();
 		else
 			pGameDataObj->m_FlagCarrierRed = FLAG_TAKEN;
 	}
 	else
 		pGameDataObj->m_FlagCarrierRed = FLAG_MISSING;
-	if(flags[TEAM_BLUE])
+	if(m_pFlags[TEAM_BLUE])
 	{
-		if(flags[TEAM_BLUE]->m_AtStand)
+		if(m_pFlags[TEAM_BLUE]->m_AtStand)
 			pGameDataObj->m_FlagCarrierBlue = FLAG_ATSTAND;
-		else if(flags[TEAM_BLUE]->m_pCarryingCharacter && flags[TEAM_BLUE]->m_pCarryingCharacter->GetPlayer())
-			pGameDataObj->m_FlagCarrierBlue = flags[TEAM_BLUE]->m_pCarryingCharacter->GetPlayer()->GetCID();
+		else if(m_pFlags[TEAM_BLUE]->m_pCarryingCharacter && m_pFlags[TEAM_BLUE]->m_pCarryingCharacter->GetPlayer())
+			pGameDataObj->m_FlagCarrierBlue = m_pFlags[TEAM_BLUE]->m_pCarryingCharacter->GetPlayer()->GetCID();
 		else
 			pGameDataObj->m_FlagCarrierBlue = FLAG_TAKEN;
 	}
@@ -154,7 +154,7 @@ void CGameControllerWAR::Tick()
 	
 	for(int fi = 0; fi < 2; fi++)
 	{
-		CFlag *f = flags[fi];
+		CFlag *f = m_pFlags[fi];
 		
 		if(!f)
 			continue;
@@ -173,9 +173,9 @@ void CGameControllerWAR::Tick()
 			// update flag position
 			f->m_Pos = f->m_pCarryingCharacter->m_Pos;
 			
-			if(flags[fi^1] && flags[fi^1]->m_AtStand)
+			if(m_pFlags[fi^1] && m_pFlags[fi^1]->m_AtStand)
 			{
-				if(distance(f->m_Pos, flags[fi^1]->m_Pos) < 32)
+				if(distance(f->m_Pos, m_pFlags[fi^1]->m_Pos) < 32)
 				{
 					// CAPTURE! \o/
 					m_aTeamscore[fi^1] += 100;
@@ -201,7 +201,7 @@ void CGameControllerWAR::Tick()
 					}
 					GameServer()->SendChat(-1, -2, buf);
 					for(int i = 0; i < 2; i++)
-						flags[i]->Reset();
+						m_pFlags[i]->Reset();
 					
 					GameServer()->CreateSoundGlobal(SOUND_CTF_CAPTURE);
 				}
@@ -221,16 +221,16 @@ void CGameControllerWAR::Tick()
 					// return the flag
 					if(!f->m_AtStand)
 					{
-						CCharacter *chr = close_characters[i];
-						chr->GetPlayer()->m_Score += 1;
+						CCharacter *Chr = close_characters[i];
+						Chr->GetPlayer()->m_Score += 1;
 						//Xp
-						chr->GetPlayer()->m_Xp += 20;
-						if(chr->GetPlayer()->m_Healed && GameServer()->m_apPlayers[chr->GetPlayer()->m_HealFrom])
-							GameServer()->m_apPlayers[chr->GetPlayer()->m_HealFrom]->m_Xp+=20;
+						Chr->GetPlayer()->m_Xp += 20;
+						if(Chr->GetPlayer()->m_Healed && GameServer()->m_apPlayers[Chr->GetPlayer()->m_HealFrom])
+							GameServer()->m_apPlayers[Chr->GetPlayer()->m_HealFrom]->m_Xp+=20;
 
 						dbg_msg("game", "flag_return player='%d:%s'",
-							chr->GetPlayer()->GetCID(),
-							Server()->ClientName(chr->GetPlayer()->GetCID()));
+							Chr->GetPlayer()->GetCID(),
+							Server()->ClientName(Chr->GetPlayer()->GetCID()));
 
 						GameServer()->CreateSoundGlobal(SOUND_CTF_RETURN);
 						f->Reset();
@@ -293,117 +293,117 @@ bool CGameControllerWAR::IsRpg()
 }
 
 //Level up stuff
-void CGameControllerWAR::on_level_up(CPlayer *player)
+void CGameControllerWAR::OnLevelUp(CPlayer *Player)
 {
-	if(player->m_RaceName != VIDE && !player->m_LevelMax && player->m_Lvl < level_max)
+	if(Player->m_RaceName != VIDE && !Player->m_LevelMax && Player->m_Lvl < m_LevelMax)
 	{
-		player->m_Xp-=player->m_NextLvl;
-		if(player->m_Xp < 0)player->m_Xp=0;
-		player->m_Lvl++;
-		GameServer()->CreateSoundGlobal(SOUND_TEE_CRY, player->GetCID());
-		player->m_NextLvl = init_xp(player->m_Lvl);
-		player->m_Leveled++;
-		if(player->m_Lvl==level_max)
-			player->m_LevelMax=true;
-		display_stats(player,player);
+		Player->m_Xp-=Player->m_NextLvl;
+		if(Player->m_Xp < 0)Player->m_Xp=0;
+		Player->m_Lvl++;
+		GameServer()->CreateSoundGlobal(SOUND_TEE_CRY, Player->GetCID());
+		Player->m_NextLvl = InitXp(Player->m_Lvl);
+		Player->m_Leveled++;
+		if(Player->m_Lvl==m_LevelMax)
+			Player->m_LevelMax=true;
+		DisplayStats(Player, Player);
 	}
-	else if(player->m_RaceName == VIDE && player->GetTeam() != -1)
+	else if(Player->m_RaceName == VIDE && Player->GetTeam() != -1)
 	{
 		char buf[128];
 		str_format(buf, sizeof(buf), "Please choose a race\n say \"/race name\"");
-		GameServer()->SendBroadcast(buf, player->GetCID());
+		GameServer()->SendBroadcast(buf, Player->GetCID());
 	}
-	else if(!player->m_LevelMax && player->m_Lvl >= level_max)
+	else if(!Player->m_LevelMax && Player->m_Lvl >= m_LevelMax)
 	{
-		player->m_Lvl=level_max;
-		GameServer()->CreateSoundGlobal(SOUND_TEE_CRY, player->GetCID());
-		player->m_LevelMax=true;
-		display_stats(player,player);
+		Player->m_Lvl=m_LevelMax;
+		GameServer()->CreateSoundGlobal(SOUND_TEE_CRY, Player->GetCID());
+		Player->m_LevelMax=true;
+		DisplayStats(Player,Player);
 	}
 }
 
 //Display current stats
-void CGameControllerWAR::display_stats(CPlayer *player,CPlayer *from)
+void CGameControllerWAR::DisplayStats(CPlayer *Player,CPlayer *From)
 {
 	char buf[128];
 	char tmp[128];
-	if(player->GetCID() == from->GetCID())
+	if(Player->GetCID() == From->GetCID())
 	{
-			str_format(buf, sizeof(buf), "Stats : (%d point to spend)",player->m_Leveled);
+			str_format(buf, sizeof(buf), "Stats : (%d point to spend)",Player->m_Leveled);
 	}
-	else if(player->m_Lvl >= level_max)
-		str_format(buf, sizeof(buf), "Final lvl Stats : (%d point to spend)",player->m_Leveled);
+	else if(Player->m_Lvl >= m_LevelMax)
+		str_format(buf, sizeof(buf), "Final lvl Stats : (%d point to spend)",Player->m_Leveled);
 	else
 		str_format(buf, sizeof(buf), "Stats : ");
-	if(player->m_RaceName == ORC)
+	if(Player->m_RaceName == ORC)
 	{
-		str_format(tmp,sizeof(tmp),"\n1 : Damage lvl %d/4",player->m_OrcDmg);
+		str_format(tmp,sizeof(tmp),"\n1 : Damage lvl %d/4",Player->m_OrcDmg);
 		strcat(buf,tmp);
-		str_format(tmp,sizeof(tmp),"\n2 : Reload lvl %d/4",player->m_OrcReload);
+		str_format(tmp,sizeof(tmp),"\n2 : Reload lvl %d/4",Player->m_OrcReload);
 		strcat(buf,tmp);
-		if(player->m_Lvl >= 6)
+		if(Player->m_Lvl >= 6)
 		{
-			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Teleport Backup %d/1",player->m_OrcSpecial?1:0);
+			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Teleport Backup %d/1",Player->m_OrcSpecial?1:0);
 			strcat(buf,tmp);
 		}
 		
 	}
-	else if(player->m_RaceName == ELF)
+	else if(Player->m_RaceName == ELF)
 	{
-		str_format(tmp,sizeof(tmp),"\n1 : Poison lvl %d/4",player->m_ElfPoison);
+		str_format(tmp,sizeof(tmp),"\n1 : Poison lvl %d/4",Player->m_ElfPoison);
 		strcat(buf,tmp);
-		str_format(tmp,sizeof(tmp),"\n2 : Mirror damage lvl %d/4",player->m_ElfMirror);
+		str_format(tmp,sizeof(tmp),"\n2 : Mirror damage lvl %d/4",Player->m_ElfMirror);
 		strcat(buf,tmp);
-		if(player->m_Lvl >= 6)
+		if(Player->m_Lvl >= 6)
 		{
-			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Immobilise %d/1",player->m_ElfSpecial?1:0);
+			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Immobilise %d/1",Player->m_ElfSpecial?1:0);
 			strcat(buf,tmp);
 		}
 	}
-	else if(player->m_RaceName == UNDEAD)
+	else if(Player->m_RaceName == UNDEAD)
 	{
-		str_format(tmp,sizeof(tmp),"\n1 : Taser lvl %d/4",player->m_UndeadTaser);
+		str_format(tmp,sizeof(tmp),"\n1 : Taser lvl %d/4",Player->m_UndeadTaser);
 		strcat(buf,tmp);
-		str_format(tmp,sizeof(tmp),"\n2 : Vampiric damage lvl %d/4",player->m_UndeadVamp);
+		str_format(tmp,sizeof(tmp),"\n2 : Vampiric damage lvl %d/4",Player->m_UndeadVamp);
 		strcat(buf,tmp);
-		if(player->m_Lvl >= 6)
+		if(Player->m_Lvl >= 6)
 		{
-			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Kamikaz %d/1",player->m_UndeadSpecial?1:0);
+			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Kamikaz %d/1",Player->m_UndeadSpecial?1:0);
 			strcat(buf,tmp);
 		}
 	}
-	else if(player->m_RaceName == HUMAN)
+	else if(Player->m_RaceName == HUMAN)
 	{
-		str_format(tmp,sizeof(tmp),"\n1 : Armor lvl %d/4",player->m_HumanArmor);
+		str_format(tmp,sizeof(tmp),"\n1 : Armor lvl %d/4",Player->m_HumanArmor);
 		strcat(buf,tmp);
-		str_format(tmp,sizeof(tmp),"\n2 : Mole chance lvl %d/4",player->m_HumanMole);
+		str_format(tmp,sizeof(tmp),"\n2 : Mole chance lvl %d/4",Player->m_HumanMole);
 		strcat(buf,tmp);
-		if(player->m_Lvl >= 6)
+		if(Player->m_Lvl >= 6)
 		{
-			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Teleport %d/1",player->m_HumanSpecial?1:0);
+			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Teleport %d/1",Player->m_HumanSpecial?1:0);
 			strcat(buf,tmp);
 		}
 	}
-	else if(player->m_RaceName == TAUREN)
+	else if(Player->m_RaceName == TAUREN)
 	{
-		str_format(tmp,sizeof(tmp),"\n1 : Hot lvl %d/4",player->m_TaurenHot);
+		str_format(tmp,sizeof(tmp),"\n1 : Hot lvl %d/4",Player->m_TaurenHot);
 		strcat(buf,tmp);
-		str_format(tmp,sizeof(tmp),"\n2 : Ressurect chance lvl %d/4",player->m_TaurenRessurect);
+		str_format(tmp,sizeof(tmp),"\n2 : Ressurect chance lvl %d/4",Player->m_TaurenRessurect);
 		strcat(buf,tmp);
-		if(player->m_Lvl >= 6)
+		if(Player->m_Lvl >= 6)
 		{
-			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Shield %d/1",player->m_TaurenSpecial?1:0);
+			str_format(tmp,sizeof(tmp),"\n3 : SPECIAL : Shield %d/1",Player->m_TaurenSpecial?1:0);
 			strcat(buf,tmp);
 		}
 	}
-	GameServer()->SendBroadcast(buf, from->GetCID());
+	GameServer()->SendBroadcast(buf, From->GetCID());
 }	
 
 //Fix orc flag
-int CGameControllerWAR::drop_flag_orc(CPlayer *player)
+int CGameControllerWAR::DropFlagOrc(CPlayer *Player)
 {
-	CFlag *f = flags[!player->GetTeam()];
-	if(f && f->m_pCarryingCharacter && f->m_pCarryingCharacter == player->GetCharacter())
+	CFlag *f = m_pFlags[!Player->GetTeam()];
+	if(f && f->m_pCarryingCharacter && f->m_pCarryingCharacter == Player->GetCharacter())
 	{
 		GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
 		f->m_DropTick = Server()->Tick();
@@ -411,13 +411,13 @@ int CGameControllerWAR::drop_flag_orc(CPlayer *player)
 		f->m_Vel = vec2(0,0);
 		return -1;
 	}
-	else if(f && f->m_pCarryingCharacter && f->m_pCarryingCharacter != player->GetCharacter())
+	else if(f && f->m_pCarryingCharacter && f->m_pCarryingCharacter != Player->GetCharacter())
 		return f->m_pCarryingCharacter->GetPlayer()->GetCID();
 	return -1;
 }
 
 //Load custom xp table
-void CGameControllerWAR::load_xp_table()
+void CGameControllerWAR::LoadXpTable()
 {
 		FILE *xptable;
 		int i;
@@ -428,52 +428,52 @@ void CGameControllerWAR::load_xp_table()
 			dbg_msg("WAR3","Faild to open xp_table.war. File exist ?");
 			return;
 		}
-		for(i=0;i < level_max;i++)
+		for(i=0;i < m_LevelMax;i++)
 		{
-			fscanf(xptable,"%d\n",&lvlmap[i]);
+			fscanf(xptable,"%d\n",&m_apLvlMap[i]);
 		}
 		fclose(xptable);
 }
 
 //Yes its ugly and ?
-int CGameControllerWAR::init_xp(int level)
+int CGameControllerWAR::InitXp(int Level)
 {
-	if(level < 1 || level > level_max)
+	if(Level < 1 || Level > m_LevelMax)
 		return 0;
-	return lvlmap[level-1];
+	return m_apLvlMap[Level-1];
 }
 
-int CGameControllerWAR::get_level_max()
+int CGameControllerWAR::GetLevelMax()
 {
-	return level_max;
+	return m_LevelMax;
 }
 
-void CGameControllerWAR::OnCharacterSpawn(class CCharacter *chr)
+void CGameControllerWAR::OnCharacterSpawn(class CCharacter *Chr)
 {
 	// Ressurection with 5 hp
-	if(chr->GetPlayer()->m_RaceName == TAUREN && chr->GetPlayer()->m_Ressurected)
-		chr->m_Health = 5;
+	if(Chr->GetPlayer()->m_RaceName == TAUREN && Chr->GetPlayer()->m_Ressurected)
+		Chr->m_Health = 5;
 	else
-		chr->m_Health = 10;
+		Chr->m_Health = 10;
 	
 	// give default weapons
-	chr->m_aWeapons[WEAPON_HAMMER].m_Got = 1;
-	chr->m_aWeapons[WEAPON_HAMMER].m_Ammo = -1;
-	chr->m_aWeapons[WEAPON_GUN].m_Got = 1;
-	chr->m_aWeapons[WEAPON_GUN].m_Ammo = 10;
+	Chr->m_aWeapons[WEAPON_HAMMER].m_Got = 1;
+	Chr->m_aWeapons[WEAPON_HAMMER].m_Ammo = -1;
+	Chr->m_aWeapons[WEAPON_GUN].m_Got = 1;
+	Chr->m_aWeapons[WEAPON_GUN].m_Ammo = 10;
 }
 
-void CGameControllerWAR::default_lvlmap()
+void CGameControllerWAR::DefaultLvlMap()
 {
 	//Init xp table
-	lvlmap[0]=10;
-	lvlmap[1]=50;
-	lvlmap[2]=100;
-	lvlmap[3]=200;
-	lvlmap[4]=300;
-	lvlmap[5]=500;
-	lvlmap[6]=700;
-	lvlmap[7]=1200;
-	lvlmap[8]=2000;
-	lvlmap[9]=0; /* Not used */
+	m_apLvlMap[0]=10;
+	m_apLvlMap[1]=50;
+	m_apLvlMap[2]=100;
+	m_apLvlMap[3]=200;
+	m_apLvlMap[4]=300;
+	m_apLvlMap[5]=500;
+	m_apLvlMap[6]=700;
+	m_apLvlMap[7]=1200;
+	m_apLvlMap[8]=2000;
+	m_apLvlMap[9]=0; /* Not used */
 }
