@@ -154,13 +154,17 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, CPlayer *player)
 
 			//Mole human
  			chance=rand()%100;
- 			if(g_Config.m_DbgWar3 && player->m_HumanMole > 0)dbg_msg("chance","%d %d",chance,player->m_HumanMole*15);
  			if(GameServer()->m_pController->IsRpg() && player->m_HumanMole && chance <= (player->m_HumanMole*15) && !player->m_Suicide)
-				Eval.m_FriendlyTeam = !player->GetTeam();
- 			else
+				Team = !Team;
+			
+			player->m_Suicide=false;
+			Eval.m_FriendlyTeam = Team;
+			
+ 			if(g_Config.m_DbgWar3 && player->m_HumanMole > 0)
 			{
-				player->m_Suicide=false;
-				Eval.m_FriendlyTeam = Team;
+				char aBuf[128];
+				str_format(aBuf, sizeof(aBuf), "Player %s(%d) rolled %d <= %d resultTeam: %d/%d",Server()->ClientName(player->GetCID()), player->GetCID(), chance, player->m_HumanMole*15, Team, Eval.m_FriendlyTeam);
+				GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "war3", aBuf);
 			}
 	  		
   			// try first try own team spawn, then normal spawn and then enemy
