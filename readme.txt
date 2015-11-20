@@ -1,3 +1,9 @@
+Mod by rajh
+
+
+Teeworlds License
+----------------------------------------------------------------------------------
+
 Copyright (c) 2011 Magnus Auvinen
 
 
